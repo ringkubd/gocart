@@ -43,7 +43,7 @@ model Role {
 model Product {
     id          String   @id @default(cuid())
     name        String
-    description String
+    description String   @db.Text
     mrp         Float
     price       Float
     images      Json
@@ -94,7 +94,7 @@ model Order {
     shippingCost  Float         @default(0)
     trackingNumber String       @default("")
     courierName   String        @default("")
-    note          String        @default("")
+    note          String        @default("") @db.Text
     shippedAt     DateTime?
     deliveredAt   DateTime?
     cancelledAt   DateTime?
@@ -124,7 +124,7 @@ model OrderItem {
 model Rating {
     id        String   @id @default(cuid())
     rating    Int
-    review    String
+    review    String   @db.Text
     hidden    Boolean  @default(false)
     userId    String
     productId String
@@ -143,7 +143,7 @@ model Address {
     userId    String
     name      String
     email     String
-    street    String
+    street    String   @db.Text
     city      String
     state     String
     zip       String
@@ -157,7 +157,7 @@ model Address {
 
 model Coupon {
     code        String   @id
-    description String
+    description String   @db.Text
     discount    Float
     forNewUser  Boolean
     forMember   Boolean  @default(false)
@@ -170,9 +170,9 @@ model Store {
     id          String   @id @default(cuid())
     userId      String   @unique
     name        String
-    description String
+    description String   @db.Text
     username    String   @unique
-    address     String
+    address     String   @db.Text
     status      String   @default("pending")
     isActive    Boolean  @default(false)
     logo        String
@@ -234,7 +234,7 @@ model SeoPage {
     id          String   @id @default(cuid())
     page        String   @unique
     title       String
-    description String
+    description String   @db.Text
     keywords    String   @default("")
     ogImage     String   @default("")
     canonical   String   @default("")
@@ -273,7 +273,7 @@ model SupportMessage {
     ticketId  String
     senderId  String
     senderRole String  @default("user")
-    body      String
+    body      String   @db.Text
     read      Boolean  @default(false)
     createdAt DateTime @default(now())
 
