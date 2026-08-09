@@ -90,7 +90,7 @@ const AdminSidebar = () => {
                 <p className="text-slate-700">{session?.user?.name || 'Admin'}</p>
             </div>
 
-            <div className="max-sm:mt-6 flex-1 overflow-y-auto no-scrollbar pb-6">
+            <div className="max-sm:mt-6 flex-1 overflow-y-auto no-scrollbar pb-12">
                 {linkGroups.map((group, gi) => (
                     <div key={gi} className="mb-1">
                         <p className="px-6 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 max-sm:hidden">

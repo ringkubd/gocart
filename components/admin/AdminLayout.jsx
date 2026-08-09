@@ -5,6 +5,7 @@ import Link from "next/link"
 import { ArrowRightIcon } from "lucide-react"
 import AdminNavbar from "./AdminNavbar"
 import AdminSidebar from "./AdminSidebar"
+import AdminCredit from "./AdminCredit"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
@@ -32,10 +33,11 @@ const AdminLayout = ({ children }) => {
             <AdminNavbar />
             <div className="flex flex-1 items-start h-full overflow-y-scroll no-scrollbar">
                 <AdminSidebar />
-                <div className="flex-1 h-full p-5 lg:pl-12 lg:pt-12 overflow-y-scroll">
+                <div className="flex-1 h-full p-5 lg:pl-12 lg:pt-12 overflow-y-scroll pb-12">
                     {children}
                 </div>
             </div>
+            <AdminCredit />
         </div>
     ) : (
         <div className="min-h-screen flex flex-col items-center justify-center text-center px-6">
