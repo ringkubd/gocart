@@ -46,14 +46,24 @@ const ProductCard = ({ product }) => {
                         </div>
                     )}
 
-                    {/* Quick add to cart button */}
+                    {/* Quick add to cart button (desktop hover only) */}
                     <button
                         onClick={handleAddToCart}
                         disabled={product.inStock === false}
-                        className="absolute bottom-2 right-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-slate-800 text-white p-2.5 rounded-full shadow-lg hover:bg-green-600 active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="hidden sm:flex absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white p-2.5 rounded-full shadow-lg hover:bg-green-600 active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed"
                         aria-label="Add to cart"
                     >
                         <ShoppingCartIcon size={16} />
+                    </button>
+
+                    {/* Mobile always-visible add to cart */}
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={product.inStock === false}
+                        className="sm:hidden absolute bottom-2 right-2 bg-slate-800 text-white p-2 rounded-full shadow disabled:opacity-40"
+                        aria-label="Add to cart"
+                    >
+                        <ShoppingCartIcon size={14} />
                     </button>
                 </div>
                 <div className='flex justify-between gap-3 text-sm text-slate-800 pt-2 max-w-60'>
@@ -69,16 +79,6 @@ const ProductCard = ({ product }) => {
                     <p>{format(product.price)}</p>
                 </div>
             </Link>
-
-            {/* Mobile always-visible add to cart */}
-            <button
-                onClick={handleAddToCart}
-                disabled={product.inStock === false}
-                className="sm:hidden absolute bottom-16 right-2 bg-slate-800 text-white p-2 rounded-full shadow disabled:opacity-40"
-                aria-label="Add to cart"
-            >
-                <ShoppingCartIcon size={14} />
-            </button>
 
             {/* Free shipping badge */}
             <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-1 max-w-60">
