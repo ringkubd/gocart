@@ -1,0 +1,294 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id       String @id @default(cuid())
+    name     String
+    email    String @unique
+    image    String @default("")
+    password String @default("")
+    role     String @default("user")
+    cart     Json
+
+    ratings     Rating[]
+    Address     Address[]
+    store       Store?
+    buyerOrders Order[]   @relation("BuyerRelation")
+    supportTickets  SupportTicket[]
+    supportMessages SupportMessage[]
+    createdAt   DateTime @default(now())
+}
+
+model Product {
+    id          String   @id @default(cuid())
+    name        String
+    description String
+    mrp         Float
+    price       Float
+    images      Json
+    category    String
+    brandId     String?
+    inStock     Boolean  @default(true)
+    stock       Int      @default(0)
+    featured    Boolean  @default(false)
+    soldCount   Int      @default(0)
+    storeId     String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+    brand      Brand?      @relation(fields: [brandId], references: [id], onDelete: SetNull)
+    orderItems OrderItem[]
+    rating     Rating[]
+}
+
+enum OrderStatus {
+    ORDER_PLACED
+    PROCESSING
+    SHIPPED
+    DELIVERED
+    CANCELLED
+}
+
+enum PaymentMethod {
+    COD
+    BKASH
+    NAGAD
+    SSLCOM
+    STRIPE
+    OTHER
+}
+
+model Order {
+    id            String        @id @default(cuid())
+    total         Float
+    status        OrderStatus   @default(ORDER_PLACED)
+    userId        String
+    storeId       String
+    addressId     String
+    isPaid        Boolean       @default(false)
+    paymentMethod PaymentMethod
+    transactionId String        @default("")
+    shippingMethod String        @default("")
+    shippingCost  Float         @default(0)
+    trackingNumber String       @default("")
+    courierName   String        @default("")
+    note          String        @default("")
+    shippedAt     DateTime?
+    deliveredAt   DateTime?
+    cancelledAt   DateTime?
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+    isCouponUsed  Boolean       @default(false)
+    coupon        Json
+    orderItems    OrderItem[]
+
+    user    User    @relation("BuyerRelation", fields: [userId], references: [id])
+    store   Store   @relation(fields: [storeId], references: [id])
+    address Address @relation(fields: [addressId], references: [id])
+}
+
+model OrderItem {
+    orderId   String
+    productId String
+    quantity  Int
+    price     Float
+
+    order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    product Product @relation(fields: [productId], references: [id])
+
+    @@id([orderId, productId])
+}
+
+model Rating {
+    id        String   @id @default(cuid())
+    rating    Int
+    review    String
+    hidden    Boolean  @default(false)
+    userId    String
+    productId String
+    orderId   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, productId, orderId])
+}
+
+model Address {
+    id        String   @id @default(cuid())
+    userId    String
+    name      String
+    email     String
+    street    String
+    city      String
+    state     String
+    zip       String
+    country   String
+    phone     String
+    createdAt DateTime @default(now())
+
+    Order Order[]
+    user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Coupon {
+    code        String   @id
+    description String
+    discount    Float
+    forNewUser  Boolean
+    forMember   Boolean  @default(false)
+    isPublic    Boolean
+    expiresAt   DateTime
+    createdAt   DateTime @default(now())
+}
+
+model Store {
+    id          String   @id @default(cuid())
+    userId      String   @unique
+    name        String
+    description String
+    username    String   @unique
+    address     String
+    status      String   @default("pending")
+    isActive    Boolean  @default(false)
+    logo        String
+    email       String
+    contact     String
+    bankInfo    Json     @default("{}")
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    Product Product[]
+    Order   Order[]
+    user    User      @relation(fields: [userId], references: [id])
+}
+
+model Category {
+    id        String   @id @default(cuid())
+    name      String   @unique
+    slug      String   @unique
+    image     String   @default("")
+    active    Boolean  @default(true)
+    sortOrder Int      @default(0)
+    createdAt DateTime @default(now())
+}
+
+model HeroSlide {
+    id        String   @id @default(cuid())
+    title     String
+    subtitle  String   @default("")
+    image     String
+    link      String   @default("")
+    buttonText String  @default("Shop Now")
+    active    Boolean  @default(true)
+    sortOrder Int      @default(0)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model ShippingMethod {
+    id           String   @id @default(cuid())
+    name         String
+    cost         Float    @default(0)
+    deliveryTime String   @default("")
+    active       Boolean  @default(true)
+    createdAt    DateTime @default(now())
+}
+
+model Subscriber {
+    id        String   @id @default(cuid())
+    email     String   @unique
+    createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+    key   String @id
+    value Json
+}
+
+model SeoPage {
+    id          String   @id @default(cuid())
+    page        String   @unique
+    title       String
+    description String
+    keywords    String   @default("")
+    ogImage     String   @default("")
+    canonical   String   @default("")
+    robots      String   @default("index, follow")
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+model Brand {
+    id        String   @id @default(cuid())
+    name      String   @unique
+    slug      String   @unique
+    logo      String   @default("")
+    active    Boolean  @default(true)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    products Product[]
+}
+
+model SupportTicket {
+    id        String   @id @default(cuid())
+    subject   String
+    status    String   @default("open")
+    priority  String   @default("normal")
+    userId    String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    messages SupportMessage[]
+}
+
+model SupportMessage {
+    id        String   @id @default(cuid())
+    ticketId  String
+    senderId  String
+    senderRole String  @default("user")
+    body      String
+    read      Boolean  @default(false)
+    createdAt DateTime @default(now())
+
+    ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+    sender User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model CourierProvider {
+    id        String   @id @default(cuid())
+    name      String
+    code      String   @unique
+    active    Boolean  @default(true)
+    apiKey    String   @default("")
+    apiSecret String   @default("")
+    baseUrl   String   @default("")
+    extra     Json
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model PaymentGateway {
+    id        String   @id @default(cuid())
+    name      String
+    code      String   @unique
+    active    Boolean  @default(false)
+    mode      String   @default("sandbox")
+    apiKey    String   @default("")
+    apiSecret String   @default("")
+    storeId   String   @default("")
+    extra     Json
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
