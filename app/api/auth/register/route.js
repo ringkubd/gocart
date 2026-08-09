@@ -18,12 +18,18 @@ export async function POST(req) {
         const hashed = await bcrypt.hash(password, 10)
 
         const userCount = await prisma.user.count()
+        const isFirst = userCount === 0
+        const role = isFirst ? "admin" : "user"
+        const roleRow = await prisma.role.findUnique({ where: { name: role } })
+
         const user = await prisma.user.create({
             data: {
                 name,
                 email,
                 password: hashed,
-                role: userCount === 0 ? "admin" : "user",
+                role,
+                roleId: roleRow?.id || null,
+                active: true,
                 cart: {},
             },
         })

@@ -38,9 +38,9 @@ const AdminSidebar = () => {
             ],
         },
         {
-            label: 'Customers & Reviews',
+            label: 'Users & Reviews',
             links: [
-                { name: 'Customers', href: '/admin/customers', icon: UsersIcon },
+                { name: 'Users', href: '/admin/users', icon: UsersIcon },
                 { name: 'Reviews', href: '/admin/reviews', icon: MessageSquareIcon },
                 { name: 'Newsletter', href: '/admin/newsletter', icon: MailIcon },
             ],

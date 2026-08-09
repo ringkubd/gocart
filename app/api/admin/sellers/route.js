@@ -19,11 +19,17 @@ export async function POST(req) {
 
         // Reuse existing user if email already exists
         let user = await prisma.user.findUnique({ where: { email } })
+        const sellerRole = await prisma.role.findUnique({ where: { name: "seller" } })
         if (user) {
             const existingStore = await prisma.store.findUnique({ where: { userId: user.id } })
             if (existingStore) {
                 return NextResponse.json({ error: "This email already has a store" }, { status: 409 })
             }
+            // Upgrade existing user to seller role
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { role: "seller", roleId: sellerRole?.id || null },
+            })
         } else {
             const hashed = await bcrypt.hash(password, 10)
             user = await prisma.user.create({
@@ -31,7 +37,8 @@ export async function POST(req) {
                     name,
                     email,
                     password: hashed,
-                    role: "user",
+                    role: "seller",
+                    roleId: sellerRole?.id || null,
                     cart: {},
                 },
             })

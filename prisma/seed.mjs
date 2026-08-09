@@ -19,16 +19,33 @@ const productSeeds = [
 ]
 
 async function main() {
+    // Seed roles with permissions
+    const adminPerms = [
+        'dashboard', 'users', 'orders', 'products', 'brands', 'reviews', 'customers',
+        'newsletter', 'stores', 'approve_stores', 'coupons', 'shipping', 'couriers',
+        'payments', 'support', 'site_design', 'seo', 'settings',
+    ]
+    const sellerPerms = ['store', 'add_product', 'manage_product', 'store_orders', 'store_profile']
+    const customerPerms = ['orders', 'addresses', 'profile', 'reviews']
+
+    const roles = {
+        admin: await prisma.role.upsert({ where: { name: 'admin' }, update: { label: 'Administrator', permissions: adminPerms, isSystem: true }, create: { name: 'admin', label: 'Administrator', permissions: adminPerms, isSystem: true } }),
+        seller: await prisma.role.upsert({ where: { name: 'seller' }, update: { label: 'Seller', permissions: sellerPerms, isSystem: true }, create: { name: 'seller', label: 'Seller', permissions: sellerPerms, isSystem: true } }),
+        user: await prisma.role.upsert({ where: { name: 'user' }, update: { label: 'Customer', permissions: customerPerms, isSystem: true }, create: { name: 'user', label: 'Customer', permissions: customerPerms, isSystem: true } }),
+    }
+
     // Admin user
     const adminPass = await bcrypt.hash('Admin@12345', 10)
     const admin = await prisma.user.upsert({
         where: { email: 'admin@thedhakashop.com' },
-        update: {},
+        update: { role: 'admin', roleId: roles.admin.id, active: true },
         create: {
             name: 'The Dhaka Shop Admin',
             email: 'admin@thedhakashop.com',
             password: adminPass,
             role: 'admin',
+            roleId: roles.admin.id,
+            active: true,
             cart: {},
         },
     })
@@ -210,6 +227,18 @@ async function main() {
             update: {},
             create: { key, value },
         })
+    }
+
+    // Assign roles to existing users that don't have one yet
+    const users = await prisma.user.findMany()
+    for (const u of users) {
+        if (!u.roleId) {
+            const roleName = u.role === 'admin' ? 'admin' : (u.store ? 'seller' : 'user')
+            await prisma.user.update({
+                where: { id: u.id },
+                data: { roleId: roles[roleName].id, active: true },
+            })
+        }
     }
 
     console.log('Seed complete. Admin:', admin.email, '/ Admin@12345')
