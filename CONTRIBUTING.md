@@ -1,7 +1,9 @@
-# Contributing to GoCart
+# Contributing to theDhakaShop
 
-Thank you for considering contributing to **GoCart**!
+Thank you for considering contributing to **theDhakaShop**!
 We welcome contributions from everyone, whether it's fixing a bug, adding a new feature, or optimizing the codebase.
+
+> theDhakaShop is a modified version of the open-source **[GoCart](https://github.com/GreatStackDev/goCart)** template by **GreatStackDev**, extended into a full e-commerce platform.
 
 ---
 

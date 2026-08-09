@@ -21,6 +21,7 @@
 - [🚀 Getting Started](#-getting-started)
 - [🏗️ Deployment](#-deployment)
 - [🔐 Default Credentials](#-default-credentials)
+- [🙏 Acknowledgments](#-acknowledgments)
 - [🤝 Contributing](#-contributing)
 - [📜 License](#-license)
 
@@ -117,6 +118,18 @@ After seeding, the admin account is:
 - **Password:** `Admin@12345`
 
 > Change the password immediately after first login.
+
+## 🙏 Acknowledgments <a name="-acknowledgments"></a>
+
+This project is built on top of **[GoCart](https://github.com/GreatStackDev/goCart)** — an open-source multi-vendor e-commerce template originally created by **GreatStackDev** ([github.com/GreatStackDev](https://github.com/GreatStackDev), [gocart-gs.vercel.app](https://gocart-gs.vercel.app)).
+
+We are grateful to the original developers for their excellent work. The original GoCart template (Next.js + Tailwind CSS, MIT licensed) was extended into the theDhakaShop platform with:
+
+- A full MySQL + Prisma backend (products, brands, orders, checkout, reviews, coupons)
+- Admin, seller, and customer dashboards wired to real data
+- Courier integrations, payment gateways, real-time support chat, and professional SEO
+
+> This project is a modified version of the original GoCart template. If you like GoCart, please consider starring and supporting the original project: **[GreatStackDev/goCart](https://github.com/GreatStackDev/goCart)** ⭐
 
 ## 🤝 Contributing <a name="-contributing"></a>
 
