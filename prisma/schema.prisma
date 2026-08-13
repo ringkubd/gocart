@@ -87,7 +87,10 @@ model Order {
     id            String        @id @default(cuid())
     total         Float
     status        OrderStatus   @default(ORDER_PLACED)
-    userId        String
+    userId        String?
+    guestName     String        @default("")
+    guestEmail    String        @default("")
+    guestPhone    String        @default("")
     storeId       String
     addressId     String
     isPaid        Boolean       @default(false)
@@ -107,7 +110,7 @@ model Order {
     coupon        Json
     orderItems    OrderItem[]
 
-    user    User    @relation("BuyerRelation", fields: [userId], references: [id])
+    user    User?   @relation("BuyerRelation", fields: [userId], references: [id])
     store   Store   @relation(fields: [storeId], references: [id])
     address Address @relation(fields: [addressId], references: [id])
 }
@@ -143,7 +146,7 @@ model Rating {
 
 model Address {
     id        String   @id @default(cuid())
-    userId    String
+    userId    String?
     name      String
     email     String
     street    String   @db.Text
@@ -155,7 +158,7 @@ model Address {
     createdAt DateTime @default(now())
 
     Order Order[]
-    user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user  User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Coupon {

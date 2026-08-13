@@ -32,9 +32,6 @@ export async function GET() {
 export async function POST(req) {
     try {
         const user = await getSessionUser()
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-        }
 
         const body = await req.json()
         const { items, address, paymentMethod, coupon, shippingMethod, transactionId } = body
@@ -44,6 +41,9 @@ export async function POST(req) {
         }
         if (!address) {
             return NextResponse.json({ error: "Address is required" }, { status: 400 })
+        }
+        if (!user && !address.email) {
+            return NextResponse.json({ error: "Email is required" }, { status: 400 })
         }
 
         // Verify all products exist and have stock
@@ -70,10 +70,50 @@ export async function POST(req) {
             }
         }
 
-        // Save the address for the user
+        // Guest checkout: optionally create/attach a real user account silently from the email
+        let buyerUser = user
+        let guestName = ""
+        let guestEmail = ""
+        let guestPhone = ""
+        if (!buyerUser) {
+            let existing = null
+            try {
+                existing = await prisma.user.findUnique({ where: { email: address.email } })
+            } catch (e) { existing = null }
+
+            if (existing && existing.active) {
+                buyerUser = existing
+            } else if (existing && !existing.active) {
+                return NextResponse.json({ error: "This account is suspended. Please contact support." }, { status: 403 })
+            } else {
+                // Auto-create an account so the guest can track their order later
+                const userRole = await prisma.role.findUnique({ where: { name: "user" } })
+                try {
+                    buyerUser = await prisma.user.create({
+                        data: {
+                            name: address.name || address.email.split("@")[0],
+                            email: address.email,
+                            password: "",
+                            role: "user",
+                            roleId: userRole?.id || null,
+                            active: true,
+                            cart: {},
+                        },
+                    })
+                } catch (e) {
+                    // Race condition — someone registered in between; treat as guest
+                    buyerUser = null
+                }
+            }
+            guestName = address.name || ""
+            guestEmail = address.email || ""
+            guestPhone = address.phone || ""
+        }
+
+        // Save the address (linked to user if one exists, else standalone for guest)
         const savedAddress = await prisma.address.create({
             data: {
-                userId: user.id,
+                userId: buyerUser?.id || null,
                 name: address.name,
                 email: address.email,
                 street: address.street,
@@ -110,7 +150,10 @@ export async function POST(req) {
                 total: Number(total.toFixed(2)),
                 shippingCost,
                 shippingMethod: shippingName,
-                userId: user.id,
+                userId: buyerUser?.id || null,
+                guestName,
+                guestEmail,
+                guestPhone,
                 storeId: product.storeId,
                 addressId: savedAddress.id,
                 paymentMethod: paymentMethod || "COD",
@@ -147,7 +190,10 @@ export async function POST(req) {
             }
         }
 
-        return NextResponse.json({ order }, { status: 201 })
+        return NextResponse.json({
+            order,
+            ...(buyerUser && !user ? { autoAccount: true, accountEmail: buyerUser.email } : {}),
+        }, { status: 201 })
     } catch (error) {
         console.error("Orders POST error:", error)
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
