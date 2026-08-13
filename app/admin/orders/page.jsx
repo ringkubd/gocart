@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
+import GuestBadge from "@/components/GuestBadge"
 
 const statusColors = {
     ORDER_PLACED: 'bg-yellow-100 text-yellow-700',
@@ -127,8 +128,10 @@ export default function AdminOrders() {
                             <tr key={order.id} onClick={() => openModal(order)} className="hover:bg-slate-50 cursor-pointer">
                                 <td className="px-4 py-3 font-mono text-xs text-green-600">#{order.id.slice(-8)}</td>
                                 <td className="px-4 py-3">
-                                    {order.user?.name || order.guestName || 'Guest'}
-                                    {!order.user && <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Guest</span>}
+                                    <div className="flex items-center gap-2">
+                                        <span>{order.guestName || order.user?.name || 'Guest'}</span>
+                                        <GuestBadge order={order} />
+                                    </div>
                                 </td>
                                 <td className="px-4 py-3">{order.store?.name}</td>
                                 <td className="px-4 py-3 font-medium text-slate-800">{currency}{order.total}</td>
@@ -162,9 +165,12 @@ export default function AdminOrders() {
                         {/* Customer */}
                         <div className="mb-4">
                             <h3 className="font-semibold mb-2">{t('customerDetails')}</h3>
-                            <p><span className="text-green-700">Name:</span> {selectedOrder.user?.name || selectedOrder.guestName || 'Guest'}{!selectedOrder.user && <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Guest</span>}</p>
+                            <div className="flex items-center gap-2">
+                                <span className="text-green-700">Name:</span>
+                                <span>{selectedOrder.guestName || selectedOrder.user?.name || 'Guest'}</span>
+                                <GuestBadge order={selectedOrder} />
+                            </div>
                             <p><span className="text-green-700">Email:</span> {selectedOrder.user?.email || selectedOrder.guestEmail || selectedOrder.address?.email}</p>
-                            <p><span className="text-green-700">Email:</span> {selectedOrder.user?.email}</p>
                             <p><span className="text-green-700">Phone:</span> {selectedOrder.address?.phone}</p>
                             <p><span className="text-green-700">Address:</span> {`${selectedOrder.address?.street}, ${selectedOrder.address?.city}, ${selectedOrder.address?.state}, ${selectedOrder.address?.zip}, ${selectedOrder.address?.country}`}</p>
                         </div>

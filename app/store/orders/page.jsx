@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import Loading from "@/components/Loading"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
+import GuestBadge from "@/components/GuestBadge"
 
 export default function StoreOrders() {
     const { symbol: currency } = useCurrency()
@@ -110,7 +111,7 @@ export default function StoreOrders() {
                                     <td className="pl-6 text-green-600" >
                                         {index + 1}
                                     </td>
-                                    <td className="px-4 py-3">{order.user?.name || order.guestName || 'Guest'}{!order.user && <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Guest</span>}</td>
+                                    <td className="px-4 py-3"><div className="flex items-center gap-2"><span>{order.guestName || order.user?.name || 'Guest'}</span><GuestBadge order={order} /></div></td>
                                     <td className="px-4 py-3 font-medium text-slate-800">{currency}{order.total}</td>
                                     <td className="px-4 py-3">{order.paymentMethod}</td>
                                     <td className="px-4 py-3">
@@ -156,7 +157,7 @@ export default function StoreOrders() {
                         {/* Customer Details */}
                         <div className="mb-4">
                             <h3 className="font-semibold mb-2">{t('customerDetails')}</h3>
-                            <p><span className="text-green-700">Name:</span> {selectedOrder.user?.name || selectedOrder.guestName || 'Guest'}{!selectedOrder.user && <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Guest</span>}</p>
+                            <div className="flex items-center gap-2"><span className="text-green-700">Name:</span><span>{selectedOrder.guestName || selectedOrder.user?.name || 'Guest'}</span><GuestBadge order={selectedOrder} /></div>
                             <p><span className="text-green-700">Email:</span> {selectedOrder.user?.email || selectedOrder.guestEmail || selectedOrder.address?.email}</p>
                             <p><span className="text-green-700">Phone:</span> {selectedOrder.address?.phone}</p>
                             <p><span className="text-green-700">Address:</span> {`${selectedOrder.address?.street}, ${selectedOrder.address?.city}, ${selectedOrder.address?.state}, ${selectedOrder.address?.zip}, ${selectedOrder.address?.country}`}</p>
