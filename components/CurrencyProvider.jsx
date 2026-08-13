@@ -41,19 +41,23 @@ export default function CurrencyProvider() {
                 const cur = list.find(c => c.code === effectiveCode) || list[0] || { code: 'USD', symbol: '$' }
                 dispatch(setCurrency({ code: cur.code, symbol: cur.symbol }))
 
-                // Optionally refresh live rates from a free API (non-blocking)
-                try {
-                    const rateRes = await fetch('https://open.er-api.com/v6/latest/USD')
-                    const rateData = await rateRes.json()
-                    if (rateData?.rates) {
-                        const liveRates = {}
-                        list.forEach(c => {
-                            liveRates[c.code] = rateData.rates[c.code] || c.rate
-                        })
-                        dispatch(setRates(liveRates))
+                // Only refresh live rates when the admin has explicitly enabled it.
+                // By default, admin-configured rates are the source of truth
+                // (e.g. BDT rate 1 = prices are stored directly in BDT).
+                if (data.settings?.autoUpdateRates) {
+                    try {
+                        const rateRes = await fetch('https://open.er-api.com/v6/latest/USD')
+                        const rateData = await rateRes.json()
+                        if (rateData?.rates) {
+                            const liveRates = {}
+                            list.forEach(c => {
+                                liveRates[c.code] = rateData.rates[c.code] || c.rate
+                            })
+                            dispatch(setRates(liveRates))
+                        }
+                    } catch (e) {
+                        // keep configured rates
                     }
-                } catch (e) {
-                    // keep configured rates
                 }
             } catch (error) {
                 console.error("Currency init failed:", error)
