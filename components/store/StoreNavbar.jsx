@@ -1,7 +1,9 @@
 'use client'
 import Link from "next/link"
+import { useLanguage } from "@/components/LanguageProvider"
 
 const StoreNavbar = ({ storeInfo }) => {
+    const { t } = useLanguage()
 
     return (
         <div className="flex items-center justify-between px-12 py-3 border-b border-slate-200 transition-all">
@@ -12,7 +14,7 @@ const StoreNavbar = ({ storeInfo }) => {
                 </p>
             </Link>
             <div className="flex items-center gap-3">
-                <Link href={`/shop/${storeInfo?.username || '#'}`} className="text-sm text-slate-500 hover:text-slate-700">View Store</Link>
+                <Link href={`/shop/${storeInfo?.username || '#'}`} className="text-sm text-slate-500 hover:text-slate-700">{t('viewStore')}</Link>
                 <p>Hi, {storeInfo?.name?.split(' ')[0] || 'Seller'}</p>
             </div>
         </div>

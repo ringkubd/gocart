@@ -4,10 +4,12 @@ import { useState } from "react"
 import { toast } from "react-hot-toast"
 import { useDispatch } from "react-redux"
 import { addAddress } from "@/lib/features/address/addressSlice"
+import { useLanguage } from "./LanguageProvider"
 
 const AddressModal = ({ setShowAddressModal }) => {
 
     const dispatch = useDispatch()
+    const { t } = useLanguage()
 
     const [address, setAddress] = useState({
         name: '',
@@ -59,7 +61,7 @@ const AddressModal = ({ setShowAddressModal }) => {
                         zip: a.postcode || prev.zip,
                         country: a.country || prev.country,
                     }))
-                    toast.success('Location detected')
+                    toast.success(t('locationDetected'))
                 } catch (error) {
                     toast.error('Could not determine your full location. Please enter it manually.')
                 } finally {
@@ -68,7 +70,7 @@ const AddressModal = ({ setShowAddressModal }) => {
             },
             () => {
                 setLocating(false)
-                toast.error('Location permission denied. Please enter your address manually.')
+                toast.error(t('locationDenied'))
             },
             { timeout: 10000 }
         )
@@ -100,9 +102,9 @@ const AddressModal = ({ setShowAddressModal }) => {
     return (
         <form onSubmit={handleSubmit} className="fixed inset-0 z-50 bg-white/60 backdrop-blur h-screen flex items-center justify-center">
             <div className="flex flex-col gap-5 text-slate-700 w-full max-w-sm mx-6">
-                <h2 className="text-3xl ">Add New <span className="font-semibold">Address</span></h2>
+                <h2 className="text-3xl ">{t('addNewAddress')}</h2>
                 <button type="button" onClick={detectLocation} disabled={locating} className="flex items-center justify-center gap-2 bg-green-50 text-green-700 border border-green-200 rounded p-2.5 text-sm font-medium hover:bg-green-100 transition disabled:opacity-60">
-                    <MapPinIcon size={16} /> {locating ? 'Detecting your location...' : 'Use my current location'}
+                    <MapPinIcon size={16} /> {locating ? t('detectingLocation') : t('useMyLocation')}
                 </button>
                 <input name="name" onChange={handleAddressChange} value={address.name} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="text" placeholder="Enter your name" required />
                 <input name="email" onChange={handleAddressChange} value={address.email} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="email" placeholder="Email address" required />
@@ -116,7 +118,7 @@ const AddressModal = ({ setShowAddressModal }) => {
                     <input name="country" onChange={handleAddressChange} value={address.country} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="text" placeholder="Country" required />
                 </div>
                 <input name="phone" onChange={handleAddressChange} value={address.phone} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="text" placeholder="Phone" required />
-                <button className="bg-slate-800 text-white text-sm font-medium py-2.5 rounded-md hover:bg-slate-900 active:scale-95 transition-all">SAVE ADDRESS</button>
+                <button className="bg-slate-800 text-white text-sm font-medium py-2.5 rounded-md hover:bg-slate-900 active:scale-95 transition-all">{t('saveAddress').toUpperCase()}</button>
             </div>
             <XIcon size={30} className="absolute top-5 right-5 text-slate-500 hover:text-slate-700 cursor-pointer" onClick={() => setShowAddressModal(false)} />
         </form>

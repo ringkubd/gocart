@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 import { PlusIcon, ArrowLeftIcon, SendIcon, HeadphonesIcon } from "lucide-react"
 import { useTicketChannel } from "@/components/useTicketChannel"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function Support() {
 
     const { status } = useSession()
     const router = useRouter()
+    const { t } = useLanguage()
 
     const [tickets, setTickets] = useState([])
     const [loading, setLoading] = useState(true)
@@ -60,7 +62,7 @@ export default function Support() {
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed to create ticket')
-            toast.success('Ticket created')
+            toast.success(t('ticketCreated'))
             setShowNew(false)
             setNewForm({ subject: '', message: '', priority: 'normal' })
             fetchTickets()
@@ -151,23 +153,23 @@ export default function Support() {
         <div className="min-h-[70vh] mx-6 my-10">
             <div className="max-w-6xl mx-auto">
                 <div className="flex items-center justify-between gap-4">
-                    <h1 className="text-2xl">Support <span className="text-slate-800 font-medium">Center</span></h1>
+                    <h1 className="text-2xl">{t('supportCenter')}</h1>
                     <button onClick={() => setShowNew(!showNew)} className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded text-sm hover:bg-slate-900">
-                        <PlusIcon size={16} /> {showNew ? 'Cancel' : 'New Ticket'}
+                        <PlusIcon size={16} /> {showNew ? t('cancel') : t('newTicket')}
                     </button>
                 </div>
 
                 {showNew && (
                     <form onSubmit={createTicket} className="mt-6 border border-slate-200 rounded-xl p-6 max-w-xl flex flex-col gap-4 bg-slate-50/50">
-                        <h3 className="font-medium text-slate-700">Create a Support Ticket</h3>
-                        <input value={newForm.subject} onChange={(e) => setNewForm({ ...newForm, subject: e.target.value })} placeholder="Subject" className="border border-slate-200 rounded p-2 text-sm" required />
-                        <textarea value={newForm.message} onChange={(e) => setNewForm({ ...newForm, message: e.target.value })} rows={4} placeholder="Describe your issue or question..." className="border border-slate-200 rounded p-2 text-sm resize-none" required />
+                        <h3 className="font-medium text-slate-700">{t('createTicket')}</h3>
+                        <input value={newForm.subject} onChange={(e) => setNewForm({ ...newForm, subject: e.target.value })} placeholder={t('subject')} className="border border-slate-200 rounded p-2 text-sm" required />
+                        <textarea value={newForm.message} onChange={(e) => setNewForm({ ...newForm, message: e.target.value })} rows={4} placeholder={t('message')} className="border border-slate-200 rounded p-2 text-sm resize-none" required />
                         <select value={newForm.priority} onChange={(e) => setNewForm({ ...newForm, priority: e.target.value })} className="border border-slate-200 rounded p-2 text-sm">
-                            <option value="normal">Normal</option>
-                            <option value="high">High</option>
-                            <option value="urgent">Urgent</option>
+                            <option value="normal">{t('normal')}</option>
+                            <option value="high">{t('high')}</option>
+                            <option value="urgent">{t('urgent')}</option>
                         </select>
-                        <button className="bg-slate-800 text-white px-6 py-2 rounded text-sm w-fit">Submit Ticket</button>
+                        <button className="bg-slate-800 text-white px-6 py-2 rounded text-sm w-fit">{t('submitTicket')}</button>
                     </form>
                 )}
 
@@ -186,7 +188,7 @@ export default function Support() {
                             <div className="flex items-center gap-3">
                                 <span className={statusBadge(selected.status).replace('text-white', '')}>{selected.status.replace('_', ' ')}</span>
                                 {selected.status !== 'closed' && (
-                                    <button onClick={closeTicket} className="text-xs bg-white/20 px-3 py-1.5 rounded hover:bg-white/30">Close</button>
+                                    <button onClick={closeTicket} className="text-xs bg-white/20 px-3 py-1.5 rounded hover:bg-white/30">{t('close')}</button>
                                 )}
                             </div>
                         </div>
@@ -209,7 +211,7 @@ export default function Support() {
 
                         {/* Reply */}
                         <div className="p-3 border-t border-slate-200 bg-white flex gap-2">
-                            <input value={reply} onChange={(e) => setReply(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendReply()} disabled={selected.status === 'closed'} placeholder={selected.status === 'closed' ? 'This ticket is closed' : 'Type a reply...'} className="flex-1 border border-slate-200 rounded-full px-4 py-2 text-sm outline-none disabled:bg-slate-50" />
+                            <input value={reply} onChange={(e) => setReply(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendReply()} disabled={selected.status === 'closed'} placeholder={selected.status === 'closed' ? t('ticketClosed') : t('typeReply')} className="flex-1 border border-slate-200 rounded-full px-4 py-2 text-sm outline-none disabled:bg-slate-50" />
                             <button onClick={sendReply} disabled={sending || selected.status === 'closed'} className="bg-green-600 text-white p-2.5 rounded-full hover:bg-green-700 disabled:opacity-40"><SendIcon size={16} /></button>
                         </div>
                     </div>
@@ -230,7 +232,7 @@ export default function Support() {
                 ) : (
                     <div className="mt-10 text-center text-slate-400 py-16 border border-dashed border-slate-200 rounded-xl">
                         <HeadphonesIcon size={40} className="mx-auto mb-3 opacity-40" />
-                        <p>No support tickets yet. Create a ticket to get help.</p>
+                        <p>{t('noTickets')}</p>
                     </div>
                 )}
             </div>

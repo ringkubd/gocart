@@ -5,14 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { PackageIcon } from "lucide-react"
 import { useCurrency } from "@/components/useCurrency"
-
-const statusLabels = {
-    ORDER_PLACED: 'Order Placed',
-    PROCESSING: 'Processing',
-    SHIPPED: 'Shipped',
-    DELIVERED: 'Delivered',
-    CANCELLED: 'Cancelled',
-}
+import { useLanguage } from "@/components/LanguageProvider"
 
 const statusColors = {
     ORDER_PLACED: 'bg-yellow-100 text-yellow-700',
@@ -25,6 +18,15 @@ const statusColors = {
 export default function DashboardOrders() {
 
     const { format } = useCurrency()
+    const { t } = useLanguage()
+
+    const statusLabels = {
+        ORDER_PLACED: t('orderPlaced'),
+        PROCESSING: t('processing'),
+        SHIPPED: t('shipped'),
+        DELIVERED: t('delivered'),
+        CANCELLED: t('cancelled'),
+    }
 
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
@@ -49,12 +51,12 @@ export default function DashboardOrders() {
 
     return (
         <div>
-            <h1 className="text-2xl text-slate-700 font-medium mb-6">My Orders</h1>
+            <h1 className="text-2xl text-slate-700 font-medium mb-6">{t('myOrders')}</h1>
             {orders.length === 0 ? (
                 <div className="text-center py-20 text-slate-400">
                     <PackageIcon size={48} className="mx-auto mb-4 opacity-40" />
-                    <p>You have no orders yet.</p>
-                    <Link href="/shop" className="inline-block mt-4 bg-slate-800 text-white px-6 py-2 rounded text-sm hover:bg-slate-900">Start Shopping</Link>
+                    <p>{t('youHaveNoOrders')}.</p>
+                    <Link href="/shop" className="inline-block mt-4 bg-slate-800 text-white px-6 py-2 rounded text-sm hover:bg-slate-900">{t('startShopping')}</Link>
                 </div>
             ) : (
                 <div className="flex flex-col gap-4">

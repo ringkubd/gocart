@@ -9,74 +9,76 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
+import { useLanguage } from "@/components/LanguageProvider"
 
 const AdminSidebar = () => {
 
     const pathname = usePathname()
     const { data: session } = useSession()
+    const { t } = useLanguage()
 
     const linkGroups = [
         {
-            label: 'Overview',
+            label: t('overview'),
             links: [
-                { name: 'Dashboard', href: '/admin', icon: HomeIcon },
+                { name: t('dashboard'), href: '/admin', icon: HomeIcon },
             ],
         },
         {
-            label: 'Orders & Sales',
+            label: t('ordersSales'),
             links: [
-                { name: 'Orders', href: '/admin/orders', icon: LayoutListIcon },
-                { name: 'Coupons', href: '/admin/coupons', icon: TicketPercentIcon },
+                { name: t('orders'), href: '/admin/orders', icon: LayoutListIcon },
+                { name: t('coupons'), href: '/admin/coupons', icon: TicketPercentIcon },
             ],
         },
         {
-            label: 'Catalog',
+            label: t('catalog'),
             links: [
-                { name: 'Products', href: '/admin/products', icon: ShoppingBasketIcon },
-                { name: 'Brands', href: '/admin/brands', icon: TagIcon },
-                { name: 'Categories', href: '/admin/site-design', icon: PaletteIcon },
+                { name: t('products'), href: '/admin/products', icon: ShoppingBasketIcon },
+                { name: t('brands'), href: '/admin/brands', icon: TagIcon },
+                { name: t('categories'), href: '/admin/site-design', icon: PaletteIcon },
             ],
         },
         {
-            label: 'Users & Reviews',
+            label: t('usersReviews'),
             links: [
-                { name: 'Users', href: '/admin/users', icon: UsersIcon },
-                { name: 'Reviews', href: '/admin/reviews', icon: MessageSquareIcon },
-                { name: 'Newsletter', href: '/admin/newsletter', icon: MailIcon },
+                { name: t('users'), href: '/admin/users', icon: UsersIcon },
+                { name: t('reviews'), href: '/admin/reviews', icon: MessageSquareIcon },
+                { name: t('newsletter'), href: '/admin/newsletter', icon: MailIcon },
             ],
         },
         {
-            label: 'Sellers',
+            label: t('sellers'),
             links: [
-                { name: 'Stores', href: '/admin/stores', icon: StoreIcon },
-                { name: 'Approve Store', href: '/admin/approve', icon: ShieldCheckIcon },
+                { name: t('stores'), href: '/admin/stores', icon: StoreIcon },
+                { name: t('approveStore'), href: '/admin/approve', icon: ShieldCheckIcon },
             ],
         },
         {
-            label: 'Delivery & Payments',
+            label: t('deliveryPayments'),
             links: [
-                { name: 'Shipping', href: '/admin/shipping', icon: TruckIcon },
-                { name: 'Couriers', href: '/admin/couriers', icon: TruckIcon },
-                { name: 'Payments', href: '/admin/payments', icon: BanknoteIcon },
+                { name: t('shipping'), href: '/admin/shipping', icon: TruckIcon },
+                { name: t('couriers'), href: '/admin/couriers', icon: TruckIcon },
+                { name: t('payments'), href: '/admin/payments', icon: BanknoteIcon },
             ],
         },
         {
-            label: 'Support & Service',
+            label: t('supportService'),
             links: [
-                { name: 'Support', href: '/admin/support', icon: HeadphonesIcon },
+                { name: t('supportTickets'), href: '/admin/support', icon: HeadphonesIcon },
             ],
         },
         {
-            label: 'Customization',
+            label: t('customization'),
             links: [
-                { name: 'Site Design', href: '/admin/site-design', icon: PaletteIcon },
-                { name: 'SEO', href: '/admin/seo', icon: SearchIcon },
+                { name: t('siteDesign'), href: '/admin/site-design', icon: PaletteIcon },
+                { name: t('seo'), href: '/admin/seo', icon: SearchIcon },
             ],
         },
         {
-            label: 'System',
+            label: t('system'),
             links: [
-                { name: 'Settings', href: '/admin/settings', icon: SettingsIcon },
+                { name: t('settings'), href: '/admin/settings', icon: SettingsIcon },
             ],
         },
     ]

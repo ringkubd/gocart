@@ -5,11 +5,13 @@ import OrderItem from "@/components/OrderItem";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/Loading";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function Orders() {
 
     const { status } = useSession();
     const router = useRouter();
+    const { t } = useLanguage();
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -43,15 +45,15 @@ export default function Orders() {
             {orders.length > 0 ? (
                 (
                     <div className="my-20 max-w-7xl mx-auto">
-                        <PageTitle heading="My Orders" text={`Showing total ${orders.length} orders`} linkText={'Go to home'} />
+                        <PageTitle heading={t('myOrders')} text={`${t('showingProducts')} ${orders.length} ${t('orders')}`} linkText={t('goHome')} />
 
                         <table className="w-full max-w-5xl text-slate-500 table-auto border-separate border-spacing-y-12 border-spacing-x-4">
                             <thead>
                                 <tr className="max-sm:text-sm text-slate-600 max-md:hidden">
-                                    <th className="text-left">Product</th>
-                                    <th className="text-center">Total Price</th>
-                                    <th className="text-left">Address</th>
-                                    <th className="text-left">Status</th>
+                                    <th className="text-left">{t('product')}</th>
+                                    <th className="text-center">{t('totalPrice')}</th>
+                                    <th className="text-left">{t('address')}</th>
+                                    <th className="text-left">{t('status')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -64,7 +66,7 @@ export default function Orders() {
                 )
             ) : (
                 <div className="min-h-[80vh] mx-6 flex items-center justify-center text-slate-400">
-                    <h1 className="text-2xl sm:text-4xl font-semibold">You have no orders</h1>
+                    <h1 className="text-2xl sm:text-4xl font-semibold">{t('youHaveNoOrders')}</h1>
                 </div>
             )}
         </div>

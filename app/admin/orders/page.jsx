@@ -3,14 +3,7 @@ import Loading from "@/components/Loading"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { useCurrency } from "@/components/useCurrency"
-
-const statusLabels = {
-    ORDER_PLACED: 'Order Placed',
-    PROCESSING: 'Processing',
-    SHIPPED: 'Shipped',
-    DELIVERED: 'Delivered',
-    CANCELLED: 'Cancelled',
-}
+import { useLanguage } from "@/components/LanguageProvider"
 
 const statusColors = {
     ORDER_PLACED: 'bg-yellow-100 text-yellow-700',
@@ -23,6 +16,15 @@ const statusColors = {
 export default function AdminOrders() {
 
     const { symbol: currency } = useCurrency()
+    const { t } = useLanguage()
+
+    const statusLabels = {
+        ORDER_PLACED: t('orderPlaced'),
+        PROCESSING: t('processing'),
+        SHIPPED: t('shipped'),
+        DELIVERED: t('delivered'),
+        CANCELLED: t('cancelled'),
+    }
 
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
@@ -73,7 +75,7 @@ export default function AdminOrders() {
 
     const handleStatusChange = async (orderId, status) => {
         const ok = await updateOrder(orderId, { status })
-        if (ok) toast.success('Order status updated')
+        if (ok) toast.success(t('orderUpdated'))
     }
 
     const openModal = (order) => {
@@ -90,10 +92,10 @@ export default function AdminOrders() {
     return (
         <div className="text-slate-500 mb-20">
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <h1 className="text-2xl">Order <span className="text-slate-800 font-medium">Management</span></h1>
+                <h1 className="text-2xl">{t('orderManagement')}</h1>
                 <form onSubmit={(e) => { e.preventDefault(); fetchOrders(filter, search) }} className="flex gap-2">
-                    <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by customer / tracking" className="border border-slate-200 outline-slate-400 p-2 rounded text-sm w-60" />
-                    <button className="bg-slate-700 text-white px-4 rounded text-sm">Search</button>
+                    <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('search')} className="border border-slate-200 outline-slate-400 p-2 rounded text-sm w-60" />
+                    <button className="bg-slate-700 text-white px-4 rounded text-sm">{t('search')}</button>
                 </form>
             </div>
 
@@ -110,14 +112,14 @@ export default function AdminOrders() {
                 <table className="w-full text-sm text-left text-slate-600">
                     <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                         <tr>
-                            <th className="px-4 py-3">Order</th>
-                            <th className="px-4 py-3">Customer</th>
-                            <th className="px-4 py-3">Store</th>
-                            <th className="px-4 py-3">Total</th>
-                            <th className="px-4 py-3">Payment</th>
-                            <th className="px-4 py-3">Tracking</th>
-                            <th className="px-4 py-3">Status</th>
-                            <th className="px-4 py-3">Date</th>
+                            <th className="px-4 py-3">{t('orders')}</th>
+                            <th className="px-4 py-3">{t('customer')}</th>
+                            <th className="px-4 py-3">{t('store')}</th>
+                            <th className="px-4 py-3">{t('total')}</th>
+                            <th className="px-4 py-3">{t('paymentMethod')}</th>
+                            <th className="px-4 py-3">{t('tracking')}</th>
+                            <th className="px-4 py-3">{t('status')}</th>
+                            <th className="px-4 py-3">{t('date')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -140,7 +142,7 @@ export default function AdminOrders() {
                             </tr>
                         ))}
                         {orders.length === 0 && (
-                            <tr><td colSpan={8} className="px-4 py-10 text-center text-slate-400">No orders found.</td></tr>
+                            <tr><td colSpan={8} className="px-4 py-10 text-center text-slate-400">{t('noOrdersYet')}.</td></tr>
                         )}
                     </tbody>
                 </table>

@@ -4,10 +4,12 @@ import Image from "next/image"
 import { useEffect, useState } from "react"
 import { toast } from "react-hot-toast"
 import { useRouter } from "next/navigation"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function StoreAddProduct() {
 
     const router = useRouter()
+    const { t } = useLanguage()
 
     const categories = ['Electronics', 'Clothing', 'Home & Kitchen', 'Beauty & Health', 'Toys & Games', 'Sports & Outdoors', 'Books & Media', 'Food & Drink', 'Hobbies & Crafts', 'Others']
 
@@ -75,7 +77,7 @@ export default function StoreAddProduct() {
                 throw new Error(data.error || 'Failed to add product')
             }
 
-            toast.success('Product added')
+            toast.success(t('productAdded'))
             router.push('/store/manage-product')
         } catch (error) {
             toast.error(error.message || 'Something went wrong')
@@ -87,8 +89,8 @@ export default function StoreAddProduct() {
 
     return (
         <form onSubmit={onSubmitHandler} className="text-slate-500 mb-28">
-            <h1 className="text-2xl">Add New <span className="text-slate-800 font-medium">Products</span></h1>
-            <p className="mt-7">Product Images</p>
+            <h1 className="text-2xl">{t('addProduct')}</h1>
+            <p className="mt-7">{t('productImages')}</p>
 
             <div className="flex gap-3 mt-4">
                 {Object.keys(images).map((key) => (
@@ -136,7 +138,7 @@ export default function StoreAddProduct() {
 
             <br />
 
-            <button disabled={loading} className="bg-slate-800 text-white px-6 mt-7 py-2 hover:bg-slate-900 rounded transition disabled:opacity-50">{loading ? 'Adding...' : 'Add Product'}</button>
+            <button disabled={loading} className="bg-slate-800 text-white px-6 mt-7 py-2 hover:bg-slate-900 rounded transition disabled:opacity-50">{loading ? t('loading') : t('addProduct')}</button>
         </form>
     )
 }

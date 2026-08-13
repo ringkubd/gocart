@@ -4,10 +4,12 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { ShoppingBagIcon, MapPinIcon, StarIcon } from "lucide-react"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function DashboardHomeClient() {
 
     const { data: session } = useSession()
+    const { t } = useLanguage()
     const [profile, setProfile] = useState(null)
     const [loading, setLoading] = useState(true)
 
@@ -30,15 +32,15 @@ export default function DashboardHomeClient() {
     if (loading) return <Loading />
 
     const cards = [
-        { title: 'Total Orders', value: profile?._count?.buyerOrders || 0, icon: ShoppingBagIcon, href: '/dashboard/orders' },
-        { title: 'Saved Addresses', value: profile?._count?.Address || 0, icon: MapPinIcon, href: '/dashboard/addresses' },
-        { title: 'Reviews', value: profile?._count?.ratings || 0, icon: StarIcon, href: '/dashboard/orders' },
+        { title: t('totalOrders'), value: profile?._count?.buyerOrders || 0, icon: ShoppingBagIcon, href: '/dashboard/orders' },
+        { title: t('savedAddresses'), value: profile?._count?.Address || 0, icon: MapPinIcon, href: '/dashboard/addresses' },
+        { title: t('reviewsLabel'), value: profile?._count?.ratings || 0, icon: StarIcon, href: '/dashboard/orders' },
     ]
 
     return (
         <div className="text-slate-500">
-            <h1 className="text-2xl">Hello, <span className="text-slate-800 font-medium">{session?.user?.name?.split(' ')[0] || 'there'}</span> 👋</h1>
-            <p className="text-sm text-slate-400 mt-1">Welcome to your account dashboard.</p>
+            <h1 className="text-2xl">{t('hello')} <span className="text-slate-800 font-medium">{session?.user?.name?.split(' ')[0] || 'there'}</span> 👋</h1>
+            <p className="text-sm text-slate-400 mt-1">{t('welcome')}</p>
 
             <div className="flex flex-wrap gap-5 mt-8">
                 {cards.map((card, i) => (
@@ -53,22 +55,22 @@ export default function DashboardHomeClient() {
             </div>
 
             <div className="mt-10 border border-slate-200 rounded-xl p-6 max-w-xl">
-                <h3 className="font-medium text-slate-700 mb-4">Account Information</h3>
+                <h3 className="font-medium text-slate-700 mb-4">{t('accountInformation')}</h3>
                 <div className="space-y-3 text-sm">
                     <div className="flex justify-between border-b border-slate-100 pb-2">
-                        <span className="text-slate-400">Name</span>
+                        <span className="text-slate-400">{t('name')}</span>
                         <span className="text-slate-700 font-medium">{profile?.name}</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-100 pb-2">
-                        <span className="text-slate-400">Email</span>
+                        <span className="text-slate-400">{t('email')}</span>
                         <span className="text-slate-700 font-medium">{profile?.email}</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-100 pb-2">
-                        <span className="text-slate-400">Role</span>
+                        <span className="text-slate-400">{t('role')}</span>
                         <span className="text-slate-700 font-medium capitalize">{profile?.role}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span className="text-slate-400">Member Since</span>
+                        <span className="text-slate-400">{t('memberSince')}</span>
                         <span className="text-slate-700 font-medium">{profile ? new Date(profile.createdAt).toLocaleDateString() : ''}</span>
                     </div>
                 </div>

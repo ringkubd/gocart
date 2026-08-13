@@ -4,10 +4,12 @@ import { CircleDollarSignIcon, ShoppingBasketIcon, StoreIcon, TagsIcon, UsersIco
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useCurrency } from "@/components/useCurrency"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function AdminDashboard() {
 
     const { symbol: currency } = useCurrency()
+    const { t } = useLanguage()
 
     const [loading, setLoading] = useState(true)
     const [dashboardData, setDashboardData] = useState({
@@ -24,12 +26,12 @@ export default function AdminDashboard() {
     })
 
     const dashboardCardsData = [
-        { title: 'Total Revenue', value: currency + Number(dashboardData.revenue).toLocaleString(), icon: CircleDollarSignIcon },
-        { title: 'Total Orders', value: dashboardData.orders, icon: TagsIcon },
-        { title: 'Total Products', value: dashboardData.products, icon: ShoppingBasketIcon },
-        { title: 'Total Stores', value: dashboardData.stores, icon: StoreIcon },
-        { title: 'Total Customers', value: dashboardData.users, icon: UsersIcon },
-        { title: 'Pending Stores', value: dashboardData.pendingStores, icon: ClockIcon },
+        { title: t('totalRevenue'), value: currency + Number(dashboardData.revenue).toLocaleString(), icon: CircleDollarSignIcon },
+        { title: t('orders'), value: dashboardData.orders, icon: TagsIcon },
+        { title: t('totalProductsCount'), value: dashboardData.products, icon: ShoppingBasketIcon },
+        { title: t('totalStores'), value: dashboardData.stores, icon: StoreIcon },
+        { title: t('totalCustomers'), value: dashboardData.users, icon: UsersIcon },
+        { title: t('pendingStores'), value: dashboardData.pendingStores, icon: ClockIcon },
     ]
 
     const statusLabels = {
@@ -70,7 +72,7 @@ export default function AdminDashboard() {
 
     return (
         <div className="text-slate-500">
-            <h1 className="text-2xl">Admin <span className="text-slate-800 font-medium">Dashboard</span></h1>
+            <h1 className="text-2xl">{t('adminDashboard')}</h1>
 
             {/* Cards */}
             <div className="flex flex-wrap gap-5 my-8">
@@ -90,7 +92,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl">
                 {/* Order status breakdown */}
                 <div className="border border-slate-200 rounded-xl p-6">
-                    <h3 className="font-medium text-slate-700 mb-4">Order Status</h3>
+                    <h3 className="font-medium text-slate-700 mb-4">{t('orderStatus')}</h3>
                     <div className="space-y-3">
                         {Object.entries(dashboardData.statusBreakdown).map(([status, count]) => (
                             <div key={status} className="flex items-center justify-between">
@@ -98,13 +100,13 @@ export default function AdminDashboard() {
                                 <span className="font-medium text-slate-700">{count}</span>
                             </div>
                         ))}
-                        {Object.keys(dashboardData.statusBreakdown).length === 0 && <p className="text-sm text-slate-400">No orders yet.</p>}
+                        {Object.keys(dashboardData.statusBreakdown).length === 0 && <p className="text-sm text-slate-400">{t('youHaveNoOrders')}.</p>}
                     </div>
                 </div>
 
                 {/* Top products */}
                 <div className="border border-slate-200 rounded-xl p-6">
-                    <h3 className="font-medium text-slate-700 mb-4">Top Products</h3>
+                    <h3 className="font-medium text-slate-700 mb-4">{t('topProducts')}</h3>
                     <div className="space-y-3">
                         {dashboardData.topProducts.map((p, i) => (
                             <div key={i} className="flex items-center gap-3">
@@ -116,14 +118,14 @@ export default function AdminDashboard() {
                                 <span className="text-sm font-medium text-slate-700">{currency}{p.price}</span>
                             </div>
                         ))}
-                        {dashboardData.topProducts.length === 0 && <p className="text-sm text-slate-400">No sales yet.</p>}
+                        {dashboardData.topProducts.length === 0 && <p className="text-sm text-slate-400">{t('noSalesYet')}</p>}
                     </div>
                 </div>
             </div>
 
             {/* Top stores */}
             <div className="mt-6 max-w-5xl">
-                <h3 className="font-medium text-slate-700 mb-4">Top Stores by Revenue</h3>
+                <h3 className="font-medium text-slate-700 mb-4">{t('topStores')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {dashboardData.topStores.map((s, i) => (
                         <div key={i} className="border border-slate-200 rounded-xl p-4">
@@ -135,15 +137,15 @@ export default function AdminDashboard() {
                             </div>
                         </div>
                     ))}
-                    {dashboardData.topStores.length === 0 && <p className="text-sm text-slate-400">No sales yet.</p>}
+                    {dashboardData.topStores.length === 0 && <p className="text-sm text-slate-400">{t('noSalesYet')}</p>}
                 </div>
             </div>
 
             {/* Recent orders */}
             <div className="mt-8 max-w-5xl">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-medium text-slate-700">Recent Orders</h3>
-                    <Link href="/admin/orders" className="text-sm text-green-600 hover:text-green-700">View all</Link>
+                    <h3 className="font-medium text-slate-700">{t('recentOrders')}</h3>
+                    <Link href="/admin/orders" className="text-sm text-green-600 hover:text-green-700">{t('viewAll')}</Link>
                 </div>
                 <div className="border border-slate-200 rounded-xl overflow-hidden">
                     <table className="w-full text-sm">

@@ -7,10 +7,12 @@ import { useCurrency } from './useCurrency'
 import { useDispatch } from 'react-redux'
 import { addToCart } from '@/lib/features/cart/cartSlice'
 import toast from 'react-hot-toast'
+import { useLanguage } from './LanguageProvider'
 
 const ProductCard = ({ product }) => {
 
     const { format } = useCurrency()
+    const { t } = useLanguage()
     const dispatch = useDispatch()
 
     // calculate the average rating of the product
@@ -22,7 +24,7 @@ const ProductCard = ({ product }) => {
         e.preventDefault()
         e.stopPropagation()
         dispatch(addToCart({ productId: product.id }))
-        toast.success('Added to cart')
+        toast.success(t('addedToCart'))
         if (typeof window !== 'undefined' && window.fbq) {
             window.fbq('track', 'AddToCart', {
                 content_ids: [product.id],
@@ -42,7 +44,7 @@ const ProductCard = ({ product }) => {
                     {/* Out of stock overlay */}
                     {product.inStock === false && (
                         <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-                            <span className="bg-red-500 text-white text-xs font-medium px-4 py-1.5 rounded-full">Out of Stock</span>
+                            <span className="bg-red-500 text-white text-xs font-medium px-4 py-1.5 rounded-full">{t('outOfStock')}</span>
                         </div>
                     )}
 
@@ -83,7 +85,7 @@ const ProductCard = ({ product }) => {
             {/* Free shipping badge */}
             <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-1 max-w-60">
                 <TruckIcon size={12} />
-                <span>Free shipping over threshold</span>
+                <span>{t('freeShippingOver')}</span>
             </div>
         </div>
     )

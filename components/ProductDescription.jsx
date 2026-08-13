@@ -5,12 +5,14 @@ import Link from "next/link"
 import { useState } from "react"
 import useStorefrontData from "./useStorefrontData"
 import { useCurrency } from "./useCurrency"
+import { useLanguage } from "./LanguageProvider"
 
 const ProductDescription = ({ product }) => {
 
     const [selectedTab, setSelectedTab] = useState('Description')
     const { shippingMethods } = useStorefrontData()
     const { format } = useCurrency()
+    const { t } = useLanguage()
 
     return (
         <div className="my-18 text-sm text-slate-600">
@@ -19,7 +21,7 @@ const ProductDescription = ({ product }) => {
             <div className="flex border-b border-slate-200 mb-6 max-w-2xl">
                 {['Description', 'Shipping Info', 'Reviews'].map((tab, index) => (
                     <button className={`${tab === selectedTab ? 'border-b-[1.5px] font-semibold' : 'text-slate-400'} px-3 py-2 font-medium`} key={index} onClick={() => setSelectedTab(tab)}>
-                        {tab}
+                        {tab === 'Description' ? t('description') : tab === 'Shipping Info' ? t('shippingInfo') : t('reviews')}
                     </button>
                 ))}
             </div>
@@ -38,7 +40,7 @@ const ProductDescription = ({ product }) => {
             {selectedTab === "Shipping Info" && (
                 <div className="max-w-xl">
                     <div className="flex items-center gap-2 text-slate-500 mb-3">
-                        <TruckIcon size={16} /> Delivery Information
+                        <TruckIcon size={16} /> {t('deliveryInfo')}
                     </div>
                     {shippingMethods.length > 0 ? (
                         <div className="flex flex-col gap-3">
@@ -48,12 +50,12 @@ const ProductDescription = ({ product }) => {
                                         <p className="font-medium text-slate-700">{method.name}</p>
                                         <p className="text-xs text-slate-400">Delivery in {method.deliveryTime}</p>
                                     </div>
-                                    <p className="font-medium text-slate-700">{method.cost > 0 ? format(method.cost) : 'Free'}</p>
+                                    <p className="font-medium text-slate-700">{method.cost > 0 ? format(method.cost) : t('free')}</p>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <p className="text-slate-400">Free shipping across the country.</p>
+                        <p className="text-slate-400">{t('freeShippingCountry')}</p>
                     )}
                 </div>
             )}
@@ -77,7 +79,7 @@ const ProductDescription = ({ product }) => {
                         </div>
                     ))}
                     {(!product.rating || product.rating.length === 0) && (
-                        <p className="text-slate-400">No reviews yet. Be the first to review!</p>
+                        <p className="text-slate-400">{t('noReviewsYet')}</p>
                     )}
                 </div>
             )}
@@ -87,8 +89,8 @@ const ProductDescription = ({ product }) => {
                 <div className="flex gap-3 mt-14">
                     <Image src={product.store.logo || '/assets/happy_store.webp'} alt="" className="size-11 rounded-full ring ring-slate-400" width={100} height={100} />
                     <div>
-                        <p className="font-medium text-slate-600">Product by {product.store.name}</p>
-                        <Link href={`/shop/${product.store.username}`} className="flex items-center gap-1.5 text-green-500"> view store <ArrowRight size={14} /></Link>
+                        <p className="font-medium text-slate-600">{t('productBy')} {product.store.name}</p>
+                        <Link href={`/shop/${product.store.username}`} className="flex items-center gap-1.5 text-green-500"> {t('viewStore')} <ArrowRight size={14} /></Link>
                     </div>
                 </div>
             )}

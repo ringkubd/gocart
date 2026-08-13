@@ -5,10 +5,12 @@ import Image from "next/image"
 import Loading from "@/components/Loading"
 import { PencilIcon, Trash2Icon } from "lucide-react"
 import { useCurrency } from "@/components/useCurrency"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function StoreManageProducts() {
 
     const { symbol: currency } = useCurrency()
+    const { t } = useLanguage()
 
     const [loading, setLoading] = useState(true)
     const [products, setProducts] = useState([])
@@ -64,7 +66,7 @@ export default function StoreManageProducts() {
             const res = await fetch(`/api/products/${product.id}`, { method: 'DELETE' })
             if (!res.ok) throw new Error('Failed to delete')
             setProducts(prev => prev.filter(p => p.id !== product.id))
-            toast.success('Product deleted')
+            toast.success(t('productDeleted'))
         } catch (error) {
             toast.error('Failed to delete')
         }
@@ -91,7 +93,7 @@ export default function StoreManageProducts() {
             setProducts(prev => prev.map(p => p.id === editProduct.id ? { ...p, ...data.product } : p))
             setEditing(false)
             setEditProduct(null)
-            toast.success('Product updated')
+            toast.success(t('productUpdated'))
         } catch (error) {
             toast.error(error.message || 'Failed')
         }
@@ -106,18 +108,18 @@ export default function StoreManageProducts() {
 
     return (
         <>
-            <h1 className="text-2xl text-slate-500 mb-5">Manage <span className="text-slate-800 font-medium">Products</span></h1>
+            <h1 className="text-2xl text-slate-500 mb-5">{t('productManagement')}</h1>
             {products.length ? (
             <table className="w-full max-w-4xl text-left  ring ring-slate-200  rounded overflow-hidden text-sm">
                 <thead className="bg-slate-50 text-gray-700 uppercase tracking-wider">
                     <tr>
-                        <th className="px-4 py-3">Name</th>
-                        <th className="px-4 py-3 hidden md:table-cell">Description</th>
-                        <th className="px-4 py-3 hidden md:table-cell">MRP</th>
-                        <th className="px-4 py-3">Price</th>
-                        <th className="px-4 py-3">Stock</th>
-                        <th className="px-4 py-3">In Stock</th>
-                        <th className="px-4 py-3">Actions</th>
+                        <th className="px-4 py-3">{t('name')}</th>
+                        <th className="px-4 py-3 hidden md:table-cell">{t('description')}</th>
+                        <th className="px-4 py-3 hidden md:table-cell">{t('mrp')}</th>
+                        <th className="px-4 py-3">{t('price')}</th>
+                        <th className="px-4 py-3">{t('stock')}</th>
+                        <th className="px-4 py-3">{t('inStock')}</th>
+                        <th className="px-4 py-3">{t('actions')}</th>
                     </tr>
                 </thead>
                 <tbody className="text-slate-700">
@@ -153,14 +155,14 @@ export default function StoreManageProducts() {
                 </tbody>
             </table>
             ) : (
-                <p className="text-slate-400">No products yet. Add your first product.</p>
+                <p className="text-slate-400">{t('noProductsYet')}</p>
             )}
 
             {/* Edit modal */}
             {editing && editProduct && (
                 <form onSubmit={saveEdit} className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center text-slate-700 text-sm">
                     <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative max-h-[90vh] overflow-y-auto">
-                        <h2 className="text-xl font-semibold text-slate-900 mb-4">Edit Product</h2>
+                        <h2 className="text-xl font-semibold text-slate-900 mb-4">{t('editProduct')}</h2>
                         <div className="flex flex-col gap-3">
                             <label className="flex flex-col gap-1">
                                 <span className="text-xs text-slate-400">Name</span>
@@ -188,7 +190,7 @@ export default function StoreManageProducts() {
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">Brand</span>
                                     <select value={editProduct.brandId || ''} onChange={(e) => setEditProduct({ ...editProduct, brandId: e.target.value })} className="border border-slate-200 rounded p-2">
-                                        <option value="">No brand</option>
+                                        <option value="">{t('noBrand')}</option>
                                         {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                                     </select>
                                 </label>

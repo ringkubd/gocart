@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import Image from "next/image"
 import { PlusIcon, PencilIcon, Trash2Icon, KeyRoundIcon, BanIcon, CheckCircleIcon } from "lucide-react"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function AdminUsers() {
 
+    const { t } = useLanguage()
     const [users, setUsers] = useState([])
     const [roles, setRoles] = useState([])
     const [loading, setLoading] = useState(true)
@@ -51,7 +53,7 @@ export default function AdminUsers() {
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed')
-            toast.success('User created')
+            toast.success(t('userCreated'))
             setShowAdd(false)
             setForm(emptyForm)
             fetchUsers()
@@ -78,7 +80,7 @@ export default function AdminUsers() {
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed')
-            toast.success('User updated')
+            toast.success(t('userUpdated'))
             setEditUser(null)
             setForm(emptyForm)
             fetchUsers()
@@ -99,7 +101,7 @@ export default function AdminUsers() {
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed')
             setUsers(prev => prev.map(u => u.id === user.id ? { ...u, active: !user.active } : u))
-            toast.success(user.active ? 'User suspended' : 'User activated')
+            toast.success(user.active ? t('userSuspended') : t('userActivated'))
         } catch (error) {
             toast.error(error.message || 'Failed')
         }
@@ -116,7 +118,7 @@ export default function AdminUsers() {
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed')
             setUsers(prev => prev.filter(u => u.id !== user.id))
-            toast.success('User deleted')
+            toast.success(t('userDeleted'))
         } catch (error) {
             toast.error(error.message || 'Failed')
         }
@@ -139,9 +141,9 @@ export default function AdminUsers() {
     return (
         <div className="text-slate-500 mb-20">
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <h1 className="text-2xl">User <span className="text-slate-800 font-medium">Management</span></h1>
+                <h1 className="text-2xl">{t('users')} <span className="text-slate-800 font-medium">{t('orderManagement')}</span></h1>
                 <button onClick={() => { setShowAdd(!showAdd); setEditUser(null); setForm(emptyForm) }} className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded text-sm hover:bg-slate-900">
-                    <PlusIcon size={16} /> {showAdd ? 'Cancel' : 'Add User'}
+                    <PlusIcon size={16} /> {showAdd ? t('cancel') : t('users')}
                 </button>
             </div>
 
@@ -160,18 +162,18 @@ export default function AdminUsers() {
             {/* Add / Edit user form */}
             {(showAdd || editUser) && (
                 <form onSubmit={editUser ? handleUpdate : handleCreate} className="mt-6 border border-slate-200 rounded-xl p-6 max-w-xl flex flex-col gap-4 bg-slate-50/50">
-                    <h3 className="font-medium text-slate-700">{editUser ? `Edit User — ${editUser.name}` : 'Create New User'}</h3>
+                    <h3 className="font-medium text-slate-700">{editUser ? `${t('edit')} User — ${editUser.name}` : t('createNewUser')}</h3>
                     <div className="grid grid-cols-2 gap-3">
                         <label className="flex flex-col gap-1">
-                            <span className="text-xs text-slate-400">Full Name</span>
+                            <span className="text-xs text-slate-400">{t('fullName')}</span>
                             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} required />
                         </label>
                         <label className="flex flex-col gap-1">
-                            <span className="text-xs text-slate-400">Email (login)</span>
+                            <span className="text-xs text-slate-400">{t('emailAddress')}</span>
                             <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls} required />
                         </label>
                         <label className="flex flex-col gap-1">
-                            <span className="text-xs text-slate-400">Role</span>
+                            <span className="text-xs text-slate-400">{t('role')}</span>
                             <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className={inputCls}>
                                 {roles.map((r) => <option key={r.name} value={r.name}>{r.label}</option>)}
                             </select>
@@ -187,7 +189,7 @@ export default function AdminUsers() {
                         </label>
                     </div>
                     <div className="flex gap-2">
-                        <button disabled={saving} className="bg-slate-800 text-white px-6 py-2 rounded text-sm disabled:opacity-50">{saving ? 'Saving...' : editUser ? 'Save Changes' : 'Create User'}</button>
+                        <button disabled={saving} className="bg-slate-800 text-white px-6 py-2 rounded text-sm disabled:opacity-50">{saving ? t('loading') : editUser ? t('saveChanges') : t('createNewUser')}</button>
                         {editUser && <button type="button" onClick={() => setEditUser(null)} className="text-sm text-slate-400 hover:text-slate-600 px-2">Cancel</button>}
                     </div>
                 </form>
@@ -198,14 +200,14 @@ export default function AdminUsers() {
                 <table className="w-full text-sm text-left text-slate-600">
                     <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                         <tr>
-                            <th className="px-4 py-3">User</th>
-                            <th className="px-4 py-3">Email</th>
-                            <th className="px-4 py-3">Role</th>
-                            <th className="px-4 py-3">Status</th>
-                            <th className="px-4 py-3">Orders</th>
-                            <th className="px-4 py-3">Store</th>
-                            <th className="px-4 py-3">Joined</th>
-                            <th className="px-4 py-3">Actions</th>
+                            <th className="px-4 py-3">{t('name')}</th>
+                            <th className="px-4 py-3">{t('email')}</th>
+                            <th className="px-4 py-3">{t('role')}</th>
+                            <th className="px-4 py-3">{t('status')}</th>
+                            <th className="px-4 py-3">{t('orders')}</th>
+                            <th className="px-4 py-3">{t('store')}</th>
+                            <th className="px-4 py-3">{t('date')}</th>
+                            <th className="px-4 py-3">{t('actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -229,7 +231,7 @@ export default function AdminUsers() {
                                 </td>
                                 <td className="px-4 py-3">
                                     <span className={`text-xs px-3 py-1 rounded-full ${user.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                        {user.active ? 'Active' : 'Suspended'}
+                                        {user.active ? t('active') : t('suspended')}
                                     </span>
                                 </td>
                                 <td className="px-4 py-3">{user._count?.buyerOrders || 0}</td>

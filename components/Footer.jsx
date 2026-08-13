@@ -1,10 +1,12 @@
 'use client'
 import Link from "next/link";
 import useStorefrontData from "./useStorefrontData";
+import { useLanguage } from "./LanguageProvider";
 
 const Footer = () => {
 
     const { settings } = useStorefrontData();
+    const { t } = useLanguage();
 
     const siteName = settings.siteName || 'theDhakaShop';
     const contact = settings.contact || {};
@@ -27,7 +29,7 @@ const Footer = () => {
 
     const linkSections = [
         {
-            title: "WEBSITE",
+            title: t('website'),
             links: [
                 { text: "Home", path: '/', icon: null },
                 { text: "Shop", path: '/shop', icon: null },
@@ -36,7 +38,7 @@ const Footer = () => {
             ]
         },
         {
-            title: "CONTACT",
+            title: t('contact'),
             links: [
                 { text: contact.phone || "+880 1XXX-XXXXXX", path: '/', icon: PhoneIcon },
                 { text: contact.email || "support@thedhakashop.com", path: '/', icon: MailIcon },
@@ -79,7 +81,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <p className="py-4 text-sm text-slate-500">
-                    Copyright {new Date().getFullYear()} © {siteName} All Right Reserved.
+                    Copyright {new Date().getFullYear()} © {siteName} {t('rightsReserved')}
                 </p>
             </div>
         </footer>

@@ -8,6 +8,7 @@ import MessengerWidget from "@/components/MessengerWidget";
 import { getGlobalSeo } from "@/lib/seo";
 import { OrganizationSchema, WebSiteSchema } from "@/lib/jsonld";
 import JsonLd from "@/components/JsonLd";
+import { LanguageProvider } from "@/components/LanguageProvider";
 import { prisma } from "@/lib/prisma";
 import "./globals.css";
 
@@ -103,6 +104,7 @@ export default async function RootLayout({ children }) {
             </head>
             <body className={`${outfit.className} antialiased`}>
                 <JsonLd data={[orgSchema, siteSchema]} />
+                <LanguageProvider>
                 <SessionWrapper>
                     <StoreProvider>
                         <ProductsLoader />
@@ -112,6 +114,7 @@ export default async function RootLayout({ children }) {
                         <MessengerWidget fbSettings={fbSettings} />
                     </StoreProvider>
                 </SessionWrapper>
+                </LanguageProvider>
             </body>
         </html>
     );

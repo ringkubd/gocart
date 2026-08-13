@@ -6,11 +6,13 @@ import React, { useEffect, useState } from 'react'
 import CategoriesMarquee from './CategoriesMarquee'
 import useStorefrontData from './useStorefrontData'
 import { useCurrency } from './useCurrency'
+import { useLanguage } from './LanguageProvider'
 
 const Hero = () => {
 
     const { slides, settings } = useStorefrontData()
     const { format } = useCurrency()
+    const { t } = useLanguage()
     const [current, setCurrent] = useState(0)
     const [loaded, setLoaded] = useState(false)
 
@@ -48,7 +50,7 @@ const Hero = () => {
                                     </div>
                                 )}
                                 <Link href={slides[current]?.link || '/shop'} className='bg-slate-800 text-white text-sm py-2.5 px-7 sm:py-5 sm:px-12 mt-4 sm:mt-10 rounded-md hover:bg-slate-900 hover:scale-103 active:scale-95 transition inline-flex items-center gap-2'>
-                                    {slides[current]?.buttonText || 'Shop Now'} <ArrowRightIcon size={16} />
+                                    {slides[current]?.buttonText || t('shopNow')} <ArrowRightIcon size={16} />
                                 </Link>
                             </div>
                             {slides[current]?.image && (
@@ -74,7 +76,7 @@ const Hero = () => {
                                     <p>Starts from</p>
                                     <p className='text-3xl'>{format(4.9)}</p>
                                 </div>
-                                <Link href='/shop' className='bg-slate-800 text-white text-sm py-2.5 px-7 sm:py-5 sm:px-12 mt-4 sm:mt-10 rounded-md hover:bg-slate-900 hover:scale-103 active:scale-95 transition inline-flex items-center gap-2'>SHOP NOW <ArrowRightIcon size={16} /></Link>
+                                <Link href='/shop' className='bg-slate-800 text-white text-sm py-2.5 px-7 sm:py-5 sm:px-12 mt-4 sm:mt-10 rounded-md hover:bg-slate-900 hover:scale-103 active:scale-95 transition inline-flex items-center gap-2'>{t('shopNow')} <ArrowRightIcon size={16} /></Link>
                             </div>
                             <Image className='sm:absolute bottom-0 right-0 md:right-10 w-full sm:max-w-sm' src="/assets/hero_model_img.png" alt="" width={400} height={400} />
                         </>

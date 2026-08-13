@@ -7,12 +7,14 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { HomeIcon, LayoutListIcon, MapPinIcon, UserIcon, LogOutIcon } from "lucide-react"
 import { signOut } from "next-auth/react"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function DashboardLayout({ children }) {
 
     const { status } = useSession()
     const router = useRouter()
     const pathname = usePathname()
+    const { t } = useLanguage()
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -23,10 +25,10 @@ export default function DashboardLayout({ children }) {
     if (status === 'loading') return <Loading />
 
     const links = [
-        { name: 'Overview', href: '/dashboard', icon: HomeIcon },
-        { name: 'My Orders', href: '/dashboard/orders', icon: LayoutListIcon },
-        { name: 'Addresses', href: '/dashboard/addresses', icon: MapPinIcon },
-        { name: 'Profile', href: '/dashboard/profile', icon: UserIcon },
+        { name: t('overview'), href: '/dashboard', icon: HomeIcon },
+        { name: t('myOrders'), href: '/dashboard/orders', icon: LayoutListIcon },
+        { name: t('myAddresses'), href: '/dashboard/addresses', icon: MapPinIcon },
+        { name: t('myProfile'), href: '/dashboard/profile', icon: UserIcon },
     ]
 
     const isActive = (href) => href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href)
@@ -43,7 +45,7 @@ export default function DashboardLayout({ children }) {
                             </Link>
                         ))}
                         <button onClick={() => signOut()} className="flex items-center gap-3 p-2.5 rounded-lg text-sm text-red-500 hover:bg-red-50 transition">
-                            <LogOutIcon size={16} /> Logout
+                            <LogOutIcon size={16} /> {t('logout')}
                         </button>
                     </div>
                 </aside>

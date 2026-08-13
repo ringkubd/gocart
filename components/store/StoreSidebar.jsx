@@ -3,17 +3,19 @@ import { usePathname } from "next/navigation"
 import { HomeIcon, LayoutListIcon, SquarePenIcon, SquarePlusIcon, SettingsIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useLanguage } from "@/components/LanguageProvider"
 
 const StoreSidebar = ({ storeInfo }) => {
 
     const pathname = usePathname()
+    const { t } = useLanguage()
 
     const sidebarLinks = [
-        { name: 'Dashboard', href: '/store', icon: HomeIcon },
-        { name: 'Add Product', href: '/store/add-product', icon: SquarePlusIcon },
-        { name: 'Manage Product', href: '/store/manage-product', icon: SquarePenIcon },
-        { name: 'Orders', href: '/store/orders', icon: LayoutListIcon },
-        { name: 'Store Profile', href: '/store/profile', icon: SettingsIcon },
+        { name: t('dashboard'), href: '/store', icon: HomeIcon },
+        { name: t('addProduct'), href: '/store/add-product', icon: SquarePlusIcon },
+        { name: t('manage'), href: '/store/manage-product', icon: SquarePenIcon },
+        { name: t('orders'), href: '/store/orders', icon: LayoutListIcon },
+        { name: t('storeProfile'), href: '/store/profile', icon: SettingsIcon },
     ]
 
     return (
