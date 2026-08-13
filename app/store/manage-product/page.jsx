@@ -80,10 +80,13 @@ export default function StoreManageProducts() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name: editProduct.name,
+                    nameBn: editProduct.nameBn || "",
                     description: editProduct.description,
+                    descriptionBn: editProduct.descriptionBn || "",
                     mrp: Number(editProduct.mrp),
                     price: Number(editProduct.price),
                     category: editProduct.category,
+                    categoryBn: editProduct.categoryBn || "",
                     brandId: editProduct.brandId || null,
                     stock: Number(editProduct.stock),
                 }),
@@ -165,12 +168,20 @@ export default function StoreManageProducts() {
                         <h2 className="text-xl font-semibold text-slate-900 mb-4">{t('editProduct')}</h2>
                         <div className="flex flex-col gap-3">
                             <label className="flex flex-col gap-1">
-                                <span className="text-xs text-slate-400">Name</span>
+                                <span className="text-xs text-slate-400">Name (English)</span>
                                 <input value={editProduct.name} onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })} className="border border-slate-200 rounded p-2" required />
                             </label>
                             <label className="flex flex-col gap-1">
-                                <span className="text-xs text-slate-400">Description</span>
+                                <span className="text-xs text-slate-400">Name (বাংলা)</span>
+                                <input value={editProduct.nameBn || ''} onChange={(e) => setEditProduct({ ...editProduct, nameBn: e.target.value })} className="border border-slate-200 rounded p-2" />
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">Description (English)</span>
                                 <textarea value={editProduct.description} onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })} rows={3} className="border border-slate-200 rounded p-2" required />
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">Description (বাংলা)</span>
+                                <textarea value={editProduct.descriptionBn || ''} onChange={(e) => setEditProduct({ ...editProduct, descriptionBn: e.target.value })} rows={3} className="border border-slate-200 rounded p-2" />
                             </label>
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1">

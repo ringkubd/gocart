@@ -11,25 +11,32 @@ export default function StoreAddProduct() {
     const router = useRouter()
     const { t } = useLanguage()
 
-    const categories = ['Electronics', 'Clothing', 'Home & Kitchen', 'Beauty & Health', 'Toys & Games', 'Sports & Outdoors', 'Books & Media', 'Food & Drink', 'Hobbies & Crafts', 'Others']
-
+    const [categories, setCategories] = useState([])
     const [brands, setBrands] = useState([])
     const [images, setImages] = useState({ 1: null, 2: null, 3: null, 4: null })
     const [productInfo, setProductInfo] = useState({
         name: "",
+        nameBn: "",
         description: "",
+        descriptionBn: "",
         mrp: 0,
         price: 0,
         category: "",
+        categoryBn: "",
         brandId: "",
     })
     const [loading, setLoading] = useState(false)
 
     const fetchBrands = async () => {
         try {
-            const res = await fetch('/api/brands')
-            const data = await res.json()
-            if (res.ok) setBrands(data.brands)
+            const [brandsRes, catsRes] = await Promise.all([
+                fetch('/api/brands'),
+                fetch('/api/admin/categories'),
+            ])
+            const brandsData = await brandsRes.json()
+            const catsData = await catsRes.json()
+            if (brandsRes.ok) setBrands(brandsData.brands)
+            if (catsRes.ok) setCategories(catsData.categories)
         } catch (error) {
             console.error(error)
         }
@@ -102,13 +109,23 @@ export default function StoreAddProduct() {
             </div>
 
             <label className="flex flex-col gap-2 my-6 ">
-                Name
+                {t('name')} (English)
                 <input type="text" name="name" onChange={onChangeHandler} value={productInfo.name} placeholder="Enter product name" className="w-full max-w-sm p-2 px-4 outline-none border border-slate-200 rounded" required />
             </label>
 
             <label className="flex flex-col gap-2 my-6 ">
-                Description
+                {t('name')} (বাংলা)
+                <input type="text" name="nameBn" onChange={onChangeHandler} value={productInfo.nameBn} placeholder="পণ্যের নাম লিখুন" className="w-full max-w-sm p-2 px-4 outline-none border border-slate-200 rounded" />
+            </label>
+
+            <label className="flex flex-col gap-2 my-6 ">
+                {t('description')} (English)
                 <textarea name="description" onChange={onChangeHandler} value={productInfo.description} placeholder="Enter product description" rows={5} className="w-full max-w-sm p-2 px-4 outline-none border border-slate-200 rounded resize-none" required />
+            </label>
+
+            <label className="flex flex-col gap-2 my-6 ">
+                {t('description')} (বাংলা)
+                <textarea name="descriptionBn" onChange={onChangeHandler} value={productInfo.descriptionBn} placeholder="পণ্যের বিবরণ লিখুন" rows={5} className="w-full max-w-sm p-2 px-4 outline-none border border-slate-200 rounded resize-none" />
             </label>
 
             <div className="flex gap-5">
@@ -122,10 +139,13 @@ export default function StoreAddProduct() {
                 </label>
             </div>
 
-            <select onChange={e => setProductInfo({ ...productInfo, category: e.target.value })} value={productInfo.category} className="w-full max-w-sm p-2 px-4 my-6 outline-none border border-slate-200 rounded" required>
+            <select onChange={e => {
+                const cat = categories.find(c => c.name === e.target.value)
+                setProductInfo({ ...productInfo, category: e.target.value, categoryBn: cat?.nameBn || "" })
+            }} value={productInfo.category} className="w-full max-w-sm p-2 px-4 my-6 outline-none border border-slate-200 rounded" required>
                 <option value="">Select a category</option>
                 {categories.map((category) => (
-                    <option key={category} value={category}>{category}</option>
+                    <option key={category.id} value={category.name}>{category.name}</option>
                 ))}
             </select>
 

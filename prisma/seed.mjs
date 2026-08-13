@@ -104,22 +104,23 @@ async function main() {
 
     // Seed categories
     const categorySeeds = [
-        { name: 'Headphones', image: '/assets/product_img4.png' },
-        { name: 'Speakers', image: '/assets/product_img2.png' },
-        { name: 'Watch', image: '/assets/product_img3.png' },
-        { name: 'Earbuds', image: '/assets/product_img9.png' },
-        { name: 'Mouse', image: '/assets/product_img11.png' },
-        { name: 'Camera', image: '/assets/product_img6.png' },
-        { name: 'Home & Kitchen', image: '/assets/product_img12.png' },
-        { name: 'Electronics', image: '/assets/product_img10.png' },
+        { name: 'Headphones', nameBn: 'হেডফোন', image: '/assets/product_img4.png' },
+        { name: 'Speakers', nameBn: 'স্পিকার', image: '/assets/product_img2.png' },
+        { name: 'Watch', nameBn: 'ঘড়ি', image: '/assets/product_img3.png' },
+        { name: 'Earbuds', nameBn: 'ইয়ারবাড', image: '/assets/product_img9.png' },
+        { name: 'Mouse', nameBn: 'মাউস', image: '/assets/product_img11.png' },
+        { name: 'Camera', nameBn: 'ক্যামেরা', image: '/assets/product_img6.png' },
+        { name: 'Home & Kitchen', nameBn: 'হোম ও কিচেন', image: '/assets/product_img12.png' },
+        { name: 'Electronics', nameBn: 'ইলেকট্রনিক্স', image: '/assets/product_img10.png' },
     ]
     for (const [index, c] of categorySeeds.entries()) {
         const slug = c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
         await prisma.category.upsert({
             where: { name: c.name },
-            update: {},
+            update: { nameBn: c.nameBn },
             create: {
                 name: c.name,
+                nameBn: c.nameBn,
                 slug,
                 image: c.image,
                 active: true,

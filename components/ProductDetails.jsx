@@ -10,12 +10,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useCurrency } from "./useCurrency";
 import useStorefrontData from "./useStorefrontData";
 import { useLanguage } from "./LanguageProvider";
+import { useLocalized } from "./useLocalized";
 
 const ProductDetails = ({ product }) => {
 
     const productId = product.id;
     const { format } = useCurrency();
     const { t } = useLanguage();
+    const { text } = useLocalized();
     const { settings } = useStorefrontData();
     const fbSettings = settings.facebook || {};
 
@@ -71,7 +73,7 @@ const ProductDetails = ({ product }) => {
                 </div>
             </div>
             <div className="flex-1">
-                <h1 className="text-3xl font-semibold text-slate-800">{product.name}</h1>
+                <h1 className="text-3xl font-semibold text-slate-800">{text(product.name, product.nameBn)}</h1>
                 <div className='flex items-center mt-2'>
                     {Array(5).fill('').map((_, index) => (
                         <StarIcon key={index} size={14} className='text-transparent mt-0.5' fill={averageRating >= index + 1 ? "#00C950" : "#D1D5DB"} />

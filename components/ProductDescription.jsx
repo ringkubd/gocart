@@ -6,6 +6,7 @@ import { useState } from "react"
 import useStorefrontData from "./useStorefrontData"
 import { useCurrency } from "./useCurrency"
 import { useLanguage } from "./LanguageProvider"
+import { useLocalized } from "./useLocalized"
 
 const ProductDescription = ({ product }) => {
 
@@ -13,6 +14,7 @@ const ProductDescription = ({ product }) => {
     const { shippingMethods } = useStorefrontData()
     const { format } = useCurrency()
     const { t } = useLanguage()
+    const { text } = useLocalized()
 
     return (
         <div className="my-18 text-sm text-slate-600">
@@ -29,7 +31,7 @@ const ProductDescription = ({ product }) => {
             {/* Description */}
             {selectedTab === "Description" && (
                 <div className="max-w-xl">
-                    <p>{product.description}</p>
+                    <p>{text(product.description, product.descriptionBn)}</p>
                     {product.brand?.name && (
                         <p className="mt-4 text-slate-400">Brand: <span className="text-slate-600 font-medium">{product.brand.name}</span></p>
                     )}

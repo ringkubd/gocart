@@ -5,10 +5,12 @@ import toast from "react-hot-toast"
 import Image from "next/image"
 import { PencilIcon, Trash2Icon, StarIcon } from "lucide-react"
 import { useCurrency } from "@/components/useCurrency"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function AdminProducts() {
 
     const { symbol: currency } = useCurrency()
+    const { t } = useLanguage()
 
     const [products, setProducts] = useState([])
     const [brands, setBrands] = useState([])
@@ -53,7 +55,7 @@ export default function AdminProducts() {
             })
             if (!res.ok) throw new Error('Failed')
             setProducts(prev => prev.map(p => p.id === product.id ? { ...p, featured: !product.featured } : p))
-            toast.success('Featured updated')
+            toast.success(t('featured'))
         } catch (error) {
             toast.error('Failed to update')
         }
@@ -94,10 +96,13 @@ export default function AdminProducts() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name: editProduct.name,
+                    nameBn: editProduct.nameBn || "",
                     description: editProduct.description,
+                    descriptionBn: editProduct.descriptionBn || "",
                     mrp: Number(editProduct.mrp),
                     price: Number(editProduct.price),
                     category: editProduct.category,
+                    categoryBn: editProduct.categoryBn || "",
                     brandId: editProduct.brandId || null,
                     stock: Number(editProduct.stock),
                 }),
@@ -123,10 +128,10 @@ export default function AdminProducts() {
     return (
         <div className="text-slate-500 mb-20">
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <h1 className="text-2xl">Product <span className="text-slate-800 font-medium">Management</span></h1>
+                <h1 className="text-2xl">{t('productManagementTitle')}</h1>
                 <form onSubmit={(e) => { e.preventDefault(); fetchProducts() }} className="flex gap-2">
-                    <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products" className="border border-slate-200 outline-slate-400 p-2 rounded text-sm w-60" />
-                    <button className="bg-slate-700 text-white px-4 rounded text-sm">Search</button>
+                    <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('searchProducts')} className="border border-slate-200 outline-slate-400 p-2 rounded text-sm w-60" />
+                    <button className="bg-slate-700 text-white px-4 rounded text-sm">{t('search')}</button>
                 </form>
             </div>
 
@@ -134,15 +139,15 @@ export default function AdminProducts() {
                 <table className="w-full text-sm text-left text-slate-600">
                     <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                         <tr>
-                            <th className="px-4 py-3">Product</th>
-                            <th className="px-4 py-3">Store</th>
-                            <th className="px-4 py-3">Category</th>
-                            <th className="px-4 py-3">MRP</th>
-                            <th className="px-4 py-3">Price</th>
-                            <th className="px-4 py-3">Stock</th>
-                            <th className="px-4 py-3">Featured</th>
-                            <th className="px-4 py-3">Sold</th>
-                            <th className="px-4 py-3">Actions</th>
+                            <th className="px-4 py-3">{t('product')}</th>
+                            <th className="px-4 py-3">{t('store')}</th>
+                            <th className="px-4 py-3">{t('category')}</th>
+                            <th className="px-4 py-3">{t('mrp')}</th>
+                            <th className="px-4 py-3">{t('price')}</th>
+                            <th className="px-4 py-3">{t('stock')}</th>
+                            <th className="px-4 py-3">{t('featured')}</th>
+                            <th className="px-4 py-3">{t('sold')}</th>
+                            <th className="px-4 py-3">{t('actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -159,7 +164,7 @@ export default function AdminProducts() {
                                 <td className="px-4 py-3 text-slate-400 line-through">{currency}{product.mrp}</td>
                                 <td className="px-4 py-3 font-medium text-slate-800">{currency}{product.price}</td>
                                 <td className="px-4 py-3">
-                                    <span className={`text-xs px-2 py-1 rounded-full ${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{product.stock > 0 ? product.stock + ' in stock' : 'Out'}</span>
+                                    <span className={`text-xs px-2 py-1 rounded-full ${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{product.stock > 0 ? product.stock + ' ' + t('inStockLabel') : t('out')}</span>
                                 </td>
                                 <td className="px-4 py-3">
                                     <button onClick={() => toggleFeatured(product)} className={`p-1.5 rounded-full transition ${product.featured ? 'bg-green-100 text-green-600' : 'text-slate-300 hover:text-slate-500'}`}>
@@ -170,7 +175,7 @@ export default function AdminProducts() {
                                 <td className="px-4 py-3">
                                     <div className="flex gap-2">
                                         <button onClick={() => toggleStock(product)} className={`text-xs px-3 py-1 rounded-full border ${product.inStock ? 'border-green-300 text-green-600 hover:bg-green-50' : 'border-slate-300 text-slate-500 hover:bg-slate-50'}`}>
-                                            {product.inStock ? 'Active' : 'Inactive'}
+                                            {product.inStock ? t('active') : t('inactive')}
                                         </button>
                                         <button onClick={() => { setEditProduct(product); setEditing(true) }} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><PencilIcon size={16} /></button>
                                         <button onClick={() => handleDelete(product)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"><Trash2Icon size={16} /></button>
@@ -179,7 +184,7 @@ export default function AdminProducts() {
                             </tr>
                         ))}
                         {products.length === 0 && (
-                            <tr><td colSpan={9} className="px-4 py-10 text-center text-slate-400">No products found.</td></tr>
+                            <tr><td colSpan={9} className="px-4 py-10 text-center text-slate-400">{t('noProductsFoundAdmin')}</td></tr>
                         )}
                     </tbody>
                 </table>
@@ -192,12 +197,20 @@ export default function AdminProducts() {
                         <h2 className="text-xl font-semibold text-slate-900 mb-4">Edit Product</h2>
                         <div className="flex flex-col gap-3">
                             <label className="flex flex-col gap-1">
-                                <span className="text-xs text-slate-400">Name</span>
+                                <span className="text-xs text-slate-400">Name (English)</span>
                                 <input value={editProduct.name} onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })} className="border border-slate-200 rounded p-2" required />
                             </label>
                             <label className="flex flex-col gap-1">
-                                <span className="text-xs text-slate-400">Description</span>
+                                <span className="text-xs text-slate-400">Name (বাংলা)</span>
+                                <input value={editProduct.nameBn || ''} onChange={(e) => setEditProduct({ ...editProduct, nameBn: e.target.value })} className="border border-slate-200 rounded p-2" />
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">Description (English)</span>
                                 <textarea value={editProduct.description} onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })} rows={3} className="border border-slate-200 rounded p-2" required />
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">Description (বাংলা)</span>
+                                <textarea value={editProduct.descriptionBn || ''} onChange={(e) => setEditProduct({ ...editProduct, descriptionBn: e.target.value })} rows={3} className="border border-slate-200 rounded p-2" />
                             </label>
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1">

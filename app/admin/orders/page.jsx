@@ -130,7 +130,7 @@ export default function AdminOrders() {
                                 <td className="px-4 py-3">{order.store?.name}</td>
                                 <td className="px-4 py-3 font-medium text-slate-800">{currency}{order.total}</td>
                                 <td className="px-4 py-3">
-                                    <span className={`text-xs px-3 py-1 rounded-full ${order.isPaid ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>{order.paymentMethod}{order.isPaid ? '' : ' (COD)'}</span>
+                                    <span className={`text-xs px-3 py-1 rounded-full ${order.isPaid ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>{order.paymentMethod}{order.isPaid ? '' : ' (' + t('cashOnDelivery') + ')'}</span>
                                 </td>
                                 <td className="px-4 py-3 text-xs text-slate-500">{order.trackingNumber || '—'}</td>
                                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -158,7 +158,7 @@ export default function AdminOrders() {
 
                         {/* Customer */}
                         <div className="mb-4">
-                            <h3 className="font-semibold mb-2">Customer Details</h3>
+                            <h3 className="font-semibold mb-2">{t('customerDetails')}</h3>
                             <p><span className="text-green-700">Name:</span> {selectedOrder.user?.name}</p>
                             <p><span className="text-green-700">Email:</span> {selectedOrder.user?.email}</p>
                             <p><span className="text-green-700">Phone:</span> {selectedOrder.address?.phone}</p>
@@ -167,7 +167,7 @@ export default function AdminOrders() {
 
                         {/* Products */}
                         <div className="mb-4">
-                            <h3 className="font-semibold mb-2">Products</h3>
+                            <h3 className="font-semibold mb-2">{t('products')}</h3>
                             <div className="space-y-2">
                                 {selectedOrder.orderItems.map((item, i) => (
                                     <div key={i} className="flex items-center gap-4 border border-slate-100 shadow rounded p-2">
@@ -184,25 +184,25 @@ export default function AdminOrders() {
 
                         {/* Delivery management */}
                         <div className="mb-4 border border-slate-200 rounded-lg p-4">
-                            <h3 className="font-semibold mb-3">Delivery & Tracking</h3>
+                            <h3 className="font-semibold mb-3">{t('deliveryTracking')}</h3>
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1">
-                                    <span className="text-xs text-slate-400">Courier Name</span>
+                                    <span className="text-xs text-slate-400">{t('courierName')}</span>
                                     <input defaultValue={selectedOrder.courierName} id="courierName" className="border border-slate-200 rounded p-2 text-sm" placeholder="e.g. Pathao, Steadfast" />
                                 </label>
                                 <label className="flex flex-col gap-1">
-                                    <span className="text-xs text-slate-400">Tracking Number</span>
+                                    <span className="text-xs text-slate-400">{t('trackingNumber')}</span>
                                     <input defaultValue={selectedOrder.trackingNumber} id="trackingNumber" className="border border-slate-200 rounded p-2 text-sm" placeholder="Tracking no." />
                                 </label>
                             </div>
                             <label className="flex flex-col gap-1 mt-3">
-                                <span className="text-xs text-slate-400">Internal Note</span>
+                                <span className="text-xs text-slate-400">{t('internalNote')}</span>
                                 <input defaultValue={selectedOrder.note} id="note" className="border border-slate-200 rounded p-2 text-sm" placeholder="Optional note" />
                             </label>
                             <div className="flex gap-2 mt-4">
                                 <label className="flex items-center gap-2">
                                     <input type="checkbox" defaultChecked={selectedOrder.isPaid} id="isPaid" className="accent-green-500" />
-                                    <span className="text-sm">Payment received</span>
+                                    <span className="text-sm">{t('paymentReceived')}</span>
                                 </label>
                             </div>
                             <button
@@ -224,7 +224,7 @@ export default function AdminOrders() {
                         {/* Payment & status */}
                         <div className="mb-4">
                             <p><span className="text-green-700">Shipping:</span> {selectedOrder.shippingMethod} ({currency}{selectedOrder.shippingCost})</p>
-                            <p><span className="text-green-700">Payment:</span> {selectedOrder.paymentMethod} — {selectedOrder.isPaid ? 'Paid' : 'Unpaid'}</p>
+                            <p><span className="text-green-700">{t('paymentMethodLabel')}:</span> {selectedOrder.paymentMethod} — {selectedOrder.isPaid ? t('paidLabel') : t('unpaidLabel')}</p>
                             {selectedOrder.transactionId && <p><span className="text-green-700">Txn ID:</span> {selectedOrder.transactionId}</p>}
                             {selectedOrder.isCouponUsed && (
                                 <p><span className="text-green-700">Coupon:</span> {selectedOrder.coupon?.code} ({selectedOrder.coupon?.discount}% off)</p>
@@ -236,7 +236,7 @@ export default function AdminOrders() {
                         </div>
 
                         <div className="flex justify-end">
-                            <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300">Close</button>
+                            <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300">{t('close')}</button>
                         </div>
                     </div>
                 </div>

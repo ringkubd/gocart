@@ -8,11 +8,13 @@ import { useDispatch } from 'react-redux'
 import { addToCart } from '@/lib/features/cart/cartSlice'
 import toast from 'react-hot-toast'
 import { useLanguage } from './LanguageProvider'
+import { useLocalized } from './useLocalized'
 
 const ProductCard = ({ product }) => {
 
     const { format } = useCurrency()
     const { t } = useLanguage()
+    const { text } = useLocalized()
     const dispatch = useDispatch()
 
     // calculate the average rating of the product
@@ -71,7 +73,7 @@ const ProductCard = ({ product }) => {
                 <div className='flex justify-between gap-3 text-sm text-slate-800 pt-2 max-w-60'>
                     <div>
                         {product.brand?.name && <p className="text-xs text-slate-400">{product.brand.name}</p>}
-                        <p className="truncate max-w-36">{product.name}</p>
+                        <p className="truncate max-w-36">{text(product.name, product.nameBn)}</p>
                         <div className='flex'>
                             {Array(5).fill('').map((_, index) => (
                                 <StarIcon key={index} size={14} className='text-transparent mt-0.5' fill={rating >= index + 1 ? "#00C950" : "#D1D5DB"} />

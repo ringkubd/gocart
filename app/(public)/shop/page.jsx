@@ -5,6 +5,7 @@ import { MoveLeftIcon } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useSelector } from "react-redux"
 import useStorefrontData from "@/components/useStorefrontData"
+import { useLocalized } from "@/components/useLocalized"
 
  function ShopContent() {
 
@@ -17,6 +18,7 @@ import useStorefrontData from "@/components/useStorefrontData"
 
     const products = useSelector(state => state.product.list)
     const { categories, brands } = useStorefrontData()
+    const { text } = useLocalized()
 
     const filteredProducts = products.filter(product => {
         const matchesSearch = search
@@ -53,7 +55,7 @@ import useStorefrontData from "@/components/useStorefrontData"
                         <button onClick={() => router.push(brand ? `/shop?brand=${brand}` : '/shop')} className={`px-4 py-1.5 rounded-full text-sm border ${!category ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>All</button>
                         {categories.map((cat) => (
                             <button key={cat.id} onClick={() => router.push(`/shop?category=${cat.slug}${brand ? `&brand=${brand}` : ''}`)} className={`px-4 py-1.5 rounded-full text-sm border ${category === cat.slug || category === cat.name ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
-                                {cat.name}
+                                {text(cat.name, cat.nameBn)}
                             </button>
                         ))}
                     </div>

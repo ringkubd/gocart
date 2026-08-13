@@ -17,7 +17,7 @@ export default function AdminSiteDesign() {
 
     // Categories
     const [categories, setCategories] = useState([])
-    const [catForm, setCatForm] = useState({ id: '', name: '', image: '', active: true, sortOrder: 0 })
+    const [catForm, setCatForm] = useState({ id: '', name: '', nameBn: '', image: '', active: true, sortOrder: 0 })
 
     // Promo strip + settings
     const [settings, setSettings] = useState({})
@@ -103,7 +103,7 @@ export default function AdminSiteDesign() {
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed')
             toast.success(catForm.id ? 'Category updated' : 'Category added')
-            setCatForm({ id: '', name: '', image: '', active: true, sortOrder: 0 })
+            setCatForm({ id: '', name: '', nameBn: '', image: '', active: true, sortOrder: 0 })
             fetchData()
         } catch (error) {
             toast.error(error.message || 'Failed')
@@ -460,6 +460,10 @@ export default function AdminSiteDesign() {
                             <label className="flex flex-col gap-1 col-span-2">
                                 <span className="text-xs text-slate-400">Category Name</span>
                                 <input value={catForm.name} onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" required />
+                            </label>
+                            <label className="flex flex-col gap-1 col-span-2">
+                                <span className="text-xs text-slate-400">Category Name (বাংলা)</span>
+                                <input value={catForm.nameBn || ''} onChange={(e) => setCatForm({ ...catForm, nameBn: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" placeholder="ক্যাটাগরির নাম" />
                             </label>
                             <label className="flex flex-col gap-1 col-span-2">
                                 <span className="text-xs text-slate-400">Category Image</span>

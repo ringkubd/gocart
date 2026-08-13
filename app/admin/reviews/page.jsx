@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import Image from "next/image"
 import { StarIcon, Trash2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function AdminReviews() {
 
+    const { t } = useLanguage()
     const [ratings, setRatings] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
@@ -35,7 +37,7 @@ export default function AdminReviews() {
             })
             if (!res.ok) throw new Error('Failed')
             setRatings(prev => prev.map(r => r.id === rating.id ? { ...r, hidden: !rating.hidden } : r))
-            toast.success(rating.hidden ? 'Review shown' : 'Review hidden')
+            toast.success(rating.hidden ? t('shownLabel') : t('hiddenLabel'))
         } catch (error) {
             toast.error('Failed')
         }
@@ -51,7 +53,7 @@ export default function AdminReviews() {
             })
             if (!res.ok) throw new Error('Failed')
             setRatings(prev => prev.filter(r => r.id !== rating.id))
-            toast.success('Review deleted')
+            toast.success(t('deleted'))
         } catch (error) {
             toast.error('Failed to delete')
         }
@@ -66,10 +68,10 @@ export default function AdminReviews() {
     return (
         <div className="text-slate-500 mb-20">
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <h1 className="text-2xl">Review <span className="text-slate-800 font-medium">Management</span></h1>
+                <h1 className="text-2xl">{t('reviewManagement')}</h1>
                 <form onSubmit={(e) => { e.preventDefault(); fetchReviews() }} className="flex gap-2">
-                    <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search reviews" className="border border-slate-200 outline-slate-400 p-2 rounded text-sm w-60" />
-                    <button className="bg-slate-700 text-white px-4 rounded text-sm">Search</button>
+                    <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('searchReviews')} className="border border-slate-200 outline-slate-400 p-2 rounded text-sm w-60" />
+                    <button className="bg-slate-700 text-white px-4 rounded text-sm">{t('search')}</button>
                 </form>
             </div>
 
@@ -87,7 +89,7 @@ export default function AdminReviews() {
                                             <StarIcon key={i} size={14} className="text-transparent" fill={rating.rating >= i + 1 ? "#00C950" : "#D1D5DB"} />
                                         ))}
                                     </span>
-                                    {rating.hidden && <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Hidden</span>}
+                                    {rating.hidden && <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">{t('hiddenLabel')}</span>}
                                 </div>
                                 <p className="text-sm text-slate-500 mt-2">{rating.review}</p>
                                 <div className="flex items-center gap-2 mt-3 text-xs">
@@ -96,7 +98,7 @@ export default function AdminReviews() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <button onClick={() => toggleHidden(rating)} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded" title={rating.hidden ? 'Show' : 'Hide'}>
+                                <button onClick={() => toggleHidden(rating)} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded" title={rating.hidden ? t('showLabel') : t('hideLabel')}>
                                     {rating.hidden ? <EyeIcon size={16} /> : <EyeOffIcon size={16} />}
                                 </button>
                                 <button onClick={() => handleDelete(rating)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete">
@@ -106,7 +108,7 @@ export default function AdminReviews() {
                         </div>
                     </div>
                 ))}
-                {ratings.length === 0 && <p className="text-sm text-slate-400">No reviews found.</p>}
+                {ratings.length === 0 && <p className="text-sm text-slate-400">{t('noReviews')}</p>}
             </div>
         </div>
     )

@@ -3,9 +3,11 @@ import Loading from "@/components/Loading"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { Trash2Icon, MailIcon } from "lucide-react"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function AdminNewsletter() {
 
+    const { t } = useLanguage()
     const [subscribers, setSubscribers] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
@@ -38,7 +40,7 @@ export default function AdminNewsletter() {
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed')
-            toast.success('Newsletter settings saved')
+            toast.success(t('saved'))
         } catch (error) {
             toast.error(error.message || 'Failed')
         }
@@ -70,7 +72,7 @@ export default function AdminNewsletter() {
             })
             if (!res.ok) throw new Error('Failed')
             setSubscribers(prev => prev.filter(s => s.id !== sub.id))
-            toast.success('Subscriber removed')
+            toast.success(t('deleted'))
         } catch (error) {
             toast.error('Failed to remove')
         }
@@ -84,33 +86,33 @@ export default function AdminNewsletter() {
 
     return (
         <div className="text-slate-500 mb-20">
-            <h1 className="text-2xl">Newsletter <span className="text-slate-800 font-medium">Management</span></h1>
-            <p className="text-sm text-slate-400 mt-1">Manage the newsletter subscription section and subscriber list.</p>
+            <h1 className="text-2xl">{t('newsletterManagement')}</h1>
+            <p className="text-sm text-slate-400 mt-1">{t('newsletterManagementDesc')}</p>
 
             {/* Settings */}
             <form onSubmit={saveSettings} className="mt-6 border border-slate-200 rounded-xl p-6 max-w-2xl flex flex-col gap-4">
-                <h3 className="font-medium text-slate-700">Newsletter Section (homepage)</h3>
+                <h3 className="font-medium text-slate-700">{t('newsletterSection')}</h3>
                 <label className="flex items-center gap-2">
                     <input type="checkbox" checked={settings.active} onChange={toggleActive} className="accent-green-500" />
-                    <span className="text-sm">Show newsletter section on homepage</span>
+                    <span className="text-sm">{t('showNewsletter')}</span>
                 </label>
                 <label className="flex flex-col gap-1">
-                    <span className="text-xs text-slate-400">Title</span>
+                    <span className="text-xs text-slate-400">{t('title')}</span>
                     <input value={settings.title || ''} onChange={(e) => setSettings({ ...settings, title: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" />
                 </label>
                 <label className="flex flex-col gap-1">
-                    <span className="text-xs text-slate-400">Description</span>
+                    <span className="text-xs text-slate-400">{t('description')}</span>
                     <textarea value={settings.description || ''} onChange={(e) => setSettings({ ...settings, description: e.target.value })} rows={2} className="border border-slate-200 rounded p-2 text-sm resize-none" />
                 </label>
-                <button className="bg-slate-800 text-white px-6 py-2 rounded text-sm w-fit">Save Settings</button>
+                <button className="bg-slate-800 text-white px-6 py-2 rounded text-sm w-fit">{t('saveSettingsBtn')}</button>
             </form>
 
             {/* Subscribers */}
             <div className="mt-8 max-w-3xl">
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                    <h3 className="font-medium text-slate-700">Subscribers ({subscribers.length})</h3>
+                    <h3 className="font-medium text-slate-700">{t('subscribersCount')} ({subscribers.length})</h3>
                     <form onSubmit={(e) => { e.preventDefault(); fetchNewsletter() }} className="flex gap-2">
-                        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search email" className="border border-slate-200 outline-slate-400 p-2 rounded text-sm w-60" />
+                        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('searchProducts')} className="border border-slate-200 outline-slate-400 p-2 rounded text-sm w-60" />
                         <button className="bg-slate-700 text-white px-4 rounded text-sm">Search</button>
                     </form>
                 </div>
@@ -119,9 +121,9 @@ export default function AdminNewsletter() {
                     <table className="w-full text-sm text-left text-slate-600">
                         <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                             <tr>
-                                <th className="px-4 py-3">Email</th>
-                                <th className="px-4 py-3">Subscribed At</th>
-                                <th className="px-4 py-3">Action</th>
+                                <th className="px-4 py-3">{t('email')}</th>
+                                <th className="px-4 py-3">{t('subscribedAt')}</th>
+                                <th className="px-4 py-3">{t('actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -140,7 +142,7 @@ export default function AdminNewsletter() {
                                 </tr>
                             ))}
                             {subscribers.length === 0 && (
-                                <tr><td colSpan={3} className="px-4 py-10 text-center text-slate-400">No subscribers yet.</td></tr>
+                                <tr><td colSpan={3} className="px-4 py-10 text-center text-slate-400">{t('noSubscribers')}</td></tr>
                             )}
                         </tbody>
                     </table>

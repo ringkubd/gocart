@@ -4,10 +4,12 @@ import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { PencilIcon, Trash2Icon } from "lucide-react"
 import { useCurrency } from "@/components/useCurrency"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function AdminShipping() {
 
     const { symbol: currency } = useCurrency()
+    const { t } = useLanguage()
 
     const [methods, setMethods] = useState([])
     const [loading, setLoading] = useState(true)
@@ -38,7 +40,7 @@ export default function AdminShipping() {
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed')
-            toast.success(form.id ? 'Shipping method updated' : 'Shipping method added')
+            toast.success(form.id ? t('updated') : t('added'))
             setForm({ id: '', name: '', cost: '', deliveryTime: '', active: true })
             fetchMethods()
         } catch (error) {
@@ -70,7 +72,7 @@ export default function AdminShipping() {
             })
             if (!res.ok) throw new Error('Failed')
             setMethods(prev => prev.filter(m => m.id !== method.id))
-            toast.success('Shipping method deleted')
+            toast.success(t('deleted'))
         } catch (error) {
             toast.error('Failed to delete')
         }
@@ -89,31 +91,31 @@ export default function AdminShipping() {
 
     return (
         <div className="text-slate-500 mb-20">
-            <h1 className="text-2xl">Shipping & <span className="text-slate-800 font-medium">Delivery</span></h1>
-            <p className="text-sm text-slate-400 mt-1">Manage delivery zones and charges shown at checkout.</p>
+            <h1 className="text-2xl">{t('shippingManagement')}</h1>
+            <p className="text-sm text-slate-400 mt-1">{t('shippingManagementDesc')}</p>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="max-w-lg mt-6 border border-slate-200 rounded-xl p-6 flex flex-col gap-4">
-                <h3 className="font-medium text-slate-700">{form.id ? 'Edit Shipping Method' : 'Add Shipping Method'}</h3>
+                <h3 className="font-medium text-slate-700">{form.id ? t('editShippingMethod') : t('addShippingMethod')}</h3>
                 <div className="grid grid-cols-2 gap-3">
                     <label className="flex flex-col gap-1 col-span-2">
-                        <span className="text-xs text-slate-400">Method Name</span>
+                        <span className="text-xs text-slate-400">{t('methodName')}</span>
                         <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Inside Dhaka, Outside Dhaka" className="border border-slate-200 rounded p-2 text-sm" required />
                     </label>
                     <label className="flex flex-col gap-1">
-                        <span className="text-xs text-slate-400">Delivery Charge ({currency})</span>
+                        <span className="text-xs text-slate-400">{t('deliveryCharge')} ({currency})</span>
                         <input type="number" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} placeholder="0" className="border border-slate-200 rounded p-2 text-sm" required />
                     </label>
                     <label className="flex flex-col gap-1">
-                        <span className="text-xs text-slate-400">Delivery Time</span>
+                        <span className="text-xs text-slate-400">{t('deliveryTime')}</span>
                         <input value={form.deliveryTime} onChange={(e) => setForm({ ...form, deliveryTime: e.target.value })} placeholder="e.g. 1-2 days" className="border border-slate-200 rounded p-2 text-sm" />
                     </label>
                 </div>
                 <div className="flex items-center gap-3">
                     <button className="bg-slate-800 text-white px-6 py-2 rounded text-sm hover:bg-slate-900">
-                        {form.id ? 'Update Method' : 'Add Method'}
+                        {form.id ? t('updateMethod') : t('addMethod')}
                     </button>
-                    {form.id && <button type="button" onClick={() => setForm({ id: '', name: '', cost: '', deliveryTime: '', active: true })} className="text-sm text-slate-400 hover:text-slate-600">Cancel</button>}
+                    {form.id && <button type="button" onClick={() => setForm({ id: '', name: '', cost: '', deliveryTime: '', active: true })} className="text-sm text-slate-400 hover:text-slate-600">{t('cancel')}</button>}
                 </div>
             </form>
 
@@ -122,11 +124,11 @@ export default function AdminShipping() {
                 <table className="w-full text-sm text-left text-slate-600">
                     <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                         <tr>
-                            <th className="px-4 py-3">Name</th>
-                            <th className="px-4 py-3">Cost</th>
-                            <th className="px-4 py-3">Delivery Time</th>
-                            <th className="px-4 py-3">Active</th>
-                            <th className="px-4 py-3">Actions</th>
+                            <th className="px-4 py-3">{t('name')}</th>
+                            <th className="px-4 py-3">{t('deliveryCharge')}</th>
+                            <th className="px-4 py-3">{t('deliveryTime')}</th>
+                            <th className="px-4 py-3">{t('active')}</th>
+                            <th className="px-4 py-3">{t('actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -151,7 +153,7 @@ export default function AdminShipping() {
                             </tr>
                         ))}
                         {methods.length === 0 && (
-                            <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-400">No shipping methods. Add one above.</td></tr>
+                            <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-400">{t('noShippingMethods')}</td></tr>
                         )}
                     </tbody>
                 </table>

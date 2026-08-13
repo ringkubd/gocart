@@ -87,13 +87,13 @@ export default function StoreOrders() {
         <>
             <h1 className="text-2xl text-slate-500 mb-5">Store <span className="text-slate-800 font-medium">Orders</span></h1>
             {orders.length === 0 ? (
-                <p>No orders found</p>
+                <p>{t('noOrdersFound')}</p>
             ) : (
                 <div className="overflow-x-auto max-w-4xl rounded-md shadow border border-gray-200">
                     <table className="w-full text-sm text-left text-gray-600">
                         <thead className="bg-gray-50 text-gray-700 text-xs uppercase tracking-wider">
                             <tr>
-                                {["Sr. No.", "Customer", "Total", "Payment", "Coupon", "Status", "Date"].map((heading, i) => (
+                                {[t("srNo"), t("customerName"), t("totalLabel"), t("paymentMethodLabel"), t("coupon"), t("status"), t("date")].map((heading, i) => (
                                     <th key={i} className="px-4 py-3">{heading}</th>
                                 ))}
                             </tr>
@@ -148,12 +148,12 @@ export default function StoreOrders() {
                 <div onClick={closeModal} className="fixed inset-0 flex items-center justify-center bg-black/50 text-slate-700 text-sm backdrop-blur-xs z-50" >
                     <div onClick={e => e.stopPropagation()} className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
                         <h2 className="text-xl font-semibold text-slate-900 mb-4 text-center">
-                            Order Details
+                            {t('orderDetails')}
                         </h2>
 
                         {/* Customer Details */}
                         <div className="mb-4">
-                            <h3 className="font-semibold mb-2">Customer Details</h3>
+                            <h3 className="font-semibold mb-2">{t('customerDetails')}</h3>
                             <p><span className="text-green-700">Name:</span> {selectedOrder.user?.name}</p>
                             <p><span className="text-green-700">Email:</span> {selectedOrder.user?.email}</p>
                             <p><span className="text-green-700">Phone:</span> {selectedOrder.address?.phone}</p>
@@ -162,7 +162,7 @@ export default function StoreOrders() {
 
                         {/* Products */}
                         <div className="mb-4">
-                            <h3 className="font-semibold mb-2">Products</h3>
+                            <h3 className="font-semibold mb-2">{t('products')}</h3>
                             <div className="space-y-2">
                                 {selectedOrder.orderItems.map((item, i) => (
                                     <div key={i} className="flex items-center gap-4 border border-slate-100 shadow rounded p-2">
@@ -173,8 +173,8 @@ export default function StoreOrders() {
                                         />
                                         <div className="flex-1">
                                             <p className="text-slate-800">{item.product?.name}</p>
-                                            <p>Qty: {item.quantity}</p>
-                                            <p>Price: {currency}{item.price}</p>
+                                            <p>{t('quantityLabel')}: {item.quantity}</p>
+                                            <p>{t('price')}: {currency}{item.price}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -183,20 +183,20 @@ export default function StoreOrders() {
 
                         {/* Payment & Status */}
                         <div className="mb-4">
-                            <p><span className="text-green-700">Payment Method:</span> {selectedOrder.paymentMethod}</p>
-                            <p><span className="text-green-700">Paid:</span> {selectedOrder.isPaid ? "Yes" : "No"}</p>
+                            <p><span className="text-green-700">{t('paymentMethodLabel')}:</span> {selectedOrder.paymentMethod}</p>
+                            <p><span className="text-green-700">{t('paidLabel')}:</span> {selectedOrder.isPaid ? "Yes" : "No"}</p>
                             {selectedOrder.isCouponUsed && (
-                                <p><span className="text-green-700">Coupon:</span> {selectedOrder.coupon?.code} ({selectedOrder.coupon?.discount}% off)</p>
+                                <p><span className="text-green-700">{t('coupon')}:</span> {selectedOrder.coupon?.code} ({selectedOrder.coupon?.discount}% off)</p>
                             )}
                             <p><span className="text-green-700">Shipping:</span> {selectedOrder.shippingMethod} (${selectedOrder.shippingCost})</p>
-                            <p><span className="text-green-700">Status:</span> {selectedOrder.status}</p>
-                            <p><span className="text-green-700">Order Date:</span> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
-                            {selectedOrder.deliveredAt && <p><span className="text-green-700">Delivered at:</span> {new Date(selectedOrder.deliveredAt).toLocaleString()}</p>}
+                            <p><span className="text-green-700">{t('status')}:</span> {selectedOrder.status}</p>
+                            <p><span className="text-green-700">{t('orderDate')}:</span> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
+                            {selectedOrder.deliveredAt && <p><span className="text-green-700">{t('deliveredAt')}:</span> {new Date(selectedOrder.deliveredAt).toLocaleString()}</p>}
                         </div>
 
                         {/* Delivery / Tracking */}
                         <div className="mb-4 border border-slate-200 rounded-lg p-4">
-                            <h3 className="font-semibold mb-3">Delivery & Tracking</h3>
+                            <h3 className="font-semibold mb-3">{t('deliveryTracking')}</h3>
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">Courier Name</span>
@@ -208,7 +208,7 @@ export default function StoreOrders() {
                                 </label>
                             </div>
                             <button onClick={() => saveTracking(selectedOrder.id)} className="mt-3 bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 text-sm">
-                                Save Tracking
+                                {t('saveTracking')}
                             </button>
                         </div>
 
