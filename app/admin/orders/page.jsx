@@ -2,6 +2,7 @@
 import Loading from "@/components/Loading"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
+import { useCurrency } from "@/components/useCurrency"
 
 const statusLabels = {
     ORDER_PLACED: 'Order Placed',
@@ -21,7 +22,7 @@ const statusColors = {
 
 export default function AdminOrders() {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const { symbol: currency } = useCurrency()
 
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)

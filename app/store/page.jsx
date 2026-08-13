@@ -5,10 +5,11 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { useCurrency } from "@/components/useCurrency"
 
 export default function Dashboard() {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const { symbol: currency } = useCurrency()
 
     const router = useRouter()
 

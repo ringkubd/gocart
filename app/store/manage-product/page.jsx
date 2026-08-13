@@ -4,10 +4,11 @@ import { toast } from "react-hot-toast"
 import Image from "next/image"
 import Loading from "@/components/Loading"
 import { PencilIcon, Trash2Icon } from "lucide-react"
+import { useCurrency } from "@/components/useCurrency"
 
 export default function StoreManageProducts() {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const { symbol: currency } = useCurrency()
 
     const [loading, setLoading] = useState(true)
     const [products, setProducts] = useState([])

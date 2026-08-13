@@ -4,10 +4,11 @@ import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import Image from "next/image"
 import { PencilIcon, Trash2Icon, StarIcon } from "lucide-react"
+import { useCurrency } from "@/components/useCurrency"
 
 export default function AdminProducts() {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const { symbol: currency } = useCurrency()
 
     const [products, setProducts] = useState([])
     const [brands, setBrands] = useState([])

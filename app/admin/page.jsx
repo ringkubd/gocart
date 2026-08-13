@@ -3,10 +3,11 @@ import Loading from "@/components/Loading"
 import { CircleDollarSignIcon, ShoppingBasketIcon, StoreIcon, TagsIcon, UsersIcon, ClockIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useCurrency } from "@/components/useCurrency"
 
 export default function AdminDashboard() {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const { symbol: currency } = useCurrency()
 
     const [loading, setLoading] = useState(true)
     const [dashboardData, setDashboardData] = useState({

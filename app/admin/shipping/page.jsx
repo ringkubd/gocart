@@ -3,10 +3,11 @@ import Loading from "@/components/Loading"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { PencilIcon, Trash2Icon } from "lucide-react"
+import { useCurrency } from "@/components/useCurrency"
 
 export default function AdminShipping() {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const { symbol: currency } = useCurrency()
 
     const [methods, setMethods] = useState([])
     const [loading, setLoading] = useState(true)
