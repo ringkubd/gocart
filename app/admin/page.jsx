@@ -8,7 +8,7 @@ import { useLanguage } from "@/components/LanguageProvider"
 
 export default function AdminDashboard() {
 
-    const { symbol: currency } = useCurrency()
+    const { format } = useCurrency()
     const { t } = useLanguage()
 
     const [loading, setLoading] = useState(true)
@@ -115,7 +115,7 @@ export default function AdminDashboard() {
                                     <p className="text-sm font-medium text-slate-700 truncate">{p.name}</p>
                                     <p className="text-xs text-slate-400">{p.qty} sold</p>
                                 </div>
-                                <span className="text-sm font-medium text-slate-700">{currency}{p.price}</span>
+                                <span className="text-sm font-medium text-slate-700">{format(p.price)}</span>
                             </div>
                         ))}
                         {dashboardData.topProducts.length === 0 && <p className="text-sm text-slate-400">{t('noSalesYet')}</p>}
@@ -133,7 +133,7 @@ export default function AdminDashboard() {
                             <p className="text-xs text-slate-400 mb-2">@{s.username}</p>
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-500">{s.orders} orders</span>
-                                <span className="font-medium text-slate-700">{currency}{s.revenue.toLocaleString()}</span>
+                                <span className="font-medium text-slate-700">{format(s.revenue)}</span>
                             </div>
                         </div>
                     ))}
@@ -165,7 +165,7 @@ export default function AdminDashboard() {
                                     <td className="px-4 py-3 text-slate-600 font-mono text-xs">#{o.id.slice(-8)}</td>
                                     <td className="px-4 py-3 text-slate-600">{o.user?.name}</td>
                                     <td className="px-4 py-3 text-slate-500">{o.store?.name}</td>
-                                    <td className="px-4 py-3 font-medium text-slate-700">{currency}{o.total}</td>
+                                    <td className="px-4 py-3 font-medium text-slate-700">{format(o.total)}</td>
                                     <td className="px-4 py-3">
                                         <span className={`text-xs px-3 py-1 rounded-full ${statusColors[o.status] || 'bg-slate-100 text-slate-600'}`}>{statusLabels[o.status] || o.status}</span>
                                     </td>

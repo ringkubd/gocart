@@ -4,10 +4,12 @@ import Loading from "@/components/Loading"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
 import GuestBadge from "@/components/GuestBadge"
+import useStorefrontData from "@/components/useStorefrontData"
 
 export default function StoreOrders() {
-    const { symbol: currency } = useCurrency()
+    const { format } = useCurrency()
     const { t } = useLanguage()
+    const { couriers } = useStorefrontData()
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
     const [selectedOrder, setSelectedOrder] = useState(null)
@@ -112,7 +114,7 @@ export default function StoreOrders() {
                                         {index + 1}
                                     </td>
                                     <td className="px-4 py-3"><div className="flex items-center gap-2"><span>{order.guestName || order.user?.name || 'Guest'}</span><GuestBadge order={order} /></div></td>
-                                    <td className="px-4 py-3 font-medium text-slate-800">{currency}{order.total}</td>
+                                    <td className="px-4 py-3 font-medium text-slate-800">{format(order.total)}</td>
                                     <td className="px-4 py-3">{order.paymentMethod}</td>
                                     <td className="px-4 py-3">
                                         {order.isCouponUsed ? (
@@ -177,7 +179,7 @@ export default function StoreOrders() {
                                         <div className="flex-1">
                                             <p className="text-slate-800">{item.product?.name}</p>
                                             <p>{t('quantityLabel')}: {item.quantity}</p>
-                                            <p>{t('price')}: {currency}{item.price}</p>
+                                            <p>{t('price')}: {format(item.price)}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -191,7 +193,7 @@ export default function StoreOrders() {
                             {selectedOrder.isCouponUsed && (
                                 <p><span className="text-green-700">{t('coupon')}:</span> {selectedOrder.coupon?.code} ({selectedOrder.coupon?.discount}% off)</p>
                             )}
-                            <p><span className="text-green-700">Shipping:</span> {selectedOrder.shippingMethod} (${selectedOrder.shippingCost})</p>
+                            <p><span className="text-green-700">Shipping:</span> {selectedOrder.shippingMethod} ({format(selectedOrder.shippingCost)})</p>
                             <p><span className="text-green-700">{t('status')}:</span> {selectedOrder.status}</p>
                             <p><span className="text-green-700">{t('orderDate')}:</span> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
                             {selectedOrder.deliveredAt && <p><span className="text-green-700">{t('deliveredAt')}:</span> {new Date(selectedOrder.deliveredAt).toLocaleString()}</p>}
@@ -202,8 +204,16 @@ export default function StoreOrders() {
                             <h3 className="font-semibold mb-3">{t('deliveryTracking')}</h3>
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1">
-                                    <span className="text-xs text-slate-400">Courier Name</span>
-                                    <input defaultValue={selectedOrder.courierName} id="store-courier" className="border border-slate-200 rounded p-2 text-sm" placeholder="e.g. Pathao" />
+                                    <span className="text-xs text-slate-400">{t('courierName')}</span>
+                                    <select defaultValue={selectedOrder.courierName} id="store-courier" className="border border-slate-200 rounded p-2 text-sm">
+                                        <option value="">{t('selectCourier')}</option>
+                                        {(couriers || []).map((c) => (
+                                            <option key={c.code} value={c.name}>{c.name}</option>
+                                        ))}
+                                        {selectedOrder.courierName && !(couriers || []).some(c => c.name === selectedOrder.courierName) && (
+                                            <option value={selectedOrder.courierName}>{selectedOrder.courierName}</option>
+                                        )}
+                                    </select>
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">Tracking Number</span>

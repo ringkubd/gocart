@@ -5,6 +5,7 @@ import toast from "react-hot-toast"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
 import GuestBadge from "@/components/GuestBadge"
+import useStorefrontData from "@/components/useStorefrontData"
 
 const statusColors = {
     ORDER_PLACED: 'bg-yellow-100 text-yellow-700',
@@ -16,8 +17,9 @@ const statusColors = {
 
 export default function AdminOrders() {
 
-    const { symbol: currency } = useCurrency()
+    const { format } = useCurrency()
     const { t } = useLanguage()
+    const { couriers } = useStorefrontData()
 
     const statusLabels = {
         ORDER_PLACED: t('orderPlaced'),
@@ -134,7 +136,7 @@ export default function AdminOrders() {
                                     </div>
                                 </td>
                                 <td className="px-4 py-3">{order.store?.name}</td>
-                                <td className="px-4 py-3 font-medium text-slate-800">{currency}{order.total}</td>
+                                <td className="px-4 py-3 font-medium text-slate-800">{format(order.total)}</td>
                                 <td className="px-4 py-3">
                                     <span className={`text-xs px-3 py-1 rounded-full ${order.isPaid ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>{order.paymentMethod}{order.isPaid ? '' : ' (' + t('cashOnDelivery') + ')'}</span>
                                 </td>
@@ -185,7 +187,7 @@ export default function AdminOrders() {
                                         <div className="flex-1">
                                             <p className="text-slate-800">{item.product?.name}</p>
                                             <p>Qty: {item.quantity}</p>
-                                            <p>Price: {currency}{item.price}</p>
+                                            <p>Price: {format(item.price)}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -198,7 +200,15 @@ export default function AdminOrders() {
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">{t('courierName')}</span>
-                                    <input defaultValue={selectedOrder.courierName} id="courierName" className="border border-slate-200 rounded p-2 text-sm" placeholder="e.g. Pathao, Steadfast" />
+                                    <select defaultValue={selectedOrder.courierName} id="courierName" className="border border-slate-200 rounded p-2 text-sm">
+                                        <option value="">{t('selectCourier')}</option>
+                                        {(couriers || []).map((c) => (
+                                            <option key={c.code} value={c.name}>{c.name}</option>
+                                        ))}
+                                        {selectedOrder.courierName && !(couriers || []).some(c => c.name === selectedOrder.courierName) && (
+                                            <option value={selectedOrder.courierName}>{selectedOrder.courierName}</option>
+                                        )}
+                                    </select>
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">{t('trackingNumber')}</span>
@@ -233,7 +243,7 @@ export default function AdminOrders() {
 
                         {/* Payment & status */}
                         <div className="mb-4">
-                            <p><span className="text-green-700">Shipping:</span> {selectedOrder.shippingMethod} ({currency}{selectedOrder.shippingCost})</p>
+                            <p><span className="text-green-700">Shipping:</span> {selectedOrder.shippingMethod} ({format(selectedOrder.shippingCost)})</p>
                             <p><span className="text-green-700">{t('paymentMethodLabel')}:</span> {selectedOrder.paymentMethod} — {selectedOrder.isPaid ? t('paidLabel') : t('unpaidLabel')}</p>
                             {selectedOrder.transactionId && <p><span className="text-green-700">Txn ID:</span> {selectedOrder.transactionId}</p>}
                             {selectedOrder.isCouponUsed && (

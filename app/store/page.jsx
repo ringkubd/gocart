@@ -10,7 +10,7 @@ import { useLanguage } from "@/components/LanguageProvider"
 
 export default function Dashboard() {
 
-    const { symbol: currency } = useCurrency()
+    const { format } = useCurrency()
     const { t } = useLanguage()
 
     const router = useRouter()
@@ -27,7 +27,7 @@ export default function Dashboard() {
 
     const dashboardCardsData = [
         { title: t('totalProductsCount'), value: dashboardData.totalProducts, icon: ShoppingBasketIcon },
-        { title: t('totalEarnings'), value: currency + Number(dashboardData.totalEarnings).toLocaleString(), icon: CircleDollarSignIcon },
+        { title: t('totalEarnings'), value: format(dashboardData.totalEarnings), icon: CircleDollarSignIcon },
         { title: t('orders'), value: dashboardData.totalOrders, icon: TagsIcon },
         { title: t('totalRatings'), value: dashboardData.ratings.length, icon: StarIcon },
     ]
