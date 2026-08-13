@@ -2,9 +2,11 @@
 import { useEffect, useState } from "react"
 import Loading from "@/components/Loading"
 import { useCurrency } from "@/components/useCurrency"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export default function StoreOrders() {
     const { symbol: currency } = useCurrency()
+    const { t } = useLanguage()
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
     const [selectedOrder, setSelectedOrder] = useState(null)
