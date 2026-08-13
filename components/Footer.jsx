@@ -1,5 +1,6 @@
 'use client'
 import Link from "next/link";
+import Image from "next/image";
 import useStorefrontData from "./useStorefrontData";
 import { useLanguage } from "./LanguageProvider";
 
@@ -53,7 +54,11 @@ const Footer = () => {
                 <div className="flex flex-col md:flex-row items-start justify-between gap-10 py-10 border-b border-slate-500/30 text-slate-500">
                     <div>
                         <Link href="/" className="text-4xl font-semibold text-slate-700">
-                            {siteName}<span className="text-green-600 text-5xl leading-0">.</span>
+                            {settings.siteLogo ? (
+                                <Image src={settings.siteLogo} width={160} height={48} className="h-10 w-auto object-contain" alt="theDhakaShop logo" />
+                            ) : (
+                                <span>{siteName}<span className="text-green-600 text-5xl leading-0">.</span></span>
+                            )}
                         </Link>
                         <p className="max-w-[410px] mt-6 text-sm">{footer.about || `Welcome to ${siteName}, your ultimate destination for the latest and smartest gadgets.`}</p>
                         <div className="flex items-center gap-3 mt-5">

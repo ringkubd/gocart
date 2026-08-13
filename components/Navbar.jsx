@@ -8,6 +8,8 @@ import { useSession, signOut } from "next-auth/react";
 import { useEffect, useRef } from "react";
 import { useCurrency } from "./useCurrency";
 import { useLanguage } from "./LanguageProvider";
+import useStorefrontData from "./useStorefrontData";
+import Image from "next/image";
 
 const Navbar = () => {
 
@@ -22,6 +24,7 @@ const Navbar = () => {
 
     const { code, list, setCurrencyCode } = useCurrency();
     const { lang, changeLanguage, t } = useLanguage();
+    const { settings } = useStorefrontData();
 
     const [search, setSearch] = useState('')
     const cartCount = useSelector(state => state.cart.total)
@@ -46,8 +49,14 @@ const Navbar = () => {
             <div className="mx-6">
                 <div className="flex items-center justify-between max-w-7xl mx-auto py-4  transition-all">
 
-                    <Link href="/" className="relative text-4xl font-semibold text-slate-700">
-                        theDhaka<span className="text-green-600">Shop</span><span className="text-green-600 text-5xl leading-0">.</span>
+                    <Link href="/" className="relative flex items-center gap-2">
+                        {settings.siteLogo ? (
+                            <Image src={settings.siteLogo} width={140} height={44} className="h-10 w-auto object-contain" alt="theDhakaShop logo" />
+                        ) : (
+                            <span className="text-4xl font-semibold text-slate-700">
+                                theDhaka<span className="text-green-600">Shop</span><span className="text-green-600 text-5xl leading-0">.</span>
+                            </span>
+                        )}
                     </Link>
 
                     {/* Desktop Menu */}

@@ -3,6 +3,7 @@ import Loading from "@/components/Loading"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { Trash2Icon } from "lucide-react"
+import Image from "next/image"
 
 export default function AdminSettings() {
 
@@ -43,6 +44,23 @@ export default function AdminSettings() {
         await saveSetting('siteName', settings.siteName)
         await saveSetting('tagline', settings.tagline)
         await saveSetting('currency', settings.currency)
+        await saveSetting('siteLogo', settings.siteLogo)
+    }
+
+    const handleSiteLogo = async (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+        try {
+            const fd = new FormData()
+            fd.append('file', file)
+            const res = await fetch('/api/upload', { method: 'POST', body: fd })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Upload failed')
+            setSettings({ ...settings, siteLogo: data.url })
+            toast.success('Logo uploaded')
+        } catch (error) {
+            toast.error('Upload failed')
+        }
     }
 
     const saveContact = async (e) => {
@@ -86,6 +104,13 @@ export default function AdminSettings() {
             {/* General */}
             <form onSubmit={saveGeneral} className="mt-6 border border-slate-200 rounded-xl p-6 flex flex-col gap-4">
                 <h3 className="font-medium text-slate-700">General</h3>
+                <label className="flex items-center gap-4">
+                    <Image src={settings.siteLogo || "/assets/gs_logo.jpg"} width={56} height={56} className="rounded-full h-14 w-14 object-cover border border-slate-200" alt="Site logo" />
+                    <div>
+                        <span className="text-xs text-slate-400 block mb-1">Site Logo (shown in navbar & footer)</span>
+                        <input type="file" accept="image/*" onChange={handleSiteLogo} className="text-sm" />
+                    </div>
+                </label>
                 <label className="flex flex-col gap-1">
                     <span className="text-xs text-slate-400">Site Name</span>
                     <input value={settings.siteName || ''} onChange={(e) => setSettings({ ...settings, siteName: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" />
