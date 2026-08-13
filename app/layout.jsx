@@ -16,6 +16,21 @@ const outfit = Outfit({ subsets: ["latin"], weight: ["400", "500", "600"] });
 
 export async function generateMetadata() {
     const seo = await getGlobalSeo()
+
+    // Load favicon + site logo settings (fallback to defaults)
+    let favicon = "/favicon.ico"
+    let siteLogo = ""
+    try {
+        const [favSetting, logoSetting] = await Promise.all([
+            prisma.siteSetting.findUnique({ where: { key: "siteFavicon" } }),
+            prisma.siteSetting.findUnique({ where: { key: "siteLogo" } }),
+        ])
+        if (favSetting?.value) favicon = favSetting.value
+        if (logoSetting?.value) siteLogo = logoSetting.value
+    } catch (error) {
+        // ignore
+    }
+
     return {
         title: {
             default: seo.title,
@@ -25,19 +40,24 @@ export async function generateMetadata() {
         keywords: seo.keywords,
         metadataBase: new URL("https://thedhakashop.com"),
         alternates: { canonical: "/" },
+        icons: {
+            icon: favicon,
+            shortcut: favicon,
+            apple: favicon,
+        },
         openGraph: {
             type: "website",
             siteName: seo.siteName,
             title: seo.title,
             description: seo.description,
             url: "https://thedhakashop.com",
-            images: [{ url: seo.ogImage }],
+            images: [{ url: siteLogo || seo.ogImage }],
         },
         twitter: {
             card: "summary_large_image",
             title: seo.title,
             description: seo.description,
-            images: [seo.ogImage],
+            images: [siteLogo || seo.ogImage],
         },
         robots: {
             index: true,

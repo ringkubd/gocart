@@ -45,6 +45,7 @@ export default function AdminSettings() {
         await saveSetting('tagline', settings.tagline)
         await saveSetting('currency', settings.currency)
         await saveSetting('siteLogo', settings.siteLogo)
+        await saveSetting('siteFavicon', settings.siteFavicon)
     }
 
     const handleSiteLogo = async (e) => {
@@ -58,6 +59,22 @@ export default function AdminSettings() {
             if (!res.ok) throw new Error(data.error || 'Upload failed')
             setSettings({ ...settings, siteLogo: data.url })
             toast.success('Logo uploaded')
+        } catch (error) {
+            toast.error('Upload failed')
+        }
+    }
+
+    const handleFavicon = async (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+        try {
+            const fd = new FormData()
+            fd.append('file', file)
+            const res = await fetch('/api/upload', { method: 'POST', body: fd })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Upload failed')
+            setSettings({ ...settings, siteFavicon: data.url })
+            toast.success('Favicon uploaded')
         } catch (error) {
             toast.error('Upload failed')
         }
@@ -109,6 +126,15 @@ export default function AdminSettings() {
                     <div>
                         <span className="text-xs text-slate-400 block mb-1">Site Logo (shown in navbar & footer)</span>
                         <input type="file" accept="image/*" onChange={handleSiteLogo} className="text-sm" />
+                        <p className="text-[10px] text-slate-300 mt-1">Leave empty to keep the text logo (theDhakaShop.)</p>
+                    </div>
+                </label>
+                <label className="flex items-center gap-4">
+                    <Image src={settings.siteFavicon || "/favicon.ico"} width={40} height={40} className="rounded h-10 w-10 object-contain border border-slate-200" alt="Site favicon" />
+                    <div>
+                        <span className="text-xs text-slate-400 block mb-1">Site Favicon (browser tab icon)</span>
+                        <input type="file" accept="image/*" onChange={handleFavicon} className="text-sm" />
+                        <p className="text-[10px] text-slate-300 mt-1">Upload .ico, .png or .svg. Leave empty to use the default.</p>
                     </div>
                 </label>
                 <label className="flex flex-col gap-1">
