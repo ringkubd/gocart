@@ -26,7 +26,7 @@ export default function AdminDashboard() {
     })
 
     const dashboardCardsData = [
-        { title: t('totalRevenue'), value: currency + Number(dashboardData.revenue).toLocaleString(), icon: CircleDollarSignIcon },
+        { title: t('totalRevenue'), value: format(dashboardData.revenue), icon: CircleDollarSignIcon },
         { title: t('orders'), value: dashboardData.orders, icon: TagsIcon },
         { title: t('totalProductsCount'), value: dashboardData.products, icon: ShoppingBasketIcon },
         { title: t('totalStores'), value: dashboardData.stores, icon: StoreIcon },

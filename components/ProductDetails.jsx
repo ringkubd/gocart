@@ -64,12 +64,12 @@ const ProductDetails = ({ product }) => {
                 <div className="flex sm:flex-col gap-3">
                     {(product.images || []).map((image, index) => (
                         <div key={index} onClick={() => setMainImage(product.images[index])} className="bg-slate-100 flex items-center justify-center size-26 rounded-lg group cursor-pointer">
-                            <Image src={image} className="group-hover:scale-103 group-active:scale-95 transition" alt="" width={45} height={45} />
+                            <Image src={image} className="group-hover:scale-103 group-active:scale-95 transition" alt="" width={45} height={45} onError={(e) => { e.currentTarget.src = "/assets/product_img1.png" }} />
                         </div>
                     ))}
                 </div>
                 <div className="flex justify-center items-center h-100 sm:size-113 bg-slate-100 rounded-lg ">
-                    <Image src={mainImage} alt="" width={250} height={250} />
+                    <Image src={mainImage} alt="" width={250} height={250} onError={(e) => { e.currentTarget.src = "/assets/product_img1.png" }} />
                 </div>
             </div>
             <div className="flex-1">
