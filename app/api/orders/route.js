@@ -190,6 +190,16 @@ export async function POST(req) {
             }
         }
 
+        // Create initial status log
+        await prisma.orderStatusLog.create({
+            data: {
+                orderId: order.id,
+                status: "ORDER_PLACED",
+                description: "Order has been placed successfully.",
+                courierName: buyerUser?.name || guestName || "",
+            },
+        })
+
         return NextResponse.json({
             order,
             ...(buyerUser && !user ? { autoAccount: true, accountEmail: buyerUser.email } : {}),

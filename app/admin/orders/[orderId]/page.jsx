@@ -57,7 +57,7 @@ export default function OrderDetailPage({ params }) {
 
     const fetchOrder = async () => {
         try {
-            const res = await fetch(`/api/admin/orders/${orderId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: "{}" })
+            const res = await fetch(`/api/admin/orders/${orderId}`)
             const data = await res.json()
             if (data.order) setOrder(data.order)
         } catch (error) {
@@ -70,6 +70,27 @@ export default function OrderDetailPage({ params }) {
     useEffect(() => {
         fetchOrder()
     }, [orderId])
+
+    // Generate synthetic status history from order timestamps if no logs exist
+    const statusLogs = (() => {
+        if (order?.statusLogs?.length > 0) return order.statusLogs
+        if (!order) return []
+        const logs = []
+        logs.push({ status: "ORDER_PLACED", description: "Order has been placed successfully.", createdAt: order.createdAt })
+        if (order.isPaid) {
+            logs.push({ status: "ORDER_PLACED", description: "Payment has been confirmed.", createdAt: order.createdAt, courierNote: `Payment Method: ${order.paymentMethod}${order.transactionId ? ` (Txn: ${order.transactionId})` : ''}` })
+        }
+        if (order.shippedAt) {
+            logs.push({ status: "SHIPPED", description: "Order has been shipped.", createdAt: order.shippedAt, courierName: order.courierName || "" })
+        }
+        if (order.deliveredAt) {
+            logs.push({ status: "DELIVERED", description: "Order has been delivered to the customer.", createdAt: order.deliveredAt, courierName: order.courierName || "" })
+        }
+        if (order.cancelledAt) {
+            logs.push({ status: "CANCELLED", description: "Order has been cancelled.", createdAt: order.cancelledAt })
+        }
+        return logs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    })()
 
     const updateStatus = async (newStatus) => {
         setStatusLoading(true)
@@ -260,11 +281,11 @@ export default function OrderDetailPage({ params }) {
                     <h3 className="font-medium text-slate-700 mb-4">Order Status History</h3>
                     <div className="relative">
                         {/* Timeline line */}
-                        {order.statusLogs?.length > 1 && (
+                        {statusLogs.length > 1 && (
                             <div className="absolute left-4 top-6 bottom-6 w-0.5 bg-slate-200" />
                         )}
                         <div className="flex flex-col gap-4">
-                            {(order.statusLogs || []).slice().reverse().map((log, index) => (
+                            {statusLogs.slice().reverse().map((log, index) => (
                                 <div key={log.id || index} className="relative flex gap-4">
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 ${statusIcons[log.status] || "bg-slate-100 text-slate-500"}`}>
                                         <span className="text-sm">
@@ -294,7 +315,7 @@ export default function OrderDetailPage({ params }) {
                             ))}
                         </div>
 
-                        {(!order.statusLogs || order.statusLogs.length === 0) && (
+                        {statusLogs.length === 0 && (
                             <p className="text-xs text-slate-400 text-center mt-4">No status updates yet.</p>
                         )}
                     </div>

@@ -2,6 +2,37 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/session"
 
+export async function GET(req, { params }) {
+    try {
+        const user = await getSessionUser()
+        if (!user || user.role !== "admin") {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+        }
+
+        const { orderId } = await params
+
+        const order = await prisma.order.findUnique({
+            where: { id: orderId },
+            include: {
+                statusLogs: { orderBy: { createdAt: "asc" } },
+                user: { select: { id: true, name: true, email: true } },
+                store: { select: { id: true, name: true, username: true } },
+                address: true,
+                orderItems: { include: { product: true } },
+            },
+        })
+
+        if (!order) {
+            return NextResponse.json({ error: "Order not found" }, { status: 404 })
+        }
+
+        return NextResponse.json({ order })
+    } catch (error) {
+        console.error("Admin order GET error:", error)
+        return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
+    }
+}
+
 export async function PATCH(req, { params }) {
     try {
         const user = await getSessionUser()
@@ -38,12 +69,32 @@ export async function PATCH(req, { params }) {
             where: { id: orderId },
             data,
             include: {
+                statusLogs: { orderBy: { createdAt: "asc" } },
                 user: { select: { id: true, name: true, email: true } },
                 store: { select: { id: true, name: true, username: true } },
                 address: true,
                 orderItems: { include: { product: true } },
             },
         })
+
+        // Create status log entry when status changes
+        if (status && status !== existing.status) {
+            const statusDescriptions = {
+                ORDER_PLACED: "Order has been placed successfully.",
+                PROCESSING: "Order is being processed.",
+                SHIPPED: "Order has been shipped from the warehouse.",
+                DELIVERED: "Order has been delivered to the customer.",
+                CANCELLED: "Order has been cancelled.",
+            }
+            await prisma.orderStatusLog.create({
+                data: {
+                    orderId,
+                    status,
+                    description: statusDescriptions[status] || "",
+                    courierName: courierName || order.courierName || "",
+                },
+            })
+        }
 
         return NextResponse.json({ order })
     } catch (error) {
