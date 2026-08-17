@@ -100,6 +100,12 @@ export default function AdminSettings() {
         await saveSetting('shippingNote', settings.shippingNote)
     }
 
+    const saveDeliveryRules = async (e) => {
+        e.preventDefault()
+        await saveSetting('minimumOrderFreeDelivery', Number(settings.minimumOrderFreeDelivery || 0))
+        await saveSetting('bundleFreeQty', Number(settings.bundleFreeQty || 0))
+    }
+
     const saveCurrencies = async (e) => {
         e.preventDefault()
         await saveSetting('currencies', settings.currencies)
@@ -233,6 +239,27 @@ export default function AdminSettings() {
                     <textarea value={settings.shippingNote || ''} onChange={(e) => setSettings({ ...settings, shippingNote: e.target.value })} rows={2} className="border border-slate-200 rounded p-2 text-sm resize-none" placeholder="e.g. Delivery within 2-4 working days across Bangladesh. Cash on delivery available." />
                 </label>
                 <button className="bg-slate-800 text-white px-6 py-2 rounded text-sm w-fit">Save Note</button>
+            </form>
+
+            {/* Delivery Rules */}
+            <form onSubmit={saveDeliveryRules} className="mt-6 border border-slate-200 rounded-xl p-6 flex flex-col gap-4">
+                <h3 className="font-medium text-slate-700">Free Delivery Rules</h3>
+                <p className="text-xs text-slate-400 -mt-2">
+                    Global rules applied on top of per-product delivery settings. These override individual product delivery charges when conditions are met.
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                    <label className="flex flex-col gap-1">
+                        <span className="text-xs text-slate-400">Min Order Amount for Free Delivery (base currency)</span>
+                        <input type="number" value={settings.minimumOrderFreeDelivery || ''} onChange={(e) => setSettings({ ...settings, minimumOrderFreeDelivery: e.target.value })} placeholder="0" className="border border-slate-200 rounded p-2 text-sm" />
+                        <span className="text-[10px] text-slate-300">If order subtotal reaches this, all product delivery fees become zero.</span>
+                    </label>
+                    <label className="flex flex-col gap-1">
+                        <span className="text-xs text-slate-400">Min Products for Bundle Free Delivery</span>
+                        <input type="number" value={settings.bundleFreeQty || ''} onChange={(e) => setSettings({ ...settings, bundleFreeQty: e.target.value })} placeholder="0" className="border border-slate-200 rounded p-2 text-sm" />
+                        <span className="text-[10px] text-slate-300">If total items in order reach this count, all delivery fees become zero.</span>
+                    </label>
+                </div>
+                <button className="bg-slate-800 text-white px-6 py-2 rounded text-sm w-fit">Save Delivery Rules</button>
             </form>
 
             {/* Currencies */}

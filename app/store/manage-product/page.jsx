@@ -20,7 +20,7 @@ export default function StoreManageProducts() {
 
     const fetchBrands = async () => {
         try {
-            const res = await fetch('/api/brands')
+            const res = await fetch('/api/store/brands')
             const data = await res.json()
             if (res.ok) setBrands(data.brands)
         } catch (error) {

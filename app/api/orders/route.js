@@ -61,6 +61,8 @@ export async function POST(req) {
 
         // Calculate product delivery charges
         let productDeliveryTotal = 0
+        let totalItemQty = items.reduce((sum, item) => sum + item.quantity, 0)
+
         for (const item of items) {
             const product = products.find(p => p.id === item.productId)
             if (product) {
@@ -75,6 +77,24 @@ export async function POST(req) {
                     productDeliveryTotal += itemDelivery
                 }
             }
+        }
+
+        // Fetch global delivery settings
+        let minimumOrderFreeDelivery = 0
+        let bundleFreeQty = 0
+        try {
+            const minSetting = await prisma.siteSetting.findUnique({ where: { key: "minimumOrderFreeDelivery" } })
+            if (minSetting?.value) minimumOrderFreeDelivery = Number(minSetting.value)
+            const bundleSetting = await prisma.siteSetting.findUnique({ where: { key: "bundleFreeQty" } })
+            if (bundleSetting?.value) bundleFreeQty = Number(bundleSetting.value)
+        } catch (e) { }
+
+        // Apply global free delivery rules
+        if (minimumOrderFreeDelivery > 0 && subtotal >= minimumOrderFreeDelivery) {
+            productDeliveryTotal = 0
+        }
+        if (bundleFreeQty > 0 && totalItemQty >= bundleFreeQty) {
+            productDeliveryTotal = 0
         }
 
         // Resolve shipping cost

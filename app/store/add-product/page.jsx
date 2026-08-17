@@ -13,6 +13,10 @@ export default function StoreAddProduct() {
 
     const [categories, setCategories] = useState([])
     const [brands, setBrands] = useState([])
+    const [showNewBrand, setShowNewBrand] = useState(false)
+    const [showNewCategory, setShowNewCategory] = useState(false)
+    const [newBrandName, setNewBrandName] = useState('')
+    const [newCatName, setNewCatName] = useState('')
     const [images, setImages] = useState({ 1: null, 2: null, 3: null, 4: null })
     const [productInfo, setProductInfo] = useState({
         name: "",
@@ -30,8 +34,8 @@ export default function StoreAddProduct() {
     const fetchBrands = async () => {
         try {
             const [brandsRes, catsRes] = await Promise.all([
-                fetch('/api/brands'),
-                fetch('/api/admin/categories'),
+                fetch('/api/store/brands'),
+                fetch('/api/store/categories'),
             ])
             const brandsData = await brandsRes.json()
             const catsData = await catsRes.json()
@@ -45,6 +49,52 @@ export default function StoreAddProduct() {
     useEffect(() => {
         fetchBrands()
     }, [])
+
+    const createInlineBrand = async () => {
+        if (!newBrandName.trim()) return
+        try {
+            const res = await fetch('/api/store/brands', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newBrandName.trim() }),
+            })
+            const data = await res.json()
+            if (res.ok && data.brand) {
+                if (!brands.find(b => b.id === data.brand.id)) {
+                    setBrands(prev => [...prev, data.brand])
+                }
+                setProductInfo({ ...productInfo, brandId: data.brand.id })
+                setNewBrandName('')
+                setShowNewBrand(false)
+                toast.success('Brand created')
+            }
+        } catch (error) {
+            toast.error('Failed to create brand')
+        }
+    }
+
+    const createInlineCategory = async () => {
+        if (!newCatName.trim()) return
+        try {
+            const res = await fetch('/api/store/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newCatName.trim() }),
+            })
+            const data = await res.json()
+            if (res.ok && data.category) {
+                if (!categories.find(c => c.id === data.category.id)) {
+                    setCategories(prev => [...prev, data.category])
+                }
+                setProductInfo({ ...productInfo, category: data.category.name })
+                setNewCatName('')
+                setShowNewCategory(false)
+                toast.success('Category created')
+            }
+        } catch (error) {
+            toast.error('Failed to create category')
+        }
+    }
 
     const onChangeHandler = (e) => {
         setProductInfo({ ...productInfo, [e.target.name]: e.target.value })
@@ -139,22 +189,74 @@ export default function StoreAddProduct() {
                 </label>
             </div>
 
-            <select onChange={e => {
-                const cat = categories.find(c => c.name === e.target.value)
-                setProductInfo({ ...productInfo, category: e.target.value, categoryBn: cat?.nameBn || "" })
-            }} value={productInfo.category} className="w-full max-w-sm p-2 px-4 my-6 outline-none border border-slate-200 rounded" required>
-                <option value="">Select a category</option>
-                {categories.map((category) => (
-                    <option key={category.id} value={category.name}>{category.name}</option>
-                ))}
-            </select>
+            <div className="w-full max-w-sm mb-2">
+                <label className="text-xs text-slate-400 mb-1 block">Category</label>
+                {showNewCategory ? (
+                    <div className="flex gap-2">
+                        <input value={newCatName} onChange={(e) => setNewCatName(e.target.value)} placeholder="New category name" className="flex-1 p-2 px-3 border border-slate-200 rounded text-sm" autoFocus />
+                        <button type="button" onClick={createInlineCategory} className="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700">Add</button>
+                        <button type="button" onClick={() => { setShowNewCategory(false); setNewCatName('') }} className="text-sm text-slate-400 px-2">Cancel</button>
+                    </div>
+                ) : (
+                    <div className="flex gap-2">
+                        <select onChange={e => {
+                            const cat = categories.find(c => c.name === e.target.value)
+                            setProductInfo({ ...productInfo, category: e.target.value, categoryBn: cat?.nameBn || "" })
+                        }} value={productInfo.category} className="flex-1 p-2 px-3 outline-none border border-slate-200 rounded text-sm" required>
+                            <option value="">Select a category</option>
+                            {categories.map((category) => (
+                                <option key={category.id} value={category.name}>{category.name}</option>
+                            ))}
+                        </select>
+                        <button type="button" onClick={() => setShowNewCategory(true)} className="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 whitespace-nowrap" title="Add new category">+ Add</button>
+                    </div>
+                )}
+            </div>
 
-            <select onChange={e => setProductInfo({ ...productInfo, brandId: e.target.value })} value={productInfo.brandId} className="w-full max-w-sm p-2 px-4 mb-2 outline-none border border-slate-200 rounded">
-                <option value="">Select a brand (optional)</option>
-                {brands.map((brand) => (
-                    <option key={brand.id} value={brand.id}>{brand.name}</option>
-                ))}
-            </select>
+            <div className="w-full max-w-sm mb-2">
+                <label className="text-xs text-slate-400 mb-1 block">Brand (optional)</label>
+                {showNewBrand ? (
+                    <div className="flex gap-2">
+                        <input value={newBrandName} onChange={(e) => setNewBrandName(e.target.value)} placeholder="New brand name" className="flex-1 p-2 px-3 border border-slate-200 rounded text-sm" autoFocus />
+                        <button type="button" onClick={createInlineBrand} className="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700">Add</button>
+                        <button type="button" onClick={() => { setShowNewBrand(false); setNewBrandName('') }} className="text-sm text-slate-400 px-2">Cancel</button>
+                    </div>
+                ) : (
+                    <div className="flex gap-2">
+                        <select onChange={e => setProductInfo({ ...productInfo, brandId: e.target.value })} value={productInfo.brandId} className="flex-1 p-2 px-3 outline-none border border-slate-200 rounded text-sm">
+                            <option value="">Select a brand</option>
+                            {brands.map((brand) => (
+                                <option key={brand.id} value={brand.id}>{brand.name}</option>
+                            ))}
+                        </select>
+                        <button type="button" onClick={() => setShowNewBrand(true)} className="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 whitespace-nowrap" title="Add new brand">+ Add</button>
+                    </div>
+                )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 max-w-sm">
+                <label className="flex flex-col gap-1">
+                    <span className="text-xs text-slate-400">Delivery Cost (per item)</span>
+                    <input type="number" name="deliveryCost" onChange={onChangeHandler} value={productInfo.deliveryCost} placeholder="0" className="p-2 px-4 outline-none border border-slate-200 rounded text-sm" />
+                </label>
+                <label className="flex items-center gap-2 mt-5">
+                    <input type="checkbox" checked={productInfo.freeDelivery} onChange={(e) => setProductInfo({ ...productInfo, freeDelivery: e.target.checked })} className="accent-green-500" />
+                    <span className="text-sm">Free Delivery</span>
+                </label>
+            </div>
+
+            {!productInfo.freeDelivery && (
+                <div className="grid grid-cols-2 gap-3 max-w-sm">
+                    <label className="flex flex-col gap-1">
+                        <span className="text-xs text-slate-400">Min Qty for Free Delivery</span>
+                        <input type="number" name="minQtyForFree" onChange={onChangeHandler} value={productInfo.minQtyForFree} placeholder="0" className="p-2 px-4 outline-none border border-slate-200 rounded text-sm" />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                        <span className="text-xs text-slate-400">Delivery Discount %</span>
+                        <input type="number" name="deliveryDiscount" onChange={onChangeHandler} value={productInfo.deliveryDiscount} placeholder="0" className="p-2 px-4 outline-none border border-slate-200 rounded text-sm" />
+                    </label>
+                </div>
+            )}
 
             <br />
 
