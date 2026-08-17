@@ -64,7 +64,7 @@ export default function DashboardOrders() {
                         <div key={order.id} className="border border-slate-200 rounded-xl p-5">
                             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                                 <div>
-                                    <p className="text-xs text-slate-400 font-mono">Order #{order.id.slice(-8)}</p>
+                                    <p className="text-xs text-slate-400 font-mono">Order {order.orderNumber || order.id.slice(-8)}</p>
                                     <p className="text-sm text-slate-500">{new Date(order.createdAt).toLocaleString()}</p>
                                 </div>
                                 <div className="flex items-center gap-3">

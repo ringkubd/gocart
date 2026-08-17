@@ -64,6 +64,10 @@ export async function PATCH(req, { params }) {
                 ...(body.inStock !== undefined && { inStock: Boolean(body.inStock) }),
                 ...(body.stock !== undefined && { stock: Number(body.stock), inStock: Number(body.stock) > 0 }),
                 ...(body.featured !== undefined && { featured: Boolean(body.featured) }),
+                ...(body.deliveryCost !== undefined && { deliveryCost: Number(body.deliveryCost) }),
+                ...(body.freeDelivery !== undefined && { freeDelivery: Boolean(body.freeDelivery) }),
+                ...(body.minQtyForFree !== undefined && { minQtyForFree: Number(body.minQtyForFree) }),
+                ...(body.deliveryDiscount !== undefined && { deliveryDiscount: Number(body.deliveryDiscount) }),
             },
             include: { store: true, brand: true, rating: true },
         })

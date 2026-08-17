@@ -42,8 +42,8 @@ export async function POST(req) {
         if (!address) {
             return NextResponse.json({ error: "Address is required" }, { status: 400 })
         }
-        if (!user && !address.email) {
-            return NextResponse.json({ error: "Email is required" }, { status: 400 })
+        if (!user && !address.name) {
+            return NextResponse.json({ error: "Name is required" }, { status: 400 })
         }
 
         // Verify all products exist and have stock
@@ -56,6 +56,24 @@ export async function POST(req) {
             }
             if (product.stock > 0 && product.stock < item.quantity) {
                 return NextResponse.json({ error: `Not enough stock for ${product.name}` }, { status: 400 })
+            }
+        }
+
+        // Calculate product delivery charges
+        let productDeliveryTotal = 0
+        for (const item of items) {
+            const product = products.find(p => p.id === item.productId)
+            if (product) {
+                if (!product.freeDelivery) {
+                    let itemDelivery = product.deliveryCost * item.quantity
+                    if (product.minQtyForFree > 0 && item.quantity >= product.minQtyForFree) {
+                        itemDelivery = 0
+                    }
+                    if (product.deliveryDiscount > 0) {
+                        itemDelivery = itemDelivery * (1 - product.deliveryDiscount / 100)
+                    }
+                    productDeliveryTotal += itemDelivery
+                }
             }
         }
 
@@ -76,38 +94,41 @@ export async function POST(req) {
         let guestEmail = ""
         let guestPhone = ""
         if (!buyerUser) {
-            let existing = null
-            try {
-                existing = await prisma.user.findUnique({ where: { email: address.email } })
-            } catch (e) { existing = null }
-
-            if (existing && existing.active) {
-                buyerUser = existing
-            } else if (existing && !existing.active) {
-                return NextResponse.json({ error: "This account is suspended. Please contact support." }, { status: 403 })
-            } else {
-                // Auto-create an account so the guest can track their order later
-                const userRole = await prisma.role.findUnique({ where: { name: "user" } })
-                try {
-                    buyerUser = await prisma.user.create({
-                        data: {
-                            name: address.name || address.email.split("@")[0],
-                            email: address.email,
-                            password: "",
-                            role: "user",
-                            roleId: userRole?.id || null,
-                            active: true,
-                            cart: {},
-                        },
-                    })
-                } catch (e) {
-                    // Race condition — someone registered in between; treat as guest
-                    buyerUser = null
-                }
-            }
             guestName = address.name || ""
             guestEmail = address.email || ""
             guestPhone = address.phone || ""
+
+            if (address.email) {
+                // Auto-create account from guest email for order tracking
+                let existing = null
+                try {
+                    existing = await prisma.user.findUnique({ where: { email: address.email } })
+                } catch (e) { existing = null }
+
+                if (existing && existing.active) {
+                    buyerUser = existing
+                } else if (existing && !existing.active) {
+                    // skip — will be saved as guest
+                } else {
+                    const userRole = await prisma.role.findUnique({ where: { name: "user" } })
+                    try {
+                        buyerUser = await prisma.user.create({
+                            data: {
+                                name: address.name || "Guest",
+                                email: address.email,
+                                password: "",
+                                role: "user",
+                                roleId: userRole?.id || null,
+                                active: true,
+                                cart: {},
+                            },
+                        })
+                    } catch (e) {
+                        // Race condition — treat as guest
+                        buyerUser = null
+                    }
+                }
+            }
         }
 
         // Save the address (linked to user if one exists, else standalone for guest)
@@ -143,10 +164,25 @@ export async function POST(req) {
             }
         }
 
-        const total = subtotal - discount + shippingCost
+        const total = subtotal - discount + shippingCost + productDeliveryTotal
+
+        // Generate order number: YYYY-NNNNNN
+        const now = new Date()
+        const year = now.getFullYear()
+        const seqKey = `order_seq_${year}`
+        const seqRow = await prisma.siteSetting.findUnique({ where: { key: seqKey } })
+        const nextNum = (seqRow?.value || 0) + 1
+        const orderNumber = `${year}-${String(nextNum).padStart(6, '0')}`
+
+        await prisma.siteSetting.upsert({
+            where: { key: seqKey },
+            update: { value: nextNum },
+            create: { key: seqKey, value: nextNum },
+        })
 
         const order = await prisma.order.create({
             data: {
+                orderNumber,
                 total: Number(total.toFixed(2)),
                 shippingCost,
                 shippingMethod: shippingName,

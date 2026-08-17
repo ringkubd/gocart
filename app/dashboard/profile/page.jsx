@@ -10,14 +10,14 @@ export default function DashboardProfile() {
     const { data: session, update } = useSession()
     const { t } = useLanguage()
     const [loading, setLoading] = useState(true)
-    const [form, setForm] = useState({ name: '', email: '', password: '' })
+    const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' })
 
     const fetchProfile = async () => {
         try {
             const res = await fetch('/api/account')
             const data = await res.json()
             if (res.ok) {
-                setForm({ name: data.profile.name, email: data.profile.email, password: '' })
+                setForm({ name: data.profile.name, email: data.profile.email, phone: data.profile.phone || '', password: '' })
             }
         } catch (error) {
             console.error(error)
@@ -29,7 +29,7 @@ export default function DashboardProfile() {
     const handleSave = async (e) => {
         e.preventDefault()
         try {
-            const payload = { name: form.name }
+            const payload = { name: form.name, phone: form.phone }
             if (form.password) payload.password = form.password
 
             const res = await fetch('/api/account', {
@@ -61,6 +61,10 @@ export default function DashboardProfile() {
                 <label className="flex flex-col gap-1">
                     <span className="text-xs text-slate-400">{t('fullName')}</span>
                     <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" required />
+                </label>
+                <label className="flex flex-col gap-1">
+                    <span className="text-xs text-slate-400">Phone</span>
+                    <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+880..." className="border border-slate-200 rounded p-2 text-sm" />
                 </label>
                 <label className="flex flex-col gap-1">
                     <span className="text-xs text-slate-400">{t('emailCannotChange')}</span>

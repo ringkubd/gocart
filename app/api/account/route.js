@@ -41,6 +41,7 @@ export async function PATCH(req) {
 
         const data = {}
         if (body.name !== undefined) data.name = body.name
+        if (body.phone !== undefined) data.phone = body.phone
         if (body.image !== undefined) data.image = body.image
         if (body.password) {
             data.password = await bcrypt.hash(body.password, 10)

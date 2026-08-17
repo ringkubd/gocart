@@ -62,7 +62,7 @@ const OrderSummary = ({ totalPrice, items }) => {
     const resolveAddress = () => {
         if (isGuest) {
             const g = guestForm
-            if (!g.name || !g.email || !g.phone || !g.street || !g.city || !g.zip) {
+            if (!g.name || !g.phone || !g.street || !g.city || !g.zip) {
                 return { error: t('guestRequired') }
             }
             return {

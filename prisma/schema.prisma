@@ -11,11 +11,12 @@ model User {
     id       String @id @default(cuid())
     name     String
     email    String @unique
-    image    String @default("")
+    phone    String   @default("")
+    image    String   @default("")
     password String @default("")
-    role     String @default("user")
+    role     String   @default("user")
     roleId   String?
-    active   Boolean @default(true)
+    active   Boolean  @default(true)
     cart     Json
 
     ratings     Rating[]
@@ -56,6 +57,10 @@ model Product {
     stock       Int      @default(0)
     featured    Boolean  @default(false)
     soldCount   Int      @default(0)
+    deliveryCost    Float    @default(0)
+    freeDelivery    Boolean  @default(false)
+    minQtyForFree   Int      @default(0)
+    deliveryDiscount Float   @default(0)
     storeId     String
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
@@ -85,6 +90,7 @@ enum PaymentMethod {
 
 model Order {
     id            String        @id @default(cuid())
+    orderNumber   String        @default("")
     total         Float
     status        OrderStatus   @default(ORDER_PLACED)
     userId        String?

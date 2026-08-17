@@ -182,7 +182,7 @@ export default function OrderDetailPage({ params }) {
                     {/* Order header */}
                     <div className="border border-slate-200 rounded-xl p-6 mb-6">
                         <div className="flex flex-wrap items-center gap-3 mb-3">
-                            <h1 className="text-2xl font-semibold text-slate-800">Order #{order.id.slice(-8)}</h1>
+                            <h1 className="text-2xl font-semibold text-slate-800">Order {order.orderNumber || '#' + order.id.slice(-8)}</h1>
                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>{statusLabels[order.status]}</span>
                             <GuestBadge order={order} />
                         </div>
