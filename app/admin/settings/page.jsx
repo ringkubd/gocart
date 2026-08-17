@@ -300,16 +300,18 @@ export default function AdminSettings() {
                             <button
                                 type="button"
                                 onClick={() => {
+                                    if (!confirm(`Remove ${c.name} (${c.code}) from available currencies?`)) return
                                     const arr = (settings.currencies || []).filter((_, idx) => idx !== i)
                                     setSettings({ ...settings, currencies: arr })
                                     if (settings.defaultCurrency === c.code) {
                                         setSettings(prev => ({ ...prev, defaultCurrency: (arr[0]?.code) || '' }))
                                     }
                                 }}
-                                className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded text-sm border border-red-200"
                                 title="Remove currency"
                             >
-                                <Trash2Icon size={16} />
+                                <Trash2Icon size={14} />
+                                <span className="hidden sm:inline">Remove</span>
                             </button>
                         </div>
                     ))}
