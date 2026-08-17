@@ -2,6 +2,7 @@
 import Loading from "@/components/Loading"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
+import { useRouter } from "next/navigation"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
 import GuestBadge from "@/components/GuestBadge"
@@ -17,6 +18,7 @@ const statusColors = {
 
 export default function AdminOrders() {
 
+    const router = useRouter()
     const { format } = useCurrency()
     const { t } = useLanguage()
     const { couriers } = useStorefrontData()
@@ -127,7 +129,7 @@ export default function AdminOrders() {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         {orders.map((order) => (
-                            <tr key={order.id} onClick={() => openModal(order)} className="hover:bg-slate-50 cursor-pointer">
+                            <tr key={order.id} onClick={() => router.push('/admin/orders/' + order.id)} className="hover:bg-slate-50 cursor-pointer">
                                 <td className="px-4 py-3 font-mono text-xs text-green-600">#{order.id.slice(-8)}</td>
                                 <td className="px-4 py-3">
                                     <div className="flex items-center gap-2">

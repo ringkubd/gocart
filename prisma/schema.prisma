@@ -101,6 +101,7 @@ model Order {
     trackingNumber String       @default("")
     courierName   String        @default("")
     note          String        @default("") @db.Text
+    customerNote  String        @default("") @db.Text
     shippedAt     DateTime?
     deliveredAt   DateTime?
     cancelledAt   DateTime?
@@ -109,10 +110,23 @@ model Order {
     isCouponUsed  Boolean       @default(false)
     coupon        Json
     orderItems    OrderItem[]
+    statusLogs    OrderStatusLog[]
 
     user    User?   @relation("BuyerRelation", fields: [userId], references: [id])
     store   Store   @relation(fields: [storeId], references: [id])
     address Address @relation(fields: [addressId], references: [id])
+}
+
+model OrderStatusLog {
+    id          String   @id @default(cuid())
+    orderId     String
+    status      String
+    description String   @default("")
+    courierName String   @default("")
+    courierNote String   @default("")
+    createdAt   DateTime @default(now())
+
+    order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model OrderItem {

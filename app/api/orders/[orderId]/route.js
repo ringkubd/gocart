@@ -15,15 +15,17 @@ export async function PATCH(req, { params }) {
             return NextResponse.json({ error: "Order not found" }, { status: 404 })
         }
 
-        // Store owner or admin can update status
+        // Store owner, customer, or admin can update
         const store = await prisma.store.findUnique({ where: { userId: user.id } })
-        const isOwner = store && store.id === order.storeId
-        if (!isOwner && user.role !== "admin") {
+        const isStoreOwner = store && store.id === order.storeId
+        const isOwner = order.userId && order.userId === user.id
+        if (!isStoreOwner && !isOwner && user.role !== "admin") {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 })
         }
 
         const body = await req.json()
         const data = {}
+
         if (body.status) {
             data.status = body.status
             if (body.status === "SHIPPED" && !order.shippedAt) data.shippedAt = new Date()
@@ -33,6 +35,7 @@ export async function PATCH(req, { params }) {
         if (body.courierName !== undefined) data.courierName = body.courierName
         if (body.trackingNumber !== undefined) data.trackingNumber = body.trackingNumber
         if (body.note !== undefined) data.note = body.note
+        if (body.customerNote !== undefined) data.customerNote = body.customerNote
 
         const updated = await prisma.order.update({
             where: { id: orderId },
@@ -40,6 +43,7 @@ export async function PATCH(req, { params }) {
             include: {
                 orderItems: { include: { product: true } },
                 address: true,
+                statusLogs: { orderBy: { createdAt: "asc" } },
                 user: { select: { id: true, name: true, email: true, image: true } },
             },
         })
