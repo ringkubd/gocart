@@ -1,7 +1,7 @@
 'use client'
 
 import { addToCart } from "@/lib/features/cart/cartSlice";
-import { StarIcon, TagIcon, EarthIcon, CreditCardIcon, UserIcon } from "lucide-react";
+import { StarIcon, TagIcon, EarthIcon, CreditCardIcon, UserIcon, TruckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
@@ -104,6 +104,12 @@ const ProductDetails = ({ product }) => {
                     <TagIcon size={14} />
                     <p>{t('savePercent')} {((product.mrp - product.price) / product.mrp * 100).toFixed(0)}% {t('rightNow')}</p>
                 </div>
+                {product.freeDelivery && (
+                    <div className="flex items-center gap-2 mt-3 bg-green-50 border border-green-200 rounded-lg px-3 py-2 w-fit">
+                        <TruckIcon size={16} className="text-green-600" />
+                        <span className="text-sm font-medium text-green-700">Free Delivery</span>
+                    </div>
+                )}
                 <div className="flex items-end gap-5 mt-10">
                     {
                         cart[productId] && (

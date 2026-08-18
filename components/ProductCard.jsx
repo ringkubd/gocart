@@ -84,11 +84,18 @@ const ProductCard = ({ product }) => {
                 </div>
             </Link>
 
-            {/* Free shipping badge */}
-            <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-1 max-w-60">
-                <TruckIcon size={12} />
-                <span>{t('freeShippingOver')}</span>
-            </div>
+            {/* Free delivery badge */}
+            {product.freeDelivery ? (
+                <div className="flex items-center gap-1 text-[10px] text-green-600 font-medium mt-1 max-w-60">
+                    <TruckIcon size={12} />
+                    <span>Free Delivery</span>
+                </div>
+            ) : product.deliveryCost > 0 ? (
+                <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-1 max-w-60">
+                    <TruckIcon size={12} />
+                    <span>{t('freeShippingOver')}</span>
+                </div>
+            ) : null}
         </div>
     )
 }
