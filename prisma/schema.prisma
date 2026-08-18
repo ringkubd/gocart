@@ -193,20 +193,24 @@ model Coupon {
 }
 
 model Store {
-    id          String   @id @default(cuid())
-    userId      String   @unique
-    name        String
-    description String   @db.Text
-    username    String   @unique
-    address     String   @db.Text
-    status      String   @default("pending")
-    isActive    Boolean  @default(false)
-    logo        String
-    email       String
-    contact     String
-    bankInfo    Json     @default("{}")
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id              String   @id @default(cuid())
+    userId          String   @unique
+    name            String
+    description     String   @db.Text
+    username        String   @unique
+    address         String   @db.Text
+    status          String   @default("pending")
+    isActive        Boolean  @default(false)
+    logo            String
+    email           String
+    contact         String
+    bankInfo        Json     @default("{}")
+    enableShare     Boolean  @default(true)
+    enableMessenger Boolean  @default(true)
+    messengerType   String   @default("messenger")
+    messengerUrl    String   @default("")
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
 
     Product Product[]
     Order   Order[]

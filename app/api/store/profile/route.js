@@ -48,6 +48,10 @@ export async function PATCH(req) {
         if (body.contact !== undefined) data.contact = body.contact
         if (body.address !== undefined) data.address = body.address
         if (body.logo !== undefined) data.logo = body.logo
+        if (body.enableShare !== undefined) data.enableShare = Boolean(body.enableShare)
+        if (body.enableMessenger !== undefined) data.enableMessenger = Boolean(body.enableMessenger)
+        if (body.messengerType !== undefined) data.messengerType = body.messengerType
+        if (body.messengerUrl !== undefined) data.messengerUrl = body.messengerUrl
 
         const updated = await prisma.store.update({
             where: { id: store.id },
