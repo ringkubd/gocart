@@ -210,6 +210,38 @@ export default function AdminSiteDesign() {
         setSettings({ ...settings, ourSpecs: arr })
     }
 
+    const saveSideCards = async (e) => {
+        e.preventDefault()
+        try {
+            const res = await fetch('/api/admin/settings', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: 'heroSideCards', value: settings.heroSideCards || [] }),
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed')
+            toast.success('Side cards saved')
+        } catch (error) {
+            toast.error(error.message || 'Failed')
+        }
+    }
+
+    const updateSideCard = (index, field, value) => {
+        const arr = [...(settings.heroSideCards || [])]
+        arr[index] = { ...arr[index], [field]: value }
+        setSettings({ ...settings, heroSideCards: arr })
+    }
+
+    const onSideCardImagePick = async (e, index) => {
+        try {
+            const url = await handleImageUpload(e.target.files[0])
+            updateSideCard(index, 'image', url)
+            toast.success('Image uploaded')
+        } catch (error) {
+            toast.error('Upload failed')
+        }
+    }
+
     const handleImageUpload = async (file) => {
         const fd = new FormData()
         fd.append('file', file)
@@ -247,6 +279,7 @@ export default function AdminSiteDesign() {
 
     const tabs = [
         { key: 'hero', label: 'Hero Slider' },
+        { key: 'sideCards', label: 'Side Cards' },
         { key: 'promo', label: 'Promo Strip' },
         { key: 'announcement', label: 'Announcement' },
         { key: 'categories', label: 'Categories' },
@@ -328,6 +361,73 @@ export default function AdminSiteDesign() {
                         {slides.length === 0 && <p className="text-sm text-slate-400">No slides yet.</p>}
                     </div>
                 </div>
+            )}
+
+            {/* SIDE CARDS */}
+            {tab === 'sideCards' && (
+                <form onSubmit={saveSideCards} className="mt-6 max-w-3xl border border-slate-200 rounded-xl p-6 flex flex-col gap-4">
+                    <h3 className="font-medium text-slate-700">Hero Side Cards (right of carousel)</h3>
+                    <p className="text-xs text-slate-400 -mt-2">Configure the two cards displayed next to the hero carousel on the homepage.</p>
+
+                    {(settings.heroSideCards && settings.heroSideCards.length > 0 ? settings.heroSideCards : [
+                        { title: 'Best products', description: 'View more', link: '/shop', image: '/assets/hero_product_img1.png', bgColor: 'bg-orange-200', gradientFrom: 'slate-800', gradientTo: '#FFAD51', active: true },
+                        { title: '20% discounts', description: 'View more', link: '/shop', image: '/assets/hero_product_img2.png', bgColor: 'bg-blue-200', gradientFrom: 'slate-800', gradientTo: '#78B2FF', active: true },
+                    ]).map((card, i) => (
+                        <div key={i} className="border border-slate-200 rounded-lg p-4 flex flex-col gap-3">
+                            <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium text-slate-600">Card {i + 1}</p>
+                                <div className="flex items-center gap-2">
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" className="sr-only peer" checked={card.active !== false} onChange={(e) => updateSideCard(i, 'active', e.target.checked)} />
+                                        <div className="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:bg-green-600 transition-colors duration-200"></div>
+                                        <span className="dot absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-4"></span>
+                                    </label>
+                                    <button type="button" onClick={() => setSettings({ ...settings, heroSideCards: (settings.heroSideCards || []).filter((_, idx) => idx !== i) })} className="text-xs text-red-500 hover:text-red-700">Remove</button>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <label className="flex flex-col gap-1 col-span-2">
+                                    <span className="text-xs text-slate-400">Title</span>
+                                    <input value={card.title || ''} onChange={(e) => updateSideCard(i, 'title', e.target.value)} className="border border-slate-200 rounded p-2 text-sm" />
+                                </label>
+                                <label className="flex flex-col gap-1">
+                                    <span className="text-xs text-slate-400">Link</span>
+                                    <input value={card.link || ''} onChange={(e) => updateSideCard(i, 'link', e.target.value)} className="border border-slate-200 rounded p-2 text-sm" placeholder="/shop" />
+                                </label>
+                                <label className="flex flex-col gap-1">
+                                    <span className="text-xs text-slate-400">Background Color</span>
+                                    <select value={card.bgColor || 'bg-orange-200'} onChange={(e) => updateSideCard(i, 'bgColor', e.target.value)} className="border border-slate-200 rounded p-2 text-sm">
+                                        <option value="bg-orange-200">Orange</option>
+                                        <option value="bg-blue-200">Blue</option>
+                                        <option value="bg-green-200">Green</option>
+                                        <option value="bg-purple-200">Purple</option>
+                                        <option value="bg-pink-200">Pink</option>
+                                        <option value="bg-yellow-200">Yellow</option>
+                                        <option value="bg-slate-200">Slate</option>
+                                    </select>
+                                </label>
+                                <label className="flex flex-col gap-1 col-span-2">
+                                    <span className="text-xs text-slate-400">Card Image</span>
+                                    <div className="flex items-center gap-3">
+                                        {card.image && <Image src={card.image} width={60} height={60} className="rounded object-cover h-15 w-auto" alt="" />}
+                                        <input type="file" accept="image/*" onChange={(e) => onSideCardImagePick(e, i)} className="text-sm" />
+                                    </div>
+                                    <input value={card.image || ''} onChange={(e) => updateSideCard(i, 'image', e.target.value)} className="border border-slate-200 rounded p-2 text-sm" placeholder="Or paste image URL" />
+                                </label>
+                            </div>
+                        </div>
+                    ))}
+
+                    <button type="button" onClick={() => setSettings({
+                        ...settings,
+                        heroSideCards: [...(settings.heroSideCards || []), {
+                            title: 'New Card', description: 'View more', link: '/shop', image: '',
+                            bgColor: 'bg-orange-200', gradientFrom: 'slate-800', gradientTo: '#FFAD51', active: true
+                        }]
+                    })} className="text-sm text-green-600 w-fit">+ Add Card</button>
+
+                    <button className="bg-slate-800 text-white px-6 py-2 rounded text-sm w-fit">Save Side Cards</button>
+                </form>
             )}
 
             {/* PROMO STRIP */}

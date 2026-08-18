@@ -83,20 +83,18 @@ const Hero = () => {
                     )}
                 </div>
                 <div className='flex flex-col md:flex-row xl:flex-col gap-5 w-full xl:max-w-sm text-sm text-slate-600'>
-                    <Link href='/shop' className='flex-1 flex items-center justify-between w-full bg-orange-200 rounded-3xl p-6 px-8 group'>
-                        <div>
-                            <p className='text-3xl font-medium bg-gradient-to-r from-slate-800 to-[#FFAD51] bg-clip-text text-transparent max-w-40'>Best products</p>
-                            <p className='flex items-center gap-1 mt-4'>View more <ArrowRightIcon className='group-hover:ml-2 transition-all' size={18} /> </p>
-                        </div>
-                        <Image className='w-35' src="/assets/hero_product_img1.png" alt="" width={140} height={140} />
-                    </Link>
-                    <Link href='/shop' className='flex-1 flex items-center justify-between w-full bg-blue-200 rounded-3xl p-6 px-8 group'>
-                        <div>
-                            <p className='text-3xl font-medium bg-gradient-to-r from-slate-800 to-[#78B2FF] bg-clip-text text-transparent max-w-40'>20% discounts</p>
-                            <p className='flex items-center gap-1 mt-4'>View more <ArrowRightIcon className='group-hover:ml-2 transition-all' size={18} /> </p>
-                        </div>
-                        <Image className='w-35' src="/assets/hero_product_img2.png" alt="" width={140} height={140} />
-                    </Link>
+                    {(settings.heroSideCards?.length > 0 ? settings.heroSideCards : [
+                        { title: 'Best products', link: '/shop', image: '/assets/hero_product_img1.png', bgColor: 'bg-orange-200', gradientTo: '#FFAD51', active: true },
+                        { title: '20% discounts', link: '/shop', image: '/assets/hero_product_img2.png', bgColor: 'bg-blue-200', gradientTo: '#78B2FF', active: true },
+                    ]).filter(c => c.active !== false).map((card, i) => (
+                        <Link key={i} href={card.link || '/shop'} className={`flex-1 flex items-center justify-between w-full ${card.bgColor || 'bg-orange-200'} rounded-3xl p-6 px-8 group`}>
+                            <div>
+                                <p className={`text-3xl font-medium bg-gradient-to-r from-slate-800 to-[${card.gradientTo || '#FFAD51'}] bg-clip-text text-transparent max-w-40`}>{card.title}</p>
+                                <p className='flex items-center gap-1 mt-4'>View more <ArrowRightIcon className='group-hover:ml-2 transition-all' size={18} /> </p>
+                            </div>
+                            {card.image && <Image className='w-35' src={card.image} alt="" width={140} height={140} />}
+                        </Link>
+                    ))}
                 </div>
             </div>
             <CategoriesMarquee />
