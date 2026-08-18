@@ -37,14 +37,6 @@ export default function InvoicePage({ params }) {
 
     return (
         <div className="max-w-3xl mx-auto text-slate-700 mb-20">
-            <style>{`
-                @media print {
-                    @page { margin: 0.5cm; size: A4; }
-                    body { margin: 0; padding: 0; }
-                    .no-print { display: none !important; }
-                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                }
-            `}</style>
             <div className="flex items-center justify-between mb-6 no-print">
                 <Link href="/dashboard/orders" className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700">
                     <ArrowLeftIcon size={16} /> Back to Orders

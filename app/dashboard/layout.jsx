@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }) {
         <div className="min-h-[70vh] mx-6 my-10">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
                 {/* Sidebar */}
-                <aside className="w-full md:w-56 shrink-0">
+                <aside className="w-full md:w-56 shrink-0 no-print">
                     <div className="border border-slate-200 rounded-xl p-3 flex flex-col gap-1">
                         {links.map((link) => (
                             <Link key={link.href} href={link.href} className={`flex items-center gap-3 p-2.5 rounded-lg text-sm transition ${isActive(link.href) ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-100'}`}>
