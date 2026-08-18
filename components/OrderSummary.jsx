@@ -94,7 +94,7 @@ const OrderSummary = ({ totalPrice, items }) => {
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
 
-        if (shippingMethods.length > 0 && !shippingMethod) {
+        if (!allFreeDelivery && shippingMethods.length > 0 && !shippingMethod) {
             toast.error('Please select a shipping method')
             return
         }
@@ -256,7 +256,7 @@ const OrderSummary = ({ totalPrice, items }) => {
                 </div>
             )}
 
-            {shippingMethods.length > 0 && (
+            {shippingMethods.length > 0 && !allFreeDelivery && (
                 <div className='my-4 py-4 border-b border-slate-200 text-slate-400'>
                     <p>{t('shippingMethod')}</p>
                     <div className='flex flex-col gap-2 mt-2'>

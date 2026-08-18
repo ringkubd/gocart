@@ -2,6 +2,35 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/session"
 
+export async function GET(req, { params }) {
+    try {
+        const user = await getSessionUser()
+        if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+        const { orderId } = await params
+        const order = await prisma.order.findUnique({
+            where: { id: orderId },
+            include: {
+                store: { select: { name: true, username: true } },
+                address: true,
+                user: { select: { id: true, name: true, email: true } },
+                orderItems: { include: { product: true } },
+            },
+        })
+
+        if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 })
+
+        if (order.userId !== user.id && user.role !== "admin") {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+        }
+
+        return NextResponse.json({ order })
+    } catch (error) {
+        console.error("Order GET error:", error)
+        return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
+    }
+}
+
 export async function PATCH(req, { params }) {
     try {
         const user = await getSessionUser()

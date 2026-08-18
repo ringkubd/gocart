@@ -3,7 +3,7 @@ import Loading from "@/components/Loading"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { PackageIcon } from "lucide-react"
+import { PackageIcon, FileTextIcon } from "lucide-react"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
 
@@ -95,8 +95,13 @@ export default function DashboardOrders() {
                                     {order.shippingMethod && <span className="mr-3">{order.shippingMethod}</span>}
                                     <span>{order.paymentMethod} · {order.isPaid ? 'Paid' : 'Pay on delivery'}</span>
                                 </div>
-                                <div className="font-medium text-slate-700">
-                                    Total: <span className="text-lg">{format(order.total)}</span>
+                                <div className="flex items-center gap-3">
+                                    <Link href={`/dashboard/invoice/${order.id}`} className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 border border-slate-200 px-3 py-1.5 rounded hover:bg-slate-50">
+                                        <FileTextIcon size={14} /> Invoice
+                                    </Link>
+                                    <span className="font-medium text-slate-700">
+                                        Total: <span className="text-lg">{format(order.total)}</span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
