@@ -152,10 +152,11 @@ const OrderSummary = ({ totalPrice, items }) => {
     }
 
     const discountAmount = coupon ? (coupon.discount / 100 * totalPrice) : 0;
-    const shippingCost = shippingMethod ? shippingMethod.cost : 0;
+    const allFreeDelivery = items.length > 0 && items.every(item => item.freeDelivery)
+    const shippingCost = allFreeDelivery ? 0 : (shippingMethod ? shippingMethod.cost : 0);
 
     // Calculate per-product delivery charges
-    const productDeliveryTotal = items.reduce((sum, item) => {
+    const productDeliveryTotal = allFreeDelivery ? 0 : items.reduce((sum, item) => {
         if (item.freeDelivery) return sum;
         let delivery = (item.deliveryCost || 0) * item.quantity;
         if (item.minQtyForFree > 0 && item.quantity >= item.minQtyForFree) delivery = 0;
