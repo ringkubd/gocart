@@ -52,6 +52,7 @@ export default function StoreOrderDetailPage({ params }) {
     const [order, setOrder] = useState(null)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [statusLoading, setStatusLoading] = useState(false)
 
     const fetchOrder = async () => {
         try {
@@ -106,6 +107,28 @@ export default function StoreOrderDetailPage({ params }) {
         }
     }
 
+    const updateStatus = async (newStatus) => {
+        setStatusLoading(true)
+        try {
+            const res = await fetch(`/api/store/orders/${orderId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus }),
+            })
+            const data = await res.json()
+            if (res.ok) {
+                setOrder(data.order)
+                toast.success("Status updated")
+            } else {
+                toast.error(data.error || "Failed")
+            }
+        } catch (error) {
+            toast.error("Failed")
+        } finally {
+            setStatusLoading(false)
+        }
+    }
+
     const subtotal = order?.orderItems?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0
     const discount = order?.isCouponUsed ? (order.coupon?.discount / 100 * subtotal) : 0
 
@@ -125,9 +148,23 @@ export default function StoreOrderDetailPage({ params }) {
                         <span>Order Details</span>
                     </div>
                 </div>
-                <button onClick={handlePrint} className="px-4 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50 flex items-center gap-2">
-                    Print Invoice
-                </button>
+                <div className="flex items-center gap-3">
+                    <button onClick={handlePrint} className="px-4 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50 flex items-center gap-2">
+                        Print Invoice
+                    </button>
+                    <select
+                        value={order.status}
+                        onChange={(e) => updateStatus(e.target.value)}
+                        disabled={statusLoading}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+                    >
+                        <option value="ORDER_PLACED">Order Placed</option>
+                        <option value="PROCESSING">Processing</option>
+                        <option value="SHIPPED">Shipped</option>
+                        <option value="DELIVERED">Delivered</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
+                </div>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-6">

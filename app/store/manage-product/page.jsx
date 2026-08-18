@@ -89,6 +89,10 @@ export default function StoreManageProducts() {
                     categoryBn: editProduct.categoryBn || "",
                     brandId: editProduct.brandId || null,
                     stock: Number(editProduct.stock),
+                    deliveryCost: Number(editProduct.deliveryCost || 0),
+                    freeDelivery: Boolean(editProduct.freeDelivery),
+                    minQtyForFree: Number(editProduct.minQtyForFree || 0),
+                    deliveryDiscount: Number(editProduct.deliveryDiscount || 0),
                 }),
             })
             const data = await res.json()
@@ -210,6 +214,30 @@ export default function StoreManageProducts() {
                                     <input type="number" value={editProduct.stock} onChange={(e) => setEditProduct({ ...editProduct, stock: e.target.value })} className="border border-slate-200 rounded p-2" />
                                 </label>
                             </div>
+
+                            {/* Delivery fields */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <label className="flex flex-col gap-1">
+                                    <span className="text-xs text-slate-400">Delivery Cost (per item)</span>
+                                    <input type="number" value={editProduct.deliveryCost || 0} onChange={(e) => setEditProduct({ ...editProduct, deliveryCost: e.target.value })} className="border border-slate-200 rounded p-2" />
+                                </label>
+                                <label className="flex items-center gap-2 mt-5">
+                                    <input type="checkbox" checked={editProduct.freeDelivery || false} onChange={(e) => setEditProduct({ ...editProduct, freeDelivery: e.target.checked })} className="accent-green-500" />
+                                    <span className="text-sm">Free Delivery</span>
+                                </label>
+                            </div>
+                            {!editProduct.freeDelivery && (
+                                <div className="grid grid-cols-2 gap-3">
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-xs text-slate-400">Min Qty for Free Delivery</span>
+                                        <input type="number" value={editProduct.minQtyForFree || 0} onChange={(e) => setEditProduct({ ...editProduct, minQtyForFree: e.target.value })} className="border border-slate-200 rounded p-2" />
+                                    </label>
+                                    <label className="flex flex-col gap-1">
+                                        <span className="text-xs text-slate-400">Delivery Discount %</span>
+                                        <input type="number" value={editProduct.deliveryDiscount || 0} onChange={(e) => setEditProduct({ ...editProduct, deliveryDiscount: e.target.value })} className="border border-slate-200 rounded p-2" />
+                                    </label>
+                                </div>
+                            )}
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
                             <button type="button" onClick={() => { setEditing(false); setEditProduct(null) }} className="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300">Cancel</button>
