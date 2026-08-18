@@ -81,6 +81,16 @@ export async function PATCH(req, { params }) {
                     courierName: body.courierName || updated.courierName || "",
                 },
             })
+            const refreshed = await prisma.order.findUnique({
+                where: { id: orderId },
+                include: {
+                    user: { select: { id: true, name: true, email: true } },
+                    address: true,
+                    orderItems: { include: { product: true } },
+                    statusLogs: { orderBy: { createdAt: "asc" } },
+                },
+            })
+            return NextResponse.json({ order: refreshed })
         }
 
         return NextResponse.json({ order: updated })

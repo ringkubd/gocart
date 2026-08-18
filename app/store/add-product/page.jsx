@@ -28,6 +28,10 @@ export default function StoreAddProduct() {
         category: "",
         categoryBn: "",
         brandId: "",
+        deliveryCost: 0,
+        freeDelivery: false,
+        minQtyForFree: 0,
+        deliveryDiscount: 0,
     })
     const [loading, setLoading] = useState(false)
 

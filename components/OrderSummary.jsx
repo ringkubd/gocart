@@ -153,7 +153,17 @@ const OrderSummary = ({ totalPrice, items }) => {
 
     const discountAmount = coupon ? (coupon.discount / 100 * totalPrice) : 0;
     const shippingCost = shippingMethod ? shippingMethod.cost : 0;
-    const finalTotal = totalPrice - discountAmount + shippingCost;
+
+    // Calculate per-product delivery charges
+    const productDeliveryTotal = items.reduce((sum, item) => {
+        if (item.freeDelivery) return sum;
+        let delivery = (item.deliveryCost || 0) * item.quantity;
+        if (item.minQtyForFree > 0 && item.quantity >= item.minQtyForFree) delivery = 0;
+        if (item.deliveryDiscount > 0) delivery = delivery * (1 - item.deliveryDiscount / 100);
+        return sum + delivery;
+    }, 0);
+
+    const finalTotal = totalPrice - discountAmount + shippingCost + productDeliveryTotal;
 
     const inputCls = "w-full border border-slate-300 rounded p-2 text-sm outline-none focus:border-slate-500";
 
@@ -265,11 +275,13 @@ const OrderSummary = ({ totalPrice, items }) => {
                     <div className='flex flex-col gap-1 text-slate-400'>
                         <p>{t('subtotal')}:</p>
                         <p>{t('shipping')}:</p>
+                        {productDeliveryTotal > 0 && <p>Delivery:</p>}
                         {coupon && <p>{t('coupon')}:</p>}
                     </div>
                     <div className='flex flex-col gap-1 font-medium text-right'>
                         <p>{format(totalPrice)}</p>
                         <p>{shippingCost > 0 ? format(shippingCost) : t('free')}</p>
+                        {productDeliveryTotal > 0 && <p>{format(productDeliveryTotal)}</p>}
                         {coupon && <p>{`-${format(discountAmount)}`}</p>}
                     </div>
                 </div>
@@ -290,7 +302,7 @@ const OrderSummary = ({ totalPrice, items }) => {
             </div>
             <div className='flex justify-between py-4'>
                 <p>{t('total')}:</p>
-                <p className='font-medium text-right'>{coupon ? format(finalTotal) : format(totalPrice)}</p>
+                <p className='font-medium text-right'>{format(finalTotal)}</p>
             </div>
             <button onClick={handlePlaceOrder} disabled={placing} className='w-full bg-slate-700 text-white py-2.5 rounded hover:bg-slate-900 active:scale-95 transition-all disabled:opacity-50'>
                 {placing ? t('placingOrder') : isGuest ? t('placeOrderAsGuest') : t('placeOrder')}
