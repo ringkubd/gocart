@@ -42,7 +42,7 @@ const Hero = () => {
                         <>
                             <div className='p-5 sm:p-16'>
                                 <h2 className='text-3xl sm:text-5xl leading-[1.2] my-3 font-medium bg-gradient-to-r from-slate-600 to-[#A0FF74] bg-clip-text text-transparent max-w-xs  sm:max-w-md'>
-                                    {slides[current]?.title || "Gadgets you'll love. Prices you'll trust."}
+                                    {slides[current]?.title}
                                 </h2>
                                 {slides[current]?.subtitle && (
                                     <div className='text-slate-800 text-sm font-medium mt-4 sm:mt-8 max-w-md'>
@@ -73,10 +73,7 @@ const Hero = () => {
                     )}
                 </div>
                 <div className='flex flex-col md:flex-row xl:flex-col gap-5 w-full xl:max-w-sm text-sm text-slate-600'>
-                    {(settings.heroSideCards?.length > 0 ? settings.heroSideCards : [
-                        { title: 'Best products', link: '/shop', image: '/assets/hero_product_img1.png', bgColor: 'bg-orange-200', gradientTo: '#FFAD51', active: true },
-                        { title: '20% discounts', link: '/shop', image: '/assets/hero_product_img2.png', bgColor: 'bg-blue-200', gradientTo: '#78B2FF', active: true },
-                    ]).filter(c => c.active !== false).map((card, i) => (
+                    {(settings.heroSideCards || []).filter(c => c.active !== false).map((card, i) => (
                         <Link key={i} href={card.link || '/shop'} className={`flex-1 flex items-center justify-between w-full ${card.bgColor || 'bg-orange-200'} rounded-3xl p-6 px-8 group`}>
                             <div>
                                 <p className={`text-3xl font-medium bg-gradient-to-r from-slate-800 to-[${card.gradientTo || '#FFAD51'}] bg-clip-text text-transparent max-w-40`}>{card.title}</p>

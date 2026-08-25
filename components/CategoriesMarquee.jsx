@@ -8,7 +8,7 @@ const CategoriesMarquee = () => {
     const { categories } = useStorefrontData();
     const { text } = useLocalized();
 
-    const cats = categories.length > 0 ? categories : ["Headphones", "Speakers", "Watch", "Earbuds", "Mouse", "Decoration"];
+    const cats = categories;
 
     return (
         <div className="overflow-hidden w-full relative max-w-7xl mx-auto select-none group sm:my-20">
