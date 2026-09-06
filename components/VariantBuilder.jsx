@@ -7,6 +7,7 @@ import { useCurrency } from "./useCurrency"
 export default function VariantBuilder({ options, variants, onChange }) {
     const { symbol: currency } = useCurrency()
     const [newOptionName, setNewOptionName] = useState('')
+    const [valueInputs, setValueInputs] = useState({})
 
     const addOption = () => {
         if (!newOptionName.trim()) return
@@ -21,7 +22,6 @@ export default function VariantBuilder({ options, variants, onChange }) {
 
     const removeOption = (index) => {
         const newOptions = options.filter((_, i) => i !== index)
-        // Remove variants that use this option
         const removedName = options[index].name
         const newVariants = variants.map(v => {
             const attrs = { ...v.attributes }
@@ -31,12 +31,18 @@ export default function VariantBuilder({ options, variants, onChange }) {
         onChange({ options: newOptions, variants: newVariants })
     }
 
-    const addValue = (optIndex, value) => {
-        if (!value.trim()) return
+    const handleValueInput = (optIndex, val) => {
+        setValueInputs(prev => ({ ...prev, [optIndex]: val }))
+    }
+
+    const addValue = (optIndex) => {
+        const val = (valueInputs[optIndex] || '').trim()
+        if (!val) return
         const newOptions = [...options]
-        if (newOptions[optIndex].values.includes(value.trim())) return
-        newOptions[optIndex] = { ...newOptions[optIndex], values: [...newOptions[optIndex].values, value.trim()] }
+        if (newOptions[optIndex].values.includes(val)) return
+        newOptions[optIndex] = { ...newOptions[optIndex], values: [...newOptions[optIndex].values, val] }
         onChange({ options: newOptions, variants })
+        setValueInputs(prev => ({ ...prev, [optIndex]: '' }))
     }
 
     const removeValue = (optIndex, valIndex) => {
@@ -47,7 +53,6 @@ export default function VariantBuilder({ options, variants, onChange }) {
 
     const generateVariants = () => {
         if (options.length === 0 || options.some(o => o.values.length === 0)) return
-        // Cartesian product of all option values
         const combinations = options.reduce((acc, opt) => {
             const result = []
             acc.forEach(combo => {
@@ -58,8 +63,7 @@ export default function VariantBuilder({ options, variants, onChange }) {
             return result
         }, [{}])
 
-        // Merge with existing variants (preserve SKU, price, stock, image)
-        const newVariants = combinations.map((attrs, i) => {
+        const newVariants = combinations.map((attrs) => {
             const attrKey = Object.values(attrs).join('-')
             const existing = variants.find(v => {
                 const vKey = Object.values(v.attributes).join('-')
@@ -129,13 +133,15 @@ export default function VariantBuilder({ options, variants, onChange }) {
                         </div>
                         <div className="flex gap-2">
                             <input
-                                value=""
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') { e.preventDefault(); addValue(optIndex, e.target.value); e.target.value = '' }
-                                }}
-                                placeholder={`Add ${opt.name} value...`}
+                                value={valueInputs[optIndex] || ''}
+                                onChange={(e) => handleValueInput(optIndex, e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addValue(optIndex) } }}
+                                placeholder={`Add ${opt.name} value and press Enter`}
                                 className="flex-1 border border-slate-200 rounded p-2 text-sm"
                             />
+                            <button type="button" onClick={() => addValue(optIndex)} className="bg-slate-800 text-white px-3 py-2 rounded text-sm hover:bg-slate-900">
+                                Add
+                            </button>
                         </div>
                     </div>
                 ))}
