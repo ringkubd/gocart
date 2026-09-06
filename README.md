@@ -2,8 +2,12 @@
   <h1><img src="https://thedhakashop.com/favicon.ico" width="20" height="20" alt="theDhakaShop Favicon">
    theDhakaShop</h1>
   <p>
-    A complete multi-vendor e-commerce platform built with Next.js, MySQL and Tailwind CSS — live at
-    <a href="https://thedhakashop.com">thedhakashop.com</a>.
+    A complete multi-vendor e-commerce platform built with Next.js, MySQL and Tailwind CSS.
+  </p>
+  <p>
+    <a href="https://thedhakashop.com"><strong>Live Demo</strong></a> · 
+    <a href="https://gocart-hazel-two.vercel.app/">Vercel Preview</a> · 
+    <a href="https://github.com/ringkubd/gocart">GitHub</a>
   </p>
   <p>
     <a href="https://github.com/ringkubd/gocart/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/ringkubd/gocart?style=for-the-badge" alt="License"></a>
