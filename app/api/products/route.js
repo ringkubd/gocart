@@ -36,7 +36,7 @@ export async function GET(req) {
             where.inStock = true
         }
 
-        const products = await prisma.product.findMany({
+        const rawProducts = await prisma.product.findMany({
             where,
             include: {
                 store: true,
@@ -49,6 +49,9 @@ export async function GET(req) {
                 : { createdAt: "desc" },
             ...(limit ? { take: limit } : {}),
         })
+
+        // Ensure options is always an array (fix empty string from DB)
+        const products = rawProducts.map(p => ({ ...p, options: Array.isArray(p.options) ? p.options : [] }))
 
         return NextResponse.json({ products })
     } catch (error) {

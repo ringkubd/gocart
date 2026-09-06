@@ -14,11 +14,13 @@ export async function GET() {
             return NextResponse.json({ error: "No store found" }, { status: 404 })
         }
 
-        const products = await prisma.product.findMany({
+        const rawProducts = await prisma.product.findMany({
             where: { storeId: store.id },
             include: { rating: true, brand: true, variants: true },
             orderBy: { createdAt: "desc" },
         })
+
+        const products = rawProducts.map(p => ({ ...p, options: Array.isArray(p.options) ? p.options : [] }))
 
         const orders = await prisma.order.findMany({
             where: { storeId: store.id },
