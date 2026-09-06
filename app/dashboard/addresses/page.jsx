@@ -111,8 +111,8 @@ export default function DashboardAddresses() {
                         <input name="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="Phone" className="border border-slate-200 rounded p-2 text-sm col-span-2" required />
                         <input name="street" value={form.street} onChange={(e) => setForm({ ...form, street: e.target.value })} placeholder="Street / House" className="border border-slate-200 rounded p-2 text-sm col-span-2" required />
                         <input name="city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="City" className="border border-slate-200 rounded p-2 text-sm" required />
-                        <input name="state" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} placeholder="State / Division" className="border border-slate-200 rounded p-2 text-sm" required />
-                        <input name="zip" value={form.zip} onChange={(e) => setForm({ ...form, zip: e.target.value })} placeholder="Zip code" className="border border-slate-200 rounded p-2 text-sm" required />
+                        <input name="state" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} placeholder="Division" className="border border-slate-200 rounded p-2 text-sm" required />
+                        <input name="zip" value={form.zip} onChange={(e) => setForm({ ...form, zip: e.target.value })} placeholder="Post Code" className="border border-slate-200 rounded p-2 text-sm" required />
                         <input name="country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} placeholder="Country" className="border border-slate-200 rounded p-2 text-sm" required />
                     </div>
                     <div className="flex gap-2">
