@@ -189,20 +189,20 @@ const OrderSummary = ({ totalPrice, items }) => {
             {isGuest && (
                 <div className="my-4 flex flex-col gap-2">
                     <p className="text-slate-400 text-xs">{t('contactInfo')}</p>
-                    <input value={guestForm.name} onChange={(e) => setGuestForm({ ...guestForm, name: e.target.value })} placeholder={t('fullName')} className={inputCls} />
+                    <input value={guestForm.name} onChange={(e) => setGuestForm({ ...guestForm, name: e.target.value })} placeholder={`${t('fullName')} *`} className={inputCls} />
                     <div className="grid grid-cols-2 gap-2">
-                        <input type="email" value={guestForm.email} onChange={(e) => setGuestForm({ ...guestForm, email: e.target.value })} placeholder={t('emailAddress')} className={inputCls} />
-                        <input value={guestForm.phone} onChange={(e) => setGuestForm({ ...guestForm, phone: e.target.value })} placeholder={t('phone')} className={inputCls} />
+                        <input type="email" value={guestForm.email} onChange={(e) => setGuestForm({ ...guestForm, email: e.target.value })} placeholder={`${t('emailAddress')} (${t('optional')})`} className={inputCls} />
+                        <input value={guestForm.phone} onChange={(e) => setGuestForm({ ...guestForm, phone: e.target.value })} placeholder={`${t('phone')} *`} className={inputCls} />
                     </div>
                     <p className="text-slate-400 text-xs mt-2">{t('address')}</p>
-                    <input value={guestForm.street} onChange={(e) => setGuestForm({ ...guestForm, street: e.target.value })} placeholder={t('street')} className={inputCls} />
+                    <input value={guestForm.street} onChange={(e) => setGuestForm({ ...guestForm, street: e.target.value })} placeholder={`${t('street')} *`} className={inputCls} />
                     <div className="grid grid-cols-2 gap-2">
-                        <input value={guestForm.city} onChange={(e) => setGuestForm({ ...guestForm, city: e.target.value })} placeholder={t('city')} className={inputCls} />
-                        <input value={guestForm.state} onChange={(e) => setGuestForm({ ...guestForm, state: e.target.value })} placeholder={t('state')} className={inputCls} />
+                        <input value={guestForm.city} onChange={(e) => setGuestForm({ ...guestForm, city: e.target.value })} placeholder={`${t('city')} *`} className={inputCls} />
+                        <input value={guestForm.state} onChange={(e) => setGuestForm({ ...guestForm, state: e.target.value })} placeholder={`${t('state')} (${t('optional')})`} className={inputCls} />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                        <input value={guestForm.zip} onChange={(e) => setGuestForm({ ...guestForm, zip: e.target.value })} placeholder={t('zip')} className={inputCls} />
-                        <input value={guestForm.country} onChange={(e) => setGuestForm({ ...guestForm, country: e.target.value })} placeholder={t('country')} className={inputCls} />
+                        <input value={guestForm.zip} onChange={(e) => setGuestForm({ ...guestForm, zip: e.target.value })} placeholder={`${t('zip')} *`} className={inputCls} />
+                        <input value={guestForm.country} onChange={(e) => setGuestForm({ ...guestForm, country: e.target.value })} placeholder={`${t('country')} (${t('optional')})`} className={inputCls} />
                     </div>
                 </div>
             )}
