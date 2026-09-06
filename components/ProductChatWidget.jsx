@@ -122,11 +122,12 @@ export default function ProductChatWidget({ productId, storeId }) {
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed')
 
-        // Add message to local state
-        setTicket(prev => ({
-            ...prev,
-            messages: [...(prev.messages || []), data.message],
-        }))
+        // Add message to local state (with dedup check)
+        setTicket(prev => {
+            const exists = prev.messages?.some(m => m.id === data.message.id)
+            if (exists) return prev
+            return { ...prev, messages: [...(prev.messages || []), data.message] }
+        })
     }
 
     if (!ready) return null

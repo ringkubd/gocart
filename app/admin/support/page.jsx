@@ -61,10 +61,11 @@ export default function AdminSupport() {
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed to send')
             setReply('')
-            setSelected(prev => ({
-                ...prev,
-                messages: [...prev.messages, data.message],
-            }))
+            setSelected(prev => {
+                const exists = prev.messages?.some(m => m.id === data.message.id)
+                if (exists) return prev
+                return { ...prev, messages: [...(prev.messages || []), data.message] }
+            })
             fetchTickets(filter)
         } catch (error) {
             toast.error(error.message || 'Failed')
@@ -148,10 +149,11 @@ export default function AdminSupport() {
         })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed')
-        setChatSelected(prev => ({
-            ...prev,
-            messages: [...(prev.messages || []), data.message],
-        }))
+        setChatSelected(prev => {
+            const exists = prev.messages?.some(m => m.id === data.message.id)
+            if (exists) return prev
+            return { ...prev, messages: [...(prev.messages || []), data.message] }
+        })
         fetchChatTickets(chatFilter)
     }
 

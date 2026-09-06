@@ -58,10 +58,11 @@ export default function StoreChats() {
         })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed')
-        setSelected(prev => ({
-            ...prev,
-            messages: [...(prev.messages || []), data.message],
-        }))
+        setSelected(prev => {
+            const exists = prev.messages?.some(m => m.id === data.message.id)
+            if (exists) return prev
+            return { ...prev, messages: [...(prev.messages || []), data.message] }
+        })
         fetchTickets(filter)
     }
 

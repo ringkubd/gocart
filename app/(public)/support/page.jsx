@@ -83,10 +83,11 @@ export default function Support() {
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed to send')
             setReply('')
-            setSelected(prev => ({
-                ...prev,
-                messages: [...prev.messages, data.message],
-            }))
+            setSelected(prev => {
+                const exists = prev.messages?.some(m => m.id === data.message.id)
+                if (exists) return prev
+                return { ...prev, messages: [...(prev.messages || []), data.message] }
+            })
         } catch (error) {
             toast.error(error.message || 'Failed')
         } finally {

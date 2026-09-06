@@ -4,7 +4,6 @@ import StoreProvider from "@/app/StoreProvider";
 import SessionWrapper from "@/components/SessionWrapper";
 import ProductsLoader from "@/components/ProductsLoader";
 import CurrencyProvider from "@/components/CurrencyProvider";
-import MessengerWidget from "@/components/MessengerWidget";
 import { getGlobalSeo } from "@/lib/seo";
 import { OrganizationSchema, WebSiteSchema } from "@/lib/jsonld";
 import JsonLd from "@/components/JsonLd";
@@ -131,7 +130,6 @@ export default async function RootLayout({ children }) {
                         <CurrencyProvider />
                         <Toaster />
                         {children}
-                        <MessengerWidget fbSettings={fbSettings} />
                     </StoreProvider>
                 </SessionWrapper>
                 </LanguageProvider>
