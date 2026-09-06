@@ -5,7 +5,7 @@
     A complete multi-vendor e-commerce platform built with Next.js, MySQL and Tailwind CSS.
   </p>
   <p>
-    <a href="https://thedhakashop.com"><strong>Live Demo</strong></a> · 
+    <a href="https://thedhakashop.com"><strong>Production</strong></a> · 
     <a href="https://gocart-hazel-two.vercel.app/">Vercel Preview</a> · 
     <a href="https://github.com/ringkubd/gocart">GitHub</a>
   </p>
