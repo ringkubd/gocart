@@ -11,6 +11,7 @@ export async function GET(req, { params }) {
                 store: true,
                 brand: true,
                 rating: { include: { user: true } },
+                variants: true,
             },
         })
 
@@ -68,9 +69,36 @@ export async function PATCH(req, { params }) {
                 ...(body.freeDelivery !== undefined && { freeDelivery: Boolean(body.freeDelivery) }),
                 ...(body.minQtyForFree !== undefined && { minQtyForFree: Number(body.minQtyForFree) }),
                 ...(body.deliveryDiscount !== undefined && { deliveryDiscount: Number(body.deliveryDiscount) }),
+                ...(body.hasVariants !== undefined && { hasVariants: Boolean(body.hasVariants) }),
+                ...(body.options !== undefined && { options: body.options }),
             },
-            include: { store: true, brand: true, rating: true },
+            include: { store: true, brand: true, rating: true, variants: true },
         })
+
+        // Handle variant updates: delete existing + recreate
+        if (body.variants !== undefined) {
+            await prisma.productVariant.deleteMany({ where: { productId } })
+            if (body.variants?.length > 0) {
+                await prisma.productVariant.createMany({
+                    data: body.variants.map(v => ({
+                        productId,
+                        sku: v.sku || "",
+                        price: Number(v.price) || 0,
+                        mrp: Number(v.mrp) || 0,
+                        stock: Number(v.stock) || 0,
+                        inStock: Number(v.stock) > 0,
+                        image: v.image || "",
+                        attributes: v.attributes || {},
+                    })),
+                })
+            }
+            // Re-fetch with variants
+            const refreshed = await prisma.product.findUnique({
+                where: { id: productId },
+                include: { store: true, brand: true, rating: true, variants: true },
+            })
+            return NextResponse.json({ product: refreshed })
+        }
 
         return NextResponse.json({ product: updated })
     } catch (error) {

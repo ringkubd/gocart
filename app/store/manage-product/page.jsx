@@ -6,6 +6,7 @@ import Loading from "@/components/Loading"
 import { PencilIcon, Trash2Icon } from "lucide-react"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
+import VariantBuilder from "@/components/VariantBuilder"
 
 export default function StoreManageProducts() {
 
@@ -17,6 +18,8 @@ export default function StoreManageProducts() {
     const [brands, setBrands] = useState([])
     const [editProduct, setEditProduct] = useState(null)
     const [editing, setEditing] = useState(false)
+    const [editVariants, setEditVariants] = useState([])
+    const [editOptions, setEditOptions] = useState([])
 
     const fetchBrands = async () => {
         try {
@@ -75,25 +78,29 @@ export default function StoreManageProducts() {
     const saveEdit = async (e) => {
         e.preventDefault()
         try {
+            const body = {
+                name: editProduct.name,
+                nameBn: editProduct.nameBn || "",
+                description: editProduct.description,
+                descriptionBn: editProduct.descriptionBn || "",
+                mrp: Number(editProduct.mrp),
+                price: Number(editProduct.price),
+                category: editProduct.category,
+                categoryBn: editProduct.categoryBn || "",
+                brandId: editProduct.brandId || null,
+                stock: Number(editProduct.stock),
+                deliveryCost: Number(editProduct.deliveryCost || 0),
+                freeDelivery: Boolean(editProduct.freeDelivery),
+                minQtyForFree: Number(editProduct.minQtyForFree || 0),
+                deliveryDiscount: Number(editProduct.deliveryDiscount || 0),
+                hasVariants: editProduct.hasVariants || false,
+                options: editProduct.hasVariants ? editOptions : [],
+                variants: editProduct.hasVariants ? editVariants : [],
+            }
             const res = await fetch(`/api/products/${editProduct.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: editProduct.name,
-                    nameBn: editProduct.nameBn || "",
-                    description: editProduct.description,
-                    descriptionBn: editProduct.descriptionBn || "",
-                    mrp: Number(editProduct.mrp),
-                    price: Number(editProduct.price),
-                    category: editProduct.category,
-                    categoryBn: editProduct.categoryBn || "",
-                    brandId: editProduct.brandId || null,
-                    stock: Number(editProduct.stock),
-                    deliveryCost: Number(editProduct.deliveryCost || 0),
-                    freeDelivery: Boolean(editProduct.freeDelivery),
-                    minQtyForFree: Number(editProduct.minQtyForFree || 0),
-                    deliveryDiscount: Number(editProduct.deliveryDiscount || 0),
-                }),
+                body: JSON.stringify(body),
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed')
@@ -130,19 +137,29 @@ export default function StoreManageProducts() {
                     </tr>
                 </thead>
                 <tbody className="text-slate-700">
-                    {products.map((product) => (
+                    {products.map((product) => {
+                        const totalStock = product.hasVariants && product.variants?.length
+                            ? product.variants.reduce((s, v) => s + (v.stock || 0), 0)
+                            : product.stock
+                        const priceRange = product.hasVariants && product.variants?.length > 1
+                            ? (() => { const prices = product.variants.map(v => v.price).filter(p => p > 0); return prices.length > 1 ? { min: Math.min(...prices), max: Math.max(...prices) } : null })()
+                            : null
+                        return (
                         <tr key={product.id} className="border-t border-gray-200 hover:bg-gray-50">
                             <td className="px-4 py-3">
                                 <div className="flex gap-2 items-center">
                                     <Image width={40} height={40} className='p-1 shadow rounded cursor-pointer' src={product.images[0]} alt="" />
-                                    {product.name}
+                                    <div>
+                                        <p>{product.name}</p>
+                                        {product.hasVariants && <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{product.variants?.length || 0} variants</span>}
+                                    </div>
                                 </div>
                             </td>
                             <td className="px-4 py-3 max-w-md text-slate-600 hidden md:table-cell truncate">{product.description}</td>
                             <td className="px-4 py-3 hidden md:table-cell">{currency} {Number(product.mrp).toLocaleString()}</td>
-                            <td className="px-4 py-3">{currency} {Number(product.price).toLocaleString()}</td>
+                            <td className="px-4 py-3">{currency} {priceRange ? `${Number(priceRange.min).toLocaleString()} - ${Number(priceRange.max).toLocaleString()}` : Number(product.price).toLocaleString()}</td>
                             <td className="px-4 py-3">
-                                <span className={`text-xs px-2 py-1 rounded-full ${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{product.stock > 0 ? product.stock : 'Out'}</span>
+                                <span className={`text-xs px-2 py-1 rounded-full ${totalStock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{totalStock > 0 ? totalStock : 'Out'}</span>
                             </td>
                             <td className="px-4 py-3 text-center">
                                 <label className="relative inline-flex items-center cursor-pointer text-gray-900 gap-3">
@@ -153,12 +170,13 @@ export default function StoreManageProducts() {
                             </td>
                             <td className="px-4 py-3">
                                 <div className="flex gap-2">
-                                    <button onClick={() => { setEditProduct(product); setEditing(true) }} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><PencilIcon size={16} /></button>
+                                    <button onClick={() => { setEditProduct(product); setEditVariants(product.variants || []); setEditOptions(product.options || []); setEditing(true) }} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><PencilIcon size={16} /></button>
                                     <button onClick={() => handleDelete(product)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"><Trash2Icon size={16} /></button>
                                 </div>
                             </td>
                         </tr>
-                    ))}
+                        )
+                    })}
                 </tbody>
             </table>
             ) : (
@@ -190,13 +208,32 @@ export default function StoreManageProducts() {
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">MRP ({currency})</span>
-                                    <input type="number" value={editProduct.mrp} onChange={(e) => setEditProduct({ ...editProduct, mrp: e.target.value })} className="border border-slate-200 rounded p-2" required />
+                                    <input type="number" value={editProduct.mrp} onChange={(e) => setEditProduct({ ...editProduct, mrp: e.target.value })} className="border border-slate-200 rounded p-2" required={!editProduct.hasVariants} />
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">Price ({currency})</span>
-                                    <input type="number" value={editProduct.price} onChange={(e) => setEditProduct({ ...editProduct, price: e.target.value })} className="border border-slate-200 rounded p-2" required />
+                                    <input type="number" value={editProduct.price} onChange={(e) => setEditProduct({ ...editProduct, price: e.target.value })} className="border border-slate-200 rounded p-2" required={!editProduct.hasVariants} />
                                 </label>
                             </div>
+
+                            {/* Has Variants Toggle */}
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" checked={editProduct.hasVariants || false} onChange={(e) => setEditProduct({ ...editProduct, hasVariants: e.target.checked })} className="accent-green-500 w-4 h-4" />
+                                <div>
+                                    <span className="text-sm font-medium text-slate-700">This product has variants</span>
+                                    <p className="text-xs text-slate-400">e.g. Color, Size, Storage — each with different price/stock</p>
+                                </div>
+                            </label>
+
+                            {/* Variant Builder */}
+                            {editProduct.hasVariants && (
+                                <VariantBuilder
+                                    options={editOptions}
+                                    variants={editVariants}
+                                    onChange={({ options, variants }) => { setEditOptions(options); setEditVariants(variants) }}
+                                />
+                            )}
+
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">Category</span>

@@ -42,6 +42,7 @@ export async function GET(req) {
                 store: true,
                 brand: true,
                 rating: { include: { user: true } },
+                variants: true,
             },
             orderBy: bestSelling === "true"
                 ? { soldCount: "desc" }
@@ -69,10 +70,15 @@ export async function POST(req) {
         }
 
         const body = await req.json()
-        const { name, nameBn, description, descriptionBn, mrp, price, images, category, categoryBn, brandId, stock, featured, deliveryCost, freeDelivery, minQtyForFree, deliveryDiscount } = body
+        const { name, nameBn, description, descriptionBn, mrp, price, images, category, categoryBn, brandId, stock, featured, deliveryCost, freeDelivery, minQtyForFree, deliveryDiscount, hasVariants, options, variants } = body
 
-        if (!name || !description || !price || !images?.length || !category) {
+        if (!name || !description || !images?.length || !category) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+        }
+
+        // For simple products, price is required. For variant products, first variant price is used.
+        if (!hasVariants && !price) {
+            return NextResponse.json({ error: "Price is required" }, { status: 400 })
         }
 
         const product = await prisma.product.create({
@@ -81,8 +87,8 @@ export async function POST(req) {
                 nameBn: nameBn || "",
                 description,
                 descriptionBn: descriptionBn || "",
-                mrp: Number(mrp) || Number(price),
-                price: Number(price),
+                mrp: Number(mrp) || Number(price) || 0,
+                price: Number(price) || 0,
                 images,
                 category,
                 categoryBn: categoryBn || "",
@@ -94,10 +100,34 @@ export async function POST(req) {
                 freeDelivery: Boolean(freeDelivery),
                 minQtyForFree: Number(minQtyForFree) || 0,
                 deliveryDiscount: Number(deliveryDiscount) || 0,
+                hasVariants: Boolean(hasVariants),
+                options: options || [],
                 storeId: store.id,
             },
-            include: { store: true, brand: true, rating: true },
+            include: { store: true, brand: true, rating: true, variants: true },
         })
+
+        // Create variants if provided
+        if (hasVariants && variants?.length > 0) {
+            await prisma.productVariant.createMany({
+                data: variants.map(v => ({
+                    productId: product.id,
+                    sku: v.sku || "",
+                    price: Number(v.price) || 0,
+                    mrp: Number(v.mrp) || 0,
+                    stock: Number(v.stock) || 0,
+                    inStock: Number(v.stock) > 0,
+                    image: v.image || "",
+                    attributes: v.attributes || {},
+                })),
+            })
+            // Re-fetch product with variants
+            const updated = await prisma.product.findUnique({
+                where: { id: product.id },
+                include: { store: true, brand: true, rating: true, variants: true },
+            })
+            return NextResponse.json({ product: updated }, { status: 201 })
+        }
 
         return NextResponse.json({ product }, { status: 201 })
     } catch (error) {

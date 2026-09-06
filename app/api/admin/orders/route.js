@@ -39,7 +39,7 @@ export async function GET(req) {
                 store: { select: { id: true, name: true, username: true } },
                 address: true,
                 orderItems: {
-                    include: { product: { select: { id: true, name: true, images: true, price: true } } },
+                    include: { product: { select: { id: true, name: true, images: true, price: true } }, variant: true },
                 },
             },
             orderBy: { createdAt: "desc" },

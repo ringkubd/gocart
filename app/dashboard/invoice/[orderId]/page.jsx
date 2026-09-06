@@ -98,7 +98,16 @@ export default function InvoicePage({ params }) {
                                         <div className="w-10 h-10 bg-slate-100 rounded overflow-hidden flex-shrink-0">
                                             <Image src={item.product?.images?.[0] || '/assets/product_img1.png'} alt="" width={40} height={40} className="object-cover w-full h-full" />
                                         </div>
-                                        <span className="text-slate-700">{item.product?.name}</span>
+                                        <div>
+                                            <span className="text-slate-700">{item.product?.name}</span>
+                                            {item.variant?.attributes && Object.keys(item.variant.attributes).length > 0 && (
+                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                    {Object.entries(item.variant.attributes).map(([attr, val]) => (
+                                                        <span key={attr} className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{attr}: {val}</span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </td>
                                 <td className="py-3 text-center text-slate-600">{item.quantity}</td>

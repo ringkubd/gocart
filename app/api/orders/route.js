@@ -16,7 +16,7 @@ export async function GET() {
                 address: true,
                 user: { select: { name: true, email: true } },
                 orderItems: {
-                    include: { product: { include: { store: true } } },
+                    include: { product: { include: { store: true } }, variant: true },
                 },
             },
             orderBy: { createdAt: "desc" },
@@ -48,14 +48,28 @@ export async function POST(req) {
 
         // Verify all products exist and have stock
         const productIds = items.map(item => item.productId)
-        const products = await prisma.product.findMany({ where: { id: { in: productIds } } })
+        const products = await prisma.product.findMany({
+            where: { id: { in: productIds } },
+            include: { variants: true },
+        })
         for (const item of items) {
             const product = products.find(p => p.id === item.productId)
             if (!product) {
                 return NextResponse.json({ error: `Product not found` }, { status: 404 })
             }
-            if (product.stock > 0 && product.stock < item.quantity) {
-                return NextResponse.json({ error: `Not enough stock for ${product.name}` }, { status: 400 })
+            // Check stock: variant or product level
+            if (item.variantId) {
+                const variant = product.variants.find(v => v.id === item.variantId)
+                if (!variant) {
+                    return NextResponse.json({ error: `Variant not found for ${product.name}` }, { status: 404 })
+                }
+                if (variant.stock > 0 && variant.stock < item.quantity) {
+                    return NextResponse.json({ error: `Not enough stock for ${product.name} (${Object.values(variant.attributes).join(', ')})` }, { status: 400 })
+                }
+            } else {
+                if (product.stock > 0 && product.stock < item.quantity) {
+                    return NextResponse.json({ error: `Not enough stock for ${product.name}` }, { status: 400 })
+                }
             }
         }
 
@@ -223,6 +237,7 @@ export async function POST(req) {
                 orderItems: {
                     create: items.map((item) => ({
                         productId: item.productId,
+                        variantId: item.variantId || null,
                         quantity: item.quantity,
                         price: item.price,
                     })),
@@ -232,14 +247,26 @@ export async function POST(req) {
                 store: true,
                 address: true,
                 user: { select: { id: true, name: true, email: true, image: true } },
-                orderItems: { include: { product: true } },
+                orderItems: { include: { product: true, variant: true } },
             },
         })
 
-        // Decrement stock + increment sold count for each product
+        // Decrement stock + increment sold count for each product/variant
         for (const item of items) {
             const prod = products.find(p => p.id === item.productId)
-            if (prod.stock > 0) {
+            if (item.variantId) {
+                // Decrement variant stock
+                const variant = prod?.variants?.find(v => v.id === item.variantId)
+                if (variant && variant.stock > 0) {
+                    await prisma.productVariant.update({
+                        where: { id: item.variantId },
+                        data: {
+                            stock: { decrement: item.quantity },
+                            inStock: variant.stock - item.quantity > 0,
+                        },
+                    })
+                }
+            } else if (prod?.stock > 0) {
                 await prisma.product.update({
                     where: { id: item.productId },
                     data: {

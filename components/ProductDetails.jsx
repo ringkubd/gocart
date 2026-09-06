@@ -3,7 +3,7 @@
 import { addToCart } from "@/lib/features/cart/cartSlice";
 import { StarIcon, TagIcon, EarthIcon, CreditCardIcon, UserIcon, TruckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import Counter from "./Counter";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +14,6 @@ import { useLocalized } from "./useLocalized";
 
 const ProductDetails = ({ product }) => {
 
-    const productId = product.id;
     const { format } = useCurrency();
     const { t } = useLanguage();
     const { text } = useLocalized();
@@ -24,18 +23,59 @@ const ProductDetails = ({ product }) => {
 
     const cart = useSelector(state => state.cart.cartItems);
     const dispatch = useDispatch();
+    const router = useRouter();
 
-    const router = useRouter()
-
+    // Variant selection state
+    const [selectedAttributes, setSelectedAttributes] = useState({})
     const [mainImage, setMainImage] = useState(product.images[0]);
 
+    const hasVariants = product.hasVariants && product.variants?.length > 0
+    const options = product.options || []
+
+    // Find matching variant based on selected attributes
+    const selectedVariant = useMemo(() => {
+        if (!hasVariants) return null
+        const selectedKeys = Object.keys(selectedAttributes)
+        if (selectedKeys.length === 0) return null
+        return product.variants.find(v => {
+            return selectedKeys.every(key => v.attributes[key] === selectedAttributes[key])
+        })
+    }, [hasVariants, selectedAttributes, product.variants])
+
+    // Determine display values
+    const displayPrice = selectedVariant?.price || product.price
+    const displayMrp = selectedVariant?.mrp || product.mrp
+    const displayStock = selectedVariant ? selectedVariant.stock : product.stock
+    const displayInStock = selectedVariant ? selectedVariant.inStock : product.inStock
+    const displayImage = selectedVariant?.image || mainImage
+    const variantId = selectedVariant?.id || null
+
+    // Check if all options are selected
+    const allSelected = hasVariants && options.every(opt => selectedAttributes[opt.name])
+
+    // Check if current variant is in cart
+    const cartKey = variantId ? `${product.id}:${variantId}` : product.id
+    const inCart = cart[cartKey]
+
+    const handleAttributeSelect = (optionName, value) => {
+        setSelectedAttributes(prev => ({ ...prev, [optionName]: value }))
+        // Try to find variant with new selection to update image
+        const newAttrs = { ...selectedAttributes, [optionName]: value }
+        if (hasVariants) {
+            const match = product.variants.find(v =>
+                Object.keys(newAttrs).every(key => v.attributes[key] === newAttrs[key])
+            )
+            if (match?.image) setMainImage(match.image)
+        }
+    }
+
     const addToCartHandler = () => {
-        dispatch(addToCart({ productId }))
+        dispatch(addToCart({ productId: product.id, variantId }))
         if (typeof window !== 'undefined' && window.fbq) {
             window.fbq('track', 'AddToCart', {
-                content_ids: [productId],
+                content_ids: [product.id],
                 content_type: 'product',
-                value: product.price,
+                value: displayPrice,
                 currency: 'USD',
             })
         }
@@ -53,7 +93,7 @@ const ProductDetails = ({ product }) => {
         const pageId = fbSettings?.messengerPageId
         const pageUrl = fbSettings?.pageUrl
         const productUrl = typeof window !== 'undefined' ? window.location.href : ''
-        const message = encodeURIComponent(`Hi! I would like to order "${product.name}" (${format(product.price)}) from theDhakaShop. Link: ${productUrl}`)
+        const message = encodeURIComponent(`Hi! I would like to order "${product.name}" (${format(displayPrice)}) from theDhakaShop. Link: ${productUrl}`)
 
         let url = ""
         if (type === "whatsapp") {
@@ -64,7 +104,6 @@ const ProductDetails = ({ product }) => {
         } else if (type === "custom") {
             url = customUrl || ""
         } else {
-            // Facebook Messenger
             url = pageId ? `https://m.me/${pageId}?text=${message}` : (customUrl || pageUrl || "")
         }
         if (url) window.open(url, '_blank')
@@ -73,7 +112,13 @@ const ProductDetails = ({ product }) => {
     const averageRating = product.rating?.length
         ? product.rating.reduce((acc, item) => acc + item.rating, 0) / product.rating.length
         : 0;
-    
+
+    // Price range for variant products
+    const priceRange = hasVariants && product.variants.length > 1 ? (() => {
+        const prices = product.variants.map(v => v.price).filter(p => p > 0)
+        return prices.length > 1 ? { min: Math.min(...prices), max: Math.max(...prices) } : null
+    })() : null
+
     return (
         <div className="flex max-lg:flex-col gap-12">
             <div className="flex max-sm:flex-col-reverse gap-3">
@@ -85,7 +130,7 @@ const ProductDetails = ({ product }) => {
                     ))}
                 </div>
                 <div className="flex justify-center items-center h-100 sm:size-113 bg-slate-100 rounded-lg ">
-                    <Image src={mainImage} alt="" width={250} height={250} onError={(e) => { e.currentTarget.src = "/assets/product_img1.png" }} />
+                    <Image src={displayImage} alt="" width={250} height={250} onError={(e) => { e.currentTarget.src = "/assets/product_img1.png" }} />
                 </div>
             </div>
             <div className="flex-1">
@@ -96,31 +141,86 @@ const ProductDetails = ({ product }) => {
                     ))}
                     <p className="text-sm ml-3 text-slate-500">{product.rating?.length || 0} {t('reviews')}</p>
                 </div>
+
+                {/* Price display */}
                 <div className="flex items-start my-6 gap-3 text-2xl font-semibold text-slate-800">
-                    <p> {format(product.price)} </p>
-                    <p className="text-xl text-slate-500 line-through">{format(product.mrp)}</p>
+                    {priceRange && !selectedVariant ? (
+                        <>
+                            <p>{format(priceRange.min)} - {format(priceRange.max)}</p>
+                        </>
+                    ) : (
+                        <>
+                            <p>{format(displayPrice)}</p>
+                            {displayMrp > displayPrice && <p className="text-xl text-slate-500 line-through">{format(displayMrp)}</p>}
+                        </>
+                    )}
                 </div>
-                <div className="flex items-center gap-2 text-slate-500">
-                    <TagIcon size={14} />
-                    <p>{t('savePercent')} {((product.mrp - product.price) / product.mrp * 100).toFixed(0)}% {t('rightNow')}</p>
-                </div>
+
+                {displayMrp > displayPrice && (
+                    <div className="flex items-center gap-2 text-slate-500">
+                        <TagIcon size={14} />
+                        <p>{t('savePercent')} {((displayMrp - displayPrice) / displayMrp * 100).toFixed(0)}% {t('rightNow')}</p>
+                    </div>
+                )}
+
+                {/* Free delivery badge */}
                 {product.freeDelivery && (
                     <div className="flex items-center gap-2 mt-3 bg-green-50 border border-green-200 rounded-lg px-3 py-2 w-fit">
                         <TruckIcon size={16} className="text-green-600" />
                         <span className="text-sm font-medium text-green-700">Free Delivery</span>
                     </div>
                 )}
-                <div className="flex items-end gap-5 mt-10">
-                    {
-                        cart[productId] && (
-                            <div className="flex flex-col gap-3">
-                                <p className="text-lg text-slate-800 font-semibold">Quantity</p>
-                                <Counter productId={productId} />
-                            </div>
-                        )
-                    }
-                    <button onClick={() => !cart[productId] ? addToCartHandler() : router.push('/cart')} className="bg-slate-800 text-white px-10 py-3 text-sm font-medium rounded hover:bg-slate-900 active:scale-95 transition">
-                        {!cart[productId] ? t('addToCart') : t('viewCart')}
+
+                {/* Variant selectors */}
+                {hasVariants && options.map((opt) => (
+                    <div key={opt.name} className="mt-5">
+                        <p className="text-sm font-medium text-slate-700 mb-2">{opt.name}: <span className="text-slate-500">{selectedAttributes[opt.name] || 'Select'}</span></p>
+                        <div className="flex flex-wrap gap-2">
+                            {opt.values.map((val) => {
+                                const isSelected = selectedAttributes[opt.name] === val
+                                // Check if this value combination is available
+                                const isAvailable = product.variants.some(v => {
+                                    const match = { ...selectedAttributes, [opt.name]: val }
+                                    return Object.keys(match).every(key => v.attributes[key] === match[key]) && v.stock > 0
+                                })
+                                return (
+                                    <button
+                                        key={val}
+                                        onClick={() => handleAttributeSelect(opt.name, val)}
+                                        disabled={!isAvailable}
+                                        className={`px-4 py-2 rounded-lg text-sm border transition ${isSelected ? 'border-slate-800 bg-slate-800 text-white' : isAvailable ? 'border-slate-200 text-slate-600 hover:border-slate-400' : 'border-slate-100 text-slate-300 cursor-not-allowed line-through'}`}
+                                    >
+                                        {val}
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </div>
+                ))}
+
+                {/* Stock info */}
+                <div className="mt-4">
+                    {displayInStock && displayStock > 0 ? (
+                        <p className="text-sm text-green-600">In Stock ({displayStock} available)</p>
+                    ) : (
+                        <p className="text-sm text-red-500">Out of Stock</p>
+                    )}
+                </div>
+
+                {/* Add to cart */}
+                <div className="flex items-end gap-5 mt-6">
+                    {inCart && (
+                        <div className="flex flex-col gap-3">
+                            <p className="text-lg text-slate-800 font-semibold">Quantity</p>
+                            <Counter productId={product.id} variantId={variantId} />
+                        </div>
+                    )}
+                    <button
+                        onClick={() => !inCart ? addToCartHandler() : router.push('/cart')}
+                        disabled={!displayInStock || (hasVariants && !allSelected)}
+                        className="bg-slate-800 text-white px-10 py-3 text-sm font-medium rounded hover:bg-slate-900 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {!inCart ? t('addToCart') : t('viewCart')}
                     </button>
                     {storeSettings.enableShare !== false && (
                         <button onClick={shareOnFacebook} className="flex items-center gap-2 bg-[#1877F2] text-white px-5 py-3 text-sm font-medium rounded hover:bg-[#1669d6] active:scale-95 transition" aria-label="Share on Facebook">

@@ -46,22 +46,48 @@ export default function Cart() {
 
     const createCartArray = () => {
         setTotalPrice(0);
-        const cartArray = [];
+        const arr = [];
+        let total = 0;
         for (const [key, value] of Object.entries(cartItems)) {
-            const product = products.find(product => product.id === key);
-            if (product) {
-                cartArray.push({
-                    ...product,
-                    quantity: value,
-                });
-                setTotalPrice(prev => prev + product.price * value);
+            // Handle both old format (number) and new format (object)
+            const productId = typeof value === 'number' ? key : value.productId
+            const variantId = typeof value === 'number' ? null : value.variantId
+            const quantity = typeof value === 'number' ? value : value.quantity
+
+            const product = products.find(p => p.id === productId)
+            if (!product) continue
+
+            let variant = null
+            if (variantId && product.variants) {
+                variant = product.variants.find(v => v.id === variantId)
             }
+
+            const price = variant ? variant.price : product.price
+            const mrp = variant ? (variant.mrp || product.mrp) : product.mrp
+            const image = variant?.image || product.images?.[0]
+            const stock = variant ? variant.stock : product.stock
+            const attrs = variant?.attributes || {}
+
+            arr.push({
+                ...product,
+                cartKey: key,
+                quantity,
+                variantId,
+                variant,
+                cartPrice: price,
+                cartMrp: mrp,
+                cartImage: image,
+                cartStock: stock,
+                cartAttributes: attrs,
+            })
+            total += price * quantity
         }
-        setCartArray(cartArray);
+        setCartArray(arr)
+        setTotalPrice(total)
     }
 
-    const handleDeleteItemFromCart = (productId) => {
-        dispatch(deleteItemFromCart({ productId }))
+    const handleDeleteItemFromCart = (productId, variantId) => {
+        dispatch(deleteItemFromCart({ productId, variantId }))
     }
 
     useEffect(() => {
@@ -74,7 +100,6 @@ export default function Cart() {
         <div className="min-h-screen mx-6 text-slate-800">
 
             <div className="max-w-7xl mx-auto ">
-                {/* Title */}
                 <PageTitle heading={t('myCart')} text={t('itemsInCart')} linkText={t('addMore')} />
 
                 <div className="flex items-start justify-between gap-5 max-lg:flex-col">
@@ -91,23 +116,32 @@ export default function Cart() {
                         <tbody>
                             {
                                 cartArray.map((item, index) => (
-                                    <tr key={index} className="space-x-2">
+                                    <tr key={item.cartKey} className="space-x-2">
                                         <td className="flex gap-3 my-4">
                                             <div className="flex gap-3 items-center justify-center bg-slate-100 size-18 rounded-md">
-                                                <Image src={item.images[0]} className="h-14 w-auto" alt="" width={45} height={45} />
+                                                <Image src={item.cartImage || item.images?.[0]} className="h-14 w-auto" alt="" width={45} height={45} />
                                             </div>
                                             <div>
                                                 <p className="max-sm:text-sm">{item.name}</p>
+                                                {Object.keys(item.cartAttributes).length > 0 && (
+                                                    <div className="flex flex-wrap gap-1 mt-1">
+                                                        {Object.entries(item.cartAttributes).map(([attr, val]) => (
+                                                            <span key={attr} className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
+                                                                {attr}: {val}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
                                                 <p className="text-xs text-slate-500">{item.category}</p>
-                                                <p>{format(item.price)}</p>
+                                                <p>{format(item.cartPrice)}</p>
                                             </div>
                                         </td>
                                         <td className="text-center">
-                                            <Counter productId={item.id} />
+                                            <Counter productId={item.id} variantId={item.variantId} />
                                         </td>
-                                        <td className="text-center">{format(item.price * item.quantity)}</td>
+                                        <td className="text-center">{format(item.cartPrice * item.quantity)}</td>
                                         <td className="text-center max-md:hidden">
-                                            <button onClick={() => handleDeleteItemFromCart(item.id)} className=" text-red-500 hover:bg-red-50 p-2.5 rounded-full active:scale-95 transition-all">
+                                            <button onClick={() => handleDeleteItemFromCart(item.id, item.variantId)} className=" text-red-500 hover:bg-red-50 p-2.5 rounded-full active:scale-95 transition-all">
                                                 <Trash2Icon size={18} />
                                             </button>
                                         </td>

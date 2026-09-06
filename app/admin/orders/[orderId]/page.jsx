@@ -353,6 +353,13 @@ export default function OrderDetailPage({ params }) {
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-slate-700">{item.product?.name}</p>
+                                                    {item.variant?.attributes && Object.keys(item.variant.attributes).length > 0 && (
+                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                            {Object.entries(item.variant.attributes).map(([attr, val]) => (
+                                                                <span key={attr} className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{attr}: {val}</span>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </td>

@@ -17,7 +17,7 @@ export async function GET() {
             prisma.order.findMany({
                 include: {
                     user: { select: { id: true, name: true, email: true } },
-                    orderItems: { include: { product: true } },
+                    orderItems: { include: { product: true, variant: true } },
                     store: { select: { id: true, name: true, username: true } },
                 },
                 orderBy: { createdAt: "desc" },

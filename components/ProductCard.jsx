@@ -80,7 +80,12 @@ const ProductCard = ({ product }) => {
                             ))}
                         </div>
                     </div>
-                    <p>{format(product.price)}</p>
+                    <p className="text-right">
+                        {product.hasVariants && product.variants?.length > 1 ? (() => {
+                            const prices = product.variants.map(v => v.price).filter(p => p > 0)
+                            return prices.length > 1 ? `${format(Math.min(...prices))}-${format(Math.max(...prices))}` : format(product.price)
+                        })() : format(product.price)}
+                    </p>
                 </div>
             </Link>
 

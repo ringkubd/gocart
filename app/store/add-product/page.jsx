@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { toast } from "react-hot-toast"
 import { useRouter } from "next/navigation"
 import { useLanguage } from "@/components/LanguageProvider"
+import VariantBuilder from "@/components/VariantBuilder"
 
 export default function StoreAddProduct() {
 
@@ -33,6 +34,9 @@ export default function StoreAddProduct() {
         minQtyForFree: 0,
         deliveryDiscount: 0,
     })
+    const [hasVariants, setHasVariants] = useState(false)
+    const [variantOptions, setVariantOptions] = useState([])
+    const [variantData, setVariantData] = useState([])
     const [loading, setLoading] = useState(false)
 
     const fetchBrands = async () => {
@@ -130,7 +134,15 @@ export default function StoreAddProduct() {
             const res = await fetch('/api/products', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...productInfo, images: uploadedImages, mrp: Number(productInfo.mrp), price: Number(productInfo.price) }),
+                body: JSON.stringify({
+                    ...productInfo,
+                    images: uploadedImages,
+                    mrp: Number(productInfo.mrp) || 0,
+                    price: Number(productInfo.price) || 0,
+                    hasVariants,
+                    options: hasVariants ? variantOptions : [],
+                    variants: hasVariants ? variantData : [],
+                }),
             })
             const data = await res.json()
 
@@ -183,15 +195,41 @@ export default function StoreAddProduct() {
             </label>
 
             <div className="flex gap-5">
-                <label className="flex flex-col gap-2 ">
-                    Actual Price ($)
-                    <input type="number" name="mrp" onChange={onChangeHandler} value={productInfo.mrp} placeholder="0" className="w-full max-w-45 p-2 px-4 outline-none border border-slate-200 rounded resize-none" required />
-                </label>
-                <label className="flex flex-col gap-2 ">
-                    Offer Price ($)
-                    <input type="number" name="price" onChange={onChangeHandler} value={productInfo.price} placeholder="0" className="w-full max-w-45 p-2 px-4 outline-none border border-slate-200 rounded resize-none" required />
+                {!hasVariants && (
+                    <>
+                        <label className="flex flex-col gap-2 ">
+                            Actual Price ($)
+                            <input type="number" name="mrp" onChange={onChangeHandler} value={productInfo.mrp} placeholder="0" className="w-full max-w-45 p-2 px-4 outline-none border border-slate-200 rounded resize-none" required />
+                        </label>
+                        <label className="flex flex-col gap-2 ">
+                            Offer Price ($)
+                            <input type="number" name="price" onChange={onChangeHandler} value={productInfo.price} placeholder="0" className="w-full max-w-45 p-2 px-4 outline-none border border-slate-200 rounded resize-none" required />
+                        </label>
+                    </>
+                )}
+            </div>
+
+            {/* Has Variants Toggle */}
+            <div className="my-6 max-w-sm">
+                <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={hasVariants} onChange={(e) => setHasVariants(e.target.checked)} className="accent-green-500 w-4 h-4" />
+                    <div>
+                        <span className="text-sm font-medium text-slate-700">This product has variants</span>
+                        <p className="text-xs text-slate-400">e.g. Color, Size, Storage — each with different price/stock</p>
+                    </div>
                 </label>
             </div>
+
+            {/* Variant Builder */}
+            {hasVariants && (
+                <div className="max-w-3xl mb-6">
+                    <VariantBuilder
+                        options={variantOptions}
+                        variants={variantData}
+                        onChange={({ options, variants }) => { setVariantOptions(options); setVariantData(variants) }}
+                    />
+                </div>
+            )}
 
             <div className="w-full max-w-sm mb-2">
                 <label className="text-xs text-slate-400 mb-1 block">Category</label>

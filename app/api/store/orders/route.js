@@ -19,7 +19,7 @@ export async function GET() {
             include: {
                 user: { select: { name: true, email: true } },
                 address: true,
-                orderItems: { include: { product: true } },
+                orderItems: { include: { product: true, variant: true } },
             },
             orderBy: { createdAt: "desc" },
         })

@@ -122,7 +122,7 @@ const OrderSummary = ({ totalPrice, items }) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    items: items.map(item => ({ productId: item.id, quantity: item.quantity, price: item.price })),
+                    items: items.map(item => ({ productId: item.id, variantId: item.variantId || null, quantity: item.quantity, price: item.cartPrice || item.price })),
                     address: addr,
                     paymentMethod,
                     coupon: coupon ? { code: coupon.code } : null,

@@ -18,7 +18,7 @@ export async function GET(req, { params }) {
                 user: { select: { id: true, name: true, email: true } },
                 store: { select: { id: true, name: true, username: true } },
                 address: true,
-                orderItems: { include: { product: true } },
+                orderItems: { include: { product: true, variant: true } },
             },
         })
 
@@ -73,7 +73,7 @@ export async function PATCH(req, { params }) {
                 user: { select: { id: true, name: true, email: true } },
                 store: { select: { id: true, name: true, username: true } },
                 address: true,
-                orderItems: { include: { product: true } },
+                orderItems: { include: { product: true, variant: true } },
             },
         })
 
