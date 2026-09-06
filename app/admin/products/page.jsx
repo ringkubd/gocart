@@ -6,6 +6,7 @@ import Image from "next/image"
 import { PencilIcon, Trash2Icon, StarIcon } from "lucide-react"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
+import VariantBuilder from "@/components/VariantBuilder"
 
 export default function AdminProducts() {
 
@@ -18,6 +19,8 @@ export default function AdminProducts() {
     const [search, setSearch] = useState('')
     const [editProduct, setEditProduct] = useState(null)
     const [editing, setEditing] = useState(false)
+    const [editVariants, setEditVariants] = useState([])
+    const [editOptions, setEditOptions] = useState([])
 
     const fetchBrands = async () => {
         try {
@@ -105,6 +108,9 @@ export default function AdminProducts() {
                     categoryBn: editProduct.categoryBn || "",
                     brandId: editProduct.brandId || null,
                     stock: Number(editProduct.stock),
+                    hasVariants: editProduct.hasVariants || false,
+                    options: editProduct.hasVariants ? editOptions : [],
+                    variants: editProduct.hasVariants ? editVariants : [],
                 }),
             })
             const data = await res.json()
@@ -151,20 +157,30 @@ export default function AdminProducts() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {products.map((product) => (
+                        {products.map((product) => {
+                            const totalStock = product.hasVariants && product.variants?.length
+                                ? product.variants.reduce((s, v) => s + (v.stock || 0), 0)
+                                : product.stock
+                            const priceRange = product.hasVariants && product.variants?.length > 1
+                                ? (() => { const prices = product.variants.map(v => v.price).filter(p => p > 0); return prices.length > 1 ? { min: Math.min(...prices), max: Math.max(...prices) } : null })()
+                                : null
+                            return (
                             <tr key={product.id} className="hover:bg-slate-50">
                                 <td className="px-4 py-3">
                                     <div className="flex gap-2 items-center">
                                         <Image width={40} height={40} className='p-0.5 rounded' src={product.images?.[0]} alt="" />
-                                        <span className="max-w-40 truncate">{product.name}</span>
+                                        <div>
+                                            <span className="max-w-40 truncate block">{product.name}</span>
+                                            {product.hasVariants && <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{product.variants?.length || 0} variants</span>}
+                                        </div>
                                     </div>
                                 </td>
                                 <td className="px-4 py-3 text-xs">{product.store?.name}</td>
                                 <td className="px-4 py-3 text-xs">{product.category}</td>
-                                <td className="px-4 py-3 text-slate-400 line-through">{currency}{product.mrp}</td>
-                                <td className="px-4 py-3 font-medium text-slate-800">{currency}{product.price}</td>
+                                <td className="px-4 py-3 text-slate-400 line-through">{currency}{priceRange ? `${Number(priceRange.min).toLocaleString()} - ${Number(priceRange.max).toLocaleString()}` : product.mrp}</td>
+                                <td className="px-4 py-3 font-medium text-slate-800">{currency}{priceRange ? `${Number(priceRange.min).toLocaleString()} - ${Number(priceRange.max).toLocaleString()}` : product.price}</td>
                                 <td className="px-4 py-3">
-                                    <span className={`text-xs px-2 py-1 rounded-full ${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{product.stock > 0 ? product.stock + ' ' + t('inStockLabel') : t('out')}</span>
+                                    <span className={`text-xs px-2 py-1 rounded-full ${totalStock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{totalStock > 0 ? totalStock + ' ' + t('inStockLabel') : t('out')}</span>
                                 </td>
                                 <td className="px-4 py-3">
                                     <button onClick={() => toggleFeatured(product)} className={`p-1.5 rounded-full transition ${product.featured ? 'bg-green-100 text-green-600' : 'text-slate-300 hover:text-slate-500'}`}>
@@ -177,12 +193,13 @@ export default function AdminProducts() {
                                         <button onClick={() => toggleStock(product)} className={`text-xs px-3 py-1 rounded-full border ${product.inStock ? 'border-green-300 text-green-600 hover:bg-green-50' : 'border-slate-300 text-slate-500 hover:bg-slate-50'}`}>
                                             {product.inStock ? t('active') : t('inactive')}
                                         </button>
-                                        <button onClick={() => { setEditProduct(product); setEditing(true) }} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><PencilIcon size={16} /></button>
+                                        <button onClick={() => { setEditProduct(product); setEditVariants(product.variants || []); setEditOptions(product.options || []); setEditing(true) }} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><PencilIcon size={16} /></button>
                                         <button onClick={() => handleDelete(product)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"><Trash2Icon size={16} /></button>
                                     </div>
                                 </td>
                             </tr>
-                        ))}
+                            )
+                        })}
                         {products.length === 0 && (
                             <tr><td colSpan={9} className="px-4 py-10 text-center text-slate-400">{t('noProductsFoundAdmin')}</td></tr>
                         )}
@@ -215,13 +232,32 @@ export default function AdminProducts() {
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">MRP ({currency})</span>
-                                    <input type="number" value={editProduct.mrp} onChange={(e) => setEditProduct({ ...editProduct, mrp: e.target.value })} className="border border-slate-200 rounded p-2" required />
+                                    <input type="number" value={editProduct.mrp} onChange={(e) => setEditProduct({ ...editProduct, mrp: e.target.value })} className="border border-slate-200 rounded p-2" required={!editProduct.hasVariants} />
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">Price ({currency})</span>
-                                    <input type="number" value={editProduct.price} onChange={(e) => setEditProduct({ ...editProduct, price: e.target.value })} className="border border-slate-200 rounded p-2" required />
+                                    <input type="number" value={editProduct.price} onChange={(e) => setEditProduct({ ...editProduct, price: e.target.value })} className="border border-slate-200 rounded p-2" required={!editProduct.hasVariants} />
                                 </label>
                             </div>
+
+                            {/* Has Variants Toggle */}
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" checked={editProduct.hasVariants || false} onChange={(e) => setEditProduct({ ...editProduct, hasVariants: e.target.checked })} className="accent-green-500 w-4 h-4" />
+                                <div>
+                                    <span className="text-sm font-medium text-slate-700">This product has variants</span>
+                                    <p className="text-xs text-slate-400">e.g. Color, Size, Storage — each with different price/stock</p>
+                                </div>
+                            </label>
+
+                            {/* Variant Builder */}
+                            {editProduct.hasVariants && (
+                                <VariantBuilder
+                                    options={editOptions}
+                                    variants={editVariants}
+                                    onChange={({ options, variants }) => { setEditOptions(options); setEditVariants(variants) }}
+                                />
+                            )}
+
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1">
                                     <span className="text-xs text-slate-400">Category</span>
