@@ -1,6 +1,7 @@
 'use client'
 import ProductDescription from "@/components/ProductDescription";
 import ProductDetails from "@/components/ProductDetails";
+import ProductChatWidget from "@/components/ProductChatWidget";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -57,6 +58,7 @@ export default function ProductClient() {
                 {product ? (<>
                     <ProductDetails product={product} />
                     <ProductDescription product={product} />
+                    <ProductChatWidget productId={product.id} storeId={product.storeId} />
                 </>) : (
                     <div className="text-slate-400 py-20 text-center">Product not found.</div>
                 )}

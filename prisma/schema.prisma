@@ -72,6 +72,7 @@ model Product {
     orderItems OrderItem[]
     rating     Rating[]
     variants   ProductVariant[]
+    supportTickets SupportTicket[]
 }
 
 model ProductVariant {
@@ -239,6 +240,7 @@ model Store {
     Product Product[]
     Order   Order[]
     user    User      @relation(fields: [userId], references: [id])
+    supportTickets SupportTicket[]
 }
 
 model Category {
@@ -318,29 +320,36 @@ model Brand {
 }
 
 model SupportTicket {
-    id        String   @id @default(cuid())
-    subject   String
-    status    String   @default("open")
-    priority  String   @default("normal")
-    userId    String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id           String   @id @default(cuid())
+    subject      String
+    status       String   @default("open")
+    priority     String   @default("normal")
+    userId       String?
+    productId    String?
+    storeId      String?
+    visitorId    String?
+    visitorName  String   @default("")
+    visitorPhone String   @default("")
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
 
-    user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user     User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+    product  Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+    store    Store?          @relation(fields: [storeId], references: [id], onDelete: SetNull)
     messages SupportMessage[]
 }
 
 model SupportMessage {
-    id        String   @id @default(cuid())
-    ticketId  String
-    senderId  String
-    senderRole String  @default("user")
-    body      String   @db.Text
-    read      Boolean  @default(false)
-    createdAt DateTime @default(now())
+    id         String   @id @default(cuid())
+    ticketId   String
+    senderId   String?
+    senderRole String   @default("user")
+    body       String   @db.Text
+    read       Boolean  @default(false)
+    createdAt  DateTime @default(now())
 
     ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-    sender User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+    sender User?         @relation(fields: [senderId], references: [id], onDelete: SetNull)
 }
 
 model CourierProvider {
