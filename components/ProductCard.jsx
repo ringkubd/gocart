@@ -81,9 +81,12 @@ const ProductCard = ({ product }) => {
                         </div>
                     </div>
                     <p className="text-right">
-                        {product.hasVariants && product.variants?.length > 1 ? (() => {
+                        {product.hasVariants && product.variants?.length > 0 ? (() => {
                             const prices = product.variants.map(v => v.price).filter(p => p > 0)
-                            return prices.length > 1 ? `${format(Math.min(...prices))}-${format(Math.max(...prices))}` : format(product.price)
+                            if (prices.length === 0) return format(product.price)
+                            const min = Math.min(...prices)
+                            const max = Math.max(...prices)
+                            return min === max ? format(min) : `${format(min)}-${format(max)}`
                         })() : format(product.price)}
                     </p>
                 </div>
