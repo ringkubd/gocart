@@ -62,22 +62,45 @@ export async function POST(req) {
 
         // Create new ticket if not found
         if (!ticket) {
-            const productName = product.name
-            ticket = await prisma.supportTicket.create({
-                data: {
-                    subject: `Chat about ${productName}`,
-                    userId: user?.id || null,
-                    productId,
-                    storeId: product.storeId,
-                    visitorId: visitorId || null,
-                    visitorName: visitorName || "",
-                    visitorPhone: visitorPhone || "",
-                },
-                include: {
-                    messages: true,
-                    product: { select: { id: true, name: true, images: true } },
-                },
-            })
+            // If visitorId provided, try to claim any existing unlinked ticket for this product
+            if (visitorId) {
+                ticket = await prisma.supportTicket.findFirst({
+                    where: { productId, visitorId: null, userId: null },
+                    include: {
+                        messages: { include: { sender: { select: { id: true, name: true, role: true, image: true } } }, orderBy: { createdAt: "asc" } },
+                        product: { select: { id: true, name: true, images: true } },
+                    },
+                })
+                if (ticket) {
+                    // Link this ticket to the visitor
+                    await prisma.supportTicket.update({
+                        where: { id: ticket.id },
+                        data: { visitorId, visitorName: visitorName || "", visitorPhone: visitorPhone || "" },
+                    })
+                    ticket.visitorId = visitorId
+                    ticket.visitorName = visitorName || ""
+                    ticket.visitorPhone = visitorPhone || ""
+                }
+            }
+
+            if (!ticket) {
+                const productName = product.name
+                ticket = await prisma.supportTicket.create({
+                    data: {
+                        subject: `Chat about ${productName}`,
+                        userId: user?.id || null,
+                        productId,
+                        storeId: product.storeId,
+                        visitorId: visitorId || null,
+                        visitorName: visitorName || "",
+                        visitorPhone: visitorPhone || "",
+                    },
+                    include: {
+                        messages: true,
+                        product: { select: { id: true, name: true, images: true } },
+                    },
+                })
+            }
         }
 
         return NextResponse.json({ ticket })

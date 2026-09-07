@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Counter from "./Counter";
+import ProductChatWidget from "./ProductChatWidget";
 import { useDispatch, useSelector } from "react-redux";
 import { useCurrency } from "./useCurrency";
 import useStorefrontData from "./useStorefrontData";
@@ -45,10 +46,27 @@ const ProductDetails = ({ product }) => {
     // Determine display values
     const displayPrice = selectedVariant?.price || product.price
     const displayMrp = selectedVariant?.mrp || product.mrp
-    const displayStock = selectedVariant ? selectedVariant.stock : product.stock
-    const displayInStock = selectedVariant ? selectedVariant.inStock : product.inStock
     const displayImage = selectedVariant?.image || mainImage
     const variantId = selectedVariant?.id || null
+
+    // When no variant selected and product has variants, show cumulative stock
+    const displayStock = (() => {
+        if (selectedVariant) return selectedVariant.stock
+        if (hasVariants) return product.variants.reduce((sum, v) => sum + (v.stock || 0), 0)
+        return product.stock
+    })()
+
+    const displayInStock = (() => {
+        if (selectedVariant) return selectedVariant.inStock
+        if (hasVariants) return product.variants.some(v => v.inStock && v.stock > 0)
+        return product.inStock
+    })()
+
+    // Price range for variant products (when no variant selected)
+    const priceRange = hasVariants && !selectedVariant && product.variants.length > 1 ? (() => {
+        const prices = product.variants.map(v => v.price).filter(p => p > 0)
+        return prices.length > 1 ? { min: Math.min(...prices), max: Math.max(...prices) } : null
+    })() : null
 
     // Check if all options are selected
     const allSelected = hasVariants && options.every(opt => selectedAttributes[opt.name])
@@ -112,12 +130,6 @@ const ProductDetails = ({ product }) => {
     const averageRating = product.rating?.length
         ? product.rating.reduce((acc, item) => acc + item.rating, 0) / product.rating.length
         : 0;
-
-    // Price range for variant products
-    const priceRange = hasVariants && product.variants.length > 1 ? (() => {
-        const prices = product.variants.map(v => v.price).filter(p => p > 0)
-        return prices.length > 1 ? { min: Math.min(...prices), max: Math.max(...prices) } : null
-    })() : null
 
     return (
         <div className="flex max-lg:flex-col gap-12">
@@ -200,7 +212,13 @@ const ProductDetails = ({ product }) => {
 
                 {/* Stock info */}
                 <div className="mt-4">
-                    {displayInStock && displayStock > 0 ? (
+                    {hasVariants && !selectedVariant ? (
+                        displayStock > 0 ? (
+                            <p className="text-sm text-green-600">In Stock ({displayStock} available across all variants)</p>
+                        ) : (
+                            <p className="text-sm text-red-500">Out of Stock</p>
+                        )
+                    ) : displayInStock && displayStock > 0 ? (
                         <p className="text-sm text-green-600">In Stock ({displayStock} available)</p>
                     ) : (
                         <p className="text-sm text-red-500">Out of Stock</p>
@@ -242,6 +260,7 @@ const ProductDetails = ({ product }) => {
                             {storeSettings.messengerType === 'whatsapp' ? 'WhatsApp Order' : t('orderOnMessenger')}
                         </button>
                     )}
+                    <ProductChatWidget productId={product.id} storeId={product.storeId} />
                 </div>
                 <hr className="border-gray-300 my-5" />
                 <div className="flex flex-col gap-4 text-slate-500">
