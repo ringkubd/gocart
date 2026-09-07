@@ -136,11 +136,11 @@ export default function ProductChatWidget({ productId, storeId }) {
             {!isOpen && (
                 <button
                     onClick={openChat}
-                    className="flex items-center gap-2 bg-[#00B2FF] text-white px-5 py-3 text-sm font-medium rounded hover:bg-[#009add] active:scale-95 transition"
+                    className="flex items-center gap-1.5 bg-[#00B2FF] text-white px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-[#009add] active:scale-95 transition whitespace-nowrap"
                     aria-label="Chat about this product"
                 >
-                    <MessageCircleIcon size={16} />
-                    Chat about this product
+                    <MessageCircleIcon size={14} />
+                    Chat
                 </button>
             )}
 
