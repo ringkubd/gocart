@@ -44,10 +44,27 @@ const ProductDetails = ({ product }) => {
     }, [hasVariants, selectedAttributes, product.variants])
 
     // Determine display values
-    const displayPrice = selectedVariant?.price || product.price
-    const displayMrp = selectedVariant?.mrp || product.mrp
     const displayImage = selectedVariant?.image || mainImage
     const variantId = selectedVariant?.id || null
+
+    // Price: selected variant price, or average of variants, or product price
+    const displayPrice = (() => {
+        if (selectedVariant) return selectedVariant.price
+        if (hasVariants && product.variants.length > 0) {
+            const prices = product.variants.map(v => v.price).filter(p => p > 0)
+            return prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : product.price
+        }
+        return product.price
+    })()
+
+    const displayMrp = (() => {
+        if (selectedVariant) return selectedVariant.mrp
+        if (hasVariants && product.variants.length > 0) {
+            const mrps = product.variants.map(v => v.mrp).filter(p => p > 0)
+            return mrps.length > 0 ? Math.round(mrps.reduce((a, b) => a + b, 0) / mrps.length) : product.mrp
+        }
+        return product.mrp
+    })()
 
     // When no variant selected and product has variants, show cumulative stock
     const displayStock = (() => {
