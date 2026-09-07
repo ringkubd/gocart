@@ -131,7 +131,7 @@ export default function ProductChatWidget({ productId, storeId }) {
     if (!ready) return null
 
     return (
-        <div className="relative inline-flex">
+        <>
             {/* Inline button */}
             {!isOpen && (
                 <button
@@ -144,9 +144,9 @@ export default function ProductChatWidget({ productId, storeId }) {
                 </button>
             )}
 
-            {/* Chat popup */}
+            {/* Chat popup - fixed bottom-right */}
             {isOpen && (
-                <div className="absolute bottom-0 right-0 z-50 w-[360px] max-w-[calc(100vw-48px)]">
+                <div className="fixed bottom-6 right-6 z-50 w-[360px] max-w-[calc(100vw-48px)]">
                     <div className="bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col" style={{ height: '450px' }}>
                         {showInfoForm ? (
                             <form onSubmit={handleInfoSubmit} className="flex flex-col h-full">
@@ -193,6 +193,6 @@ export default function ProductChatWidget({ productId, storeId }) {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     )
 }
