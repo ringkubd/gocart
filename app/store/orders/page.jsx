@@ -41,7 +41,10 @@ export default function StoreOrders() {
 
     return (
         <div className="text-slate-500 mb-20">
-            <h1 className="text-2xl mb-5">{t('orderManagement')}</h1>
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
+                <h1 className="text-2xl">{t('orderManagement')}</h1>
+                <button onClick={() => router.push('/store/orders/new')} className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700">+ Manual Order</button>
+            </div>
             {orders.length === 0 ? (
                 <p>No orders found</p>
             ) : (

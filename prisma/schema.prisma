@@ -130,6 +130,7 @@ model Order {
     courierName   String        @default("")
     note          String        @default("") @db.Text
     customerNote  String        @default("") @db.Text
+    source        String        @default("WEBSITE")
     shippedAt     DateTime?
     deliveredAt   DateTime?
     cancelledAt   DateTime?

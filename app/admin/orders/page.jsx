@@ -98,10 +98,13 @@ export default function AdminOrders() {
         <div className="text-slate-500 mb-20">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <h1 className="text-2xl">{t('orderManagement')}</h1>
-                <form onSubmit={(e) => { e.preventDefault(); fetchOrders(filter, search) }} className="flex gap-2">
-                    <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('search')} className="border border-slate-200 outline-slate-400 p-2 rounded text-sm w-60" />
-                    <button className="bg-slate-700 text-white px-4 rounded text-sm">{t('search')}</button>
-                </form>
+                <div className="flex gap-2">
+                    <button onClick={() => router.push('/admin/orders/new')} className="bg-green-600 text-white px-4 rounded text-sm hover:bg-green-700">+ Manual Order</button>
+                    <form onSubmit={(e) => { e.preventDefault(); fetchOrders(filter, search) }} className="flex gap-2">
+                        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('search')} className="border border-slate-200 outline-slate-400 p-2 rounded text-sm w-60" />
+                        <button className="bg-slate-700 text-white px-4 rounded text-sm">{t('search')}</button>
+                    </form>
+                </div>
             </div>
 
             {/* Filters */}
