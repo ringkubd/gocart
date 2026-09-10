@@ -44,7 +44,7 @@ export default function ManualOrderForm({ mode, submitUrl, onCreated }) {
     // Stores (admin) + shipping methods
     useEffect(() => {
         if (isAdmin) {
-            fetch("/api/admin/stores").then(r => r.json()).then(d => {
+            fetch("/api/admin/stores?status=approved").then(r => r.json()).then(d => {
                 if (d.stores) setStores(d.stores)
             }).catch(() => {})
         }
