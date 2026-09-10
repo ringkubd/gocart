@@ -193,7 +193,7 @@ const ProductDetails = ({ product }) => {
                 )}
 
                 {/* Free delivery badge */}
-                {product.freeDelivery && (
+                {(product.freeDelivery || Number(product.deliveryCost || 0) <= 0) && (
                     <div className="flex items-center gap-2 mt-3 bg-green-50 border border-green-200 rounded-lg px-3 py-2 w-fit">
                         <TruckIcon size={16} className="text-green-600" />
                         <span className="text-sm font-medium text-green-700">Free Delivery</span>

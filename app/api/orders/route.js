@@ -123,7 +123,9 @@ export async function POST(req) {
         }
 
         // If all items have freeDelivery, waive shipping method cost too
-        const allFreeDelivery = products.length > 0 && products.every(p => p.freeDelivery)
+        // Free = explicit flag OR deliveryCost <= 0 (store didn't set a fee)
+        const isFreeProduct = (p) => p.freeDelivery || Number(p.deliveryCost || 0) <= 0;
+        const allFreeDelivery = products.length > 0 && products.every(isFreeProduct)
         if (allFreeDelivery) shippingCost = 0
 
         // Guest checkout: optionally create/attach a real user account silently from the email

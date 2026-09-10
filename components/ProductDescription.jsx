@@ -44,17 +44,26 @@ const ProductDescription = ({ product }) => {
                     <div className="flex items-center gap-2 text-slate-500 mb-3">
                         <TruckIcon size={16} /> {t('deliveryInfo')}
                     </div>
+                    {(product.freeDelivery || Number(product.deliveryCost || 0) <= 0) ? (
+                        <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2.5 mb-3 w-fit">
+                            <TruckIcon size={16} className="text-green-600" />
+                            <span className="text-sm font-medium text-green-700">Free Delivery for this product</span>
+                        </div>
+                    ) : null}
                     {shippingMethods.length > 0 ? (
                         <div className="flex flex-col gap-3">
-                            {shippingMethods.map((method) => (
-                                <div key={method.id} className="flex items-center justify-between border border-slate-200 rounded-lg p-3">
-                                    <div>
-                                        <p className="font-medium text-slate-700">{method.name}</p>
-                                        <p className="text-xs text-slate-400">Delivery in {method.deliveryTime}</p>
+                            {shippingMethods.map((method) => {
+                                const isFree = product.freeDelivery || Number(product.deliveryCost || 0) <= 0;
+                                return (
+                                    <div key={method.id} className="flex items-center justify-between border border-slate-200 rounded-lg p-3">
+                                        <div>
+                                            <p className="font-medium text-slate-700">{method.name}</p>
+                                            <p className="text-xs text-slate-400">Delivery in {method.deliveryTime}</p>
+                                        </div>
+                                        <p className={`font-medium ${isFree ? 'text-green-600' : 'text-slate-700'}`}>{isFree || method.cost <= 0 ? t('free') : format(method.cost)}</p>
                                     </div>
-                                    <p className="font-medium text-slate-700">{method.cost > 0 ? format(method.cost) : t('free')}</p>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
                         <p className="text-slate-400">{t('freeShippingCountry')}</p>

@@ -93,7 +93,7 @@ const ProductCard = ({ product }) => {
             </Link>
 
             {/* Free delivery badge */}
-            {product.freeDelivery ? (
+            {(product.freeDelivery || Number(product.deliveryCost || 0) <= 0) ? (
                 <div className="flex items-center gap-1 text-[10px] text-green-600 font-medium mt-1 max-w-60">
                     <TruckIcon size={12} />
                     <span>Free Delivery</span>
