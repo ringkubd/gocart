@@ -37,6 +37,7 @@ export default function StoreAddProduct() {
     const [hasVariants, setHasVariants] = useState(false)
     const [variantOptions, setVariantOptions] = useState([])
     const [variantData, setVariantData] = useState([])
+    const [opening, setOpening] = useState({ supplier: "", quantity: "", unitCost: "", note: "", variantCosts: {} })
     const [loading, setLoading] = useState(false)
 
     const fetchBrands = async () => {
@@ -142,6 +143,16 @@ export default function StoreAddProduct() {
                     hasVariants,
                     options: hasVariants ? variantOptions : [],
                     variants: hasVariants ? variantData : [],
+                    initialPurchase: opening.supplier.trim() ? {
+                        supplier: opening.supplier.trim(),
+                        note: opening.note || "",
+                        quantity: Number(opening.quantity) || 0,
+                        unitCost: Number(opening.unitCost) || 0,
+                        lines: hasVariants ? variantData.map((v, i) => ({
+                            attributes: v.attributes || {},
+                            unitCost: Number(opening.variantCosts?.[i]) || 0,
+                        })) : [],
+                    } : null,
                 }),
             })
             const data = await res.json()
@@ -299,6 +310,47 @@ export default function StoreAddProduct() {
                     </label>
                 </div>
             )}
+
+            {/* Opening stock purchase (optional) */}
+            <div className="mt-6 max-w-3xl border border-slate-200 rounded-xl p-5 bg-slate-50/50">
+                <h3 className="font-medium text-slate-700">Opening Stock Purchase (optional)</h3>
+                <p className="text-xs text-slate-400 mt-1">Kotha theke koto piece koto taka kore kinlen — ekhanei likhe rakhun, stock auto update hobe.</p>
+                <div className="grid grid-cols-2 gap-3 mt-3 max-w-sm">
+                    <label className="flex flex-col gap-1 col-span-2">
+                        <span className="text-xs text-slate-400">Supplier / Source (e.g. Karwan Bazar, Dhaka)</span>
+                        <input value={opening.supplier} onChange={(e) => setOpening({ ...opening, supplier: e.target.value })} placeholder="Supplier name" className="p-2 px-4 outline-none border border-slate-200 rounded text-sm bg-white" />
+                    </label>
+                    {!hasVariants && (
+                        <>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">Quantity (pieces)</span>
+                                <input type="number" min={0} value={opening.quantity} onChange={(e) => setOpening({ ...opening, quantity: e.target.value })} placeholder="0" className="p-2 px-4 outline-none border border-slate-200 rounded text-sm bg-white" />
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">Unit Cost (kena dam per piece)</span>
+                                <input type="number" min={0} value={opening.unitCost} onChange={(e) => setOpening({ ...opening, unitCost: e.target.value })} placeholder="0" className="p-2 px-4 outline-none border border-slate-200 rounded text-sm bg-white" />
+                            </label>
+                        </>
+                    )}
+                    <label className="flex flex-col gap-1 col-span-2">
+                        <span className="text-xs text-slate-400">Note (optional)</span>
+                        <input value={opening.note} onChange={(e) => setOpening({ ...opening, note: e.target.value })} placeholder="e.g. Cash payment, baki 2000" className="p-2 px-4 outline-none border border-slate-200 rounded text-sm bg-white" />
+                    </label>
+                </div>
+                {hasVariants && variantData.length > 0 && (
+                    <div className="mt-3">
+                        <p className="text-xs text-slate-400 mb-2">Per-variant kena dam (stock VariantBuilder theke asbe):</p>
+                        <div className="space-y-2">
+                            {variantData.map((v, i) => (
+                                <div key={i} className="flex items-center gap-3 bg-white border border-slate-200 rounded-lg p-2">
+                                    <span className="text-xs font-medium text-slate-600 flex-1">{Object.values(v.attributes || {}).join(" / ") || `Variant ${i + 1}`} · Stock: {v.stock || 0}</span>
+                                    <input type="number" min={0} value={opening.variantCosts?.[i] ?? ""} onChange={(e) => setOpening({ ...opening, variantCosts: { ...opening.variantCosts, [i]: e.target.value } })} placeholder="Unit cost" className="w-28 p-2 border border-slate-200 rounded text-sm" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
 
             <br />
 

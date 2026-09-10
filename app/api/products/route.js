@@ -73,7 +73,7 @@ export async function POST(req) {
         }
 
         const body = await req.json()
-        const { name, nameBn, description, descriptionBn, mrp, price, images, category, categoryBn, brandId, stock, featured, deliveryCost, freeDelivery, minQtyForFree, deliveryDiscount, hasVariants, options, variants } = body
+        const { name, nameBn, description, descriptionBn, mrp, price, images, category, categoryBn, brandId, stock, featured, deliveryCost, freeDelivery, minQtyForFree, deliveryDiscount, hasVariants, options, variants, initialPurchase } = body
 
         if (!name || !description || !images?.length || !category) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -83,6 +83,11 @@ export async function POST(req) {
         if (!hasVariants && !price) {
             return NextResponse.json({ error: "Price is required" }, { status: 400 })
         }
+
+        const opening = initialPurchase && typeof initialPurchase === "object" ? initialPurchase : null
+        const openingSupplier = opening?.supplier?.trim() || ""
+        // Simple product opening stock comes from the purchase itself
+        const openingQty = opening && !hasVariants ? Math.max(0, Number(opening.quantity) || 0) : 0
 
         const product = await prisma.product.create({
             data: {
@@ -96,8 +101,8 @@ export async function POST(req) {
                 category,
                 categoryBn: categoryBn || "",
                 brandId: brandId || null,
-                stock: Number(stock) || 0,
-                inStock: stock === undefined || Number(stock) > 0,
+                stock: openingQty > 0 ? openingQty : (Number(stock) || 0),
+                inStock: openingQty > 0 ? true : (stock === undefined || Number(stock) > 0),
                 featured: Boolean(featured),
                 deliveryCost: Number(deliveryCost) || 0,
                 freeDelivery: Boolean(freeDelivery),
@@ -111,6 +116,7 @@ export async function POST(req) {
         })
 
         // Create variants if provided
+        let createdVariants = []
         if (hasVariants && variants?.length > 0) {
             await prisma.productVariant.createMany({
                 data: variants.map(v => ({
@@ -124,15 +130,53 @@ export async function POST(req) {
                     attributes: v.attributes || {},
                 })),
             })
-            // Re-fetch product with variants
-            const updated = await prisma.product.findUnique({
-                where: { id: product.id },
-                include: { store: true, brand: true, rating: true, variants: true },
-            })
-            return NextResponse.json({ product: updated }, { status: 201 })
+            createdVariants = await prisma.productVariant.findMany({ where: { productId: product.id } })
         }
 
-        return NextResponse.json({ product }, { status: 201 })
+        // Record opening purchase batch(es) so stock has cost history
+        if (openingSupplier) {
+            if (!hasVariants && openingQty > 0) {
+                await prisma.purchaseBatch.create({
+                    data: {
+                        storeId: store.id,
+                        productId: product.id,
+                        supplier: openingSupplier,
+                        quantity: openingQty,
+                        unitCost: Math.max(0, Number(opening.unitCost) || 0),
+                        note: opening.note || "",
+                        createdById: user.id,
+                    },
+                })
+            } else if (hasVariants && createdVariants.length > 0) {
+                const lines = Array.isArray(opening.lines) ? opening.lines : []
+                const lineKey = (attrs) => Object.values(attrs || {}).join("|");
+                const batchData = createdVariants
+                    .filter(v => Number(v.stock) > 0)
+                    .map(v => {
+                        const line = lines.find(l => lineKey(l.attributes) === lineKey(v.attributes))
+                        return {
+                            storeId: store.id,
+                            productId: product.id,
+                            variantId: v.id,
+                            supplier: openingSupplier,
+                            quantity: Number(v.stock),
+                            unitCost: Math.max(0, Number(line?.unitCost) || 0),
+                            note: opening.note || "",
+                            createdById: user.id,
+                        }
+                    })
+                if (batchData.length > 0) {
+                    await prisma.purchaseBatch.createMany({ data: batchData })
+                }
+            }
+        }
+
+        // Re-fetch product with variants
+        const updated = await prisma.product.findUnique({
+            where: { id: product.id },
+            include: { store: true, brand: true, rating: true, variants: true },
+        })
+        return NextResponse.json({ product: updated }, { status: 201 })
     } catch (error) {
         console.error("Products POST error:", error)
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 })

@@ -73,6 +73,27 @@ model Product {
     rating     Rating[]
     variants   ProductVariant[]
     supportTickets SupportTicket[]
+    purchases  PurchaseBatch[]
+}
+
+model PurchaseBatch {
+    id          String   @id @default(cuid())
+    storeId     String
+    productId   String
+    variantId   String?
+    supplier    String   @default("")
+    quantity    Int
+    unitCost    Float    @default(0)
+    note        String   @default("")
+    createdById String?
+    createdAt   DateTime @default(now())
+
+    store   Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+    product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+    variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+    @@index([storeId])
+    @@index([productId])
 }
 
 model ProductVariant {
@@ -89,6 +110,7 @@ model ProductVariant {
 
     product    Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
     orderItems OrderItem[]
+    purchases  PurchaseBatch[]
 
     @@index([productId])
 }
@@ -242,6 +264,7 @@ model Store {
     Order   Order[]
     user    User      @relation(fields: [userId], references: [id])
     supportTickets SupportTicket[]
+    purchases PurchaseBatch[]
 }
 
 model Category {
