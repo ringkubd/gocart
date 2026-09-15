@@ -330,6 +330,9 @@ export default function AdminSiteDesign() {
                                 </label>
                                 <label className="flex flex-col gap-1 col-span-2">
                                     <span className="text-xs text-slate-400">Slide Image</span>
+                                    <p className="text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                                        Recommended: <strong>1600 × 800 px</strong> (2:1 landscape, JPG/PNG under 500 KB). Image full-width background hisebe fit hobe — text overlay soho.
+                                    </p>
                                     <div className="flex items-center gap-3">
                                         {slideForm.image && <Image src={slideForm.image} width={80} height={80} className="rounded object-cover h-20 w-auto" alt="" />}
                                         <input type="file" accept="image/*" onChange={onSlideImagePick} className="text-sm" />
@@ -408,6 +411,9 @@ export default function AdminSiteDesign() {
                                 </label>
                                 <label className="flex flex-col gap-1 col-span-2">
                                     <span className="text-xs text-slate-400">Card Image</span>
+                                    <p className="text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                                        Recommended: <strong>280 × 280 px</strong> square (PNG transparent best).
+                                    </p>
                                     <div className="flex items-center gap-3">
                                         {card.image && <Image src={card.image} width={60} height={60} className="rounded object-cover h-15 w-auto" alt="" />}
                                         <input type="file" accept="image/*" onChange={(e) => onSideCardImagePick(e, i)} className="text-sm" />
