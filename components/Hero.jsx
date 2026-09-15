@@ -53,17 +53,21 @@ const Hero = () => {
 
                             {/* Content on top */}
                             <div className='relative z-10 flex flex-col justify-center h-full p-6 sm:p-12 xl:p-16'>
-                                <h2 className='text-3xl sm:text-5xl leading-[1.2] my-3 font-medium text-white max-w-xs sm:max-w-md drop-shadow-lg'>
-                                    {slides[current]?.title}
-                                </h2>
+                                {slides[current]?.title && (
+                                    <h2 className='text-3xl sm:text-5xl leading-[1.2] my-3 font-medium text-white max-w-xs sm:max-w-md drop-shadow-lg'>
+                                        {slides[current].title}
+                                    </h2>
+                                )}
                                 {slides[current]?.subtitle && (
                                     <div className='text-white/90 text-sm font-medium mt-2 sm:mt-4 max-w-md drop-shadow'>
                                         <p>{slides[current].subtitle}</p>
                                     </div>
                                 )}
-                                <Link href={slides[current]?.link || '/shop'} className='w-fit bg-white text-slate-900 text-sm py-2.5 px-7 sm:py-4 sm:px-10 mt-4 sm:mt-8 rounded-md hover:bg-slate-100 hover:scale-103 active:scale-95 transition inline-flex items-center gap-2 font-medium'>
-                                    {slides[current]?.buttonText || t('shopNow')} <ArrowRightIcon size={16} />
-                                </Link>
+                                {(slides[current]?.buttonText || slides[current]?.link) && (
+                                    <Link href={slides[current]?.link || '/shop'} className='w-fit bg-white text-slate-900 text-sm py-2.5 px-7 sm:py-4 sm:px-10 mt-4 sm:mt-8 rounded-md hover:bg-slate-100 hover:scale-103 active:scale-95 transition inline-flex items-center gap-2 font-medium'>
+                                        {slides[current]?.buttonText || t('shopNow')} <ArrowRightIcon size={16} />
+                                    </Link>
+                                )}
                             </div>
 
                             {/* Slide navigation */}

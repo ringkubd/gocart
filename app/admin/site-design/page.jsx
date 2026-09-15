@@ -313,19 +313,19 @@ export default function AdminSiteDesign() {
                         <form onSubmit={saveSlide} className="border border-slate-200 rounded-xl p-6 mt-4 flex flex-col gap-4 bg-slate-50/50">
                             <div className="grid grid-cols-2 gap-3">
                                 <label className="flex flex-col gap-1 col-span-2">
-                                    <span className="text-xs text-slate-400">Title</span>
-                                    <input value={slideForm.title} onChange={(e) => setSlideForm({ ...slideForm, title: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" required />
+                                    <span className="text-xs text-slate-400">Title (optional)</span>
+                                    <input value={slideForm.title} onChange={(e) => setSlideForm({ ...slideForm, title: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" />
                                 </label>
                                 <label className="flex flex-col gap-1 col-span-2">
                                     <span className="text-xs text-slate-400">Subtitle</span>
                                     <input value={slideForm.subtitle} onChange={(e) => setSlideForm({ ...slideForm, subtitle: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" />
                                 </label>
                                 <label className="flex flex-col gap-1">
-                                    <span className="text-xs text-slate-400">Button Text</span>
-                                    <input value={slideForm.buttonText} onChange={(e) => setSlideForm({ ...slideForm, buttonText: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" />
+                                    <span className="text-xs text-slate-400">Button Text (optional)</span>
+                                    <input value={slideForm.buttonText} onChange={(e) => setSlideForm({ ...slideForm, buttonText: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" placeholder="Shop Now" />
                                 </label>
                                 <label className="flex flex-col gap-1">
-                                    <span className="text-xs text-slate-400">Link</span>
+                                    <span className="text-xs text-slate-400">Link (optional)</span>
                                     <input value={slideForm.link} onChange={(e) => setSlideForm({ ...slideForm, link: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" placeholder="/shop" />
                                 </label>
                                 <label className="flex flex-col gap-1 col-span-2">

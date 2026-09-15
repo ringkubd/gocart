@@ -24,17 +24,17 @@ export async function POST(req) {
         const body = await req.json()
         const { title, subtitle, image, link, buttonText, active, sortOrder } = body
 
-        if (!title || !image) {
-            return NextResponse.json({ error: "title and image required" }, { status: 400 })
+        if (!image) {
+            return NextResponse.json({ error: "image required" }, { status: 400 })
         }
 
         const slide = await prisma.heroSlide.create({
             data: {
-                title,
+                title: title || "",
                 subtitle: subtitle || "",
                 image,
                 link: link || "",
-                buttonText: buttonText || "Shop Now",
+                buttonText: buttonText || "",
                 active: active !== undefined ? Boolean(active) : true,
                 sortOrder: Number(sortOrder) || 0,
             },
