@@ -42,7 +42,7 @@ const Hero = () => {
     return (
         <div className='mx-6'>
             <div className='flex max-xl:flex-col gap-8 max-w-7xl mx-auto my-10'>
-                <div className='relative flex-1 rounded-3xl xl:min-h-100 group overflow-hidden bg-slate-800'>
+                <div className='relative flex-1 min-h-56 sm:min-h-72 rounded-3xl xl:min-h-100 group overflow-hidden bg-slate-800'>
                     {loaded ? (
                         <>
                             {/* Full-bleed background image */}
@@ -52,7 +52,7 @@ const Hero = () => {
                                     alt=""
                                     fill
                                     priority={current === 0}
-                                    className="object-cover object-center transition-opacity duration-700"
+                                    className="object-fill transition-opacity duration-700"
                                 />
                             )}
                             {/* Text overlay for readability — only when slide has content */}

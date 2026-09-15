@@ -175,6 +175,9 @@ export default function StoreAddProduct() {
         <form onSubmit={onSubmitHandler} className="text-slate-500 mb-28">
             <h1 className="text-2xl">{t('addProduct')}</h1>
             <p className="mt-7">{t('productImages')}</p>
+            <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded px-2 py-1 w-fit mt-2">
+                Recommended: <strong>800 × 900 px</strong> (8:9). Sob photo same size-e dile card-e perfect fit hobe — katabe na.
+            </p>
 
             <div className="flex gap-3 mt-4">
                 {Object.keys(images).map((key) => (
