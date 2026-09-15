@@ -55,7 +55,7 @@ const Footer = () => {
                     <div>
                         <Link href="/" className="text-4xl font-semibold text-slate-700">
                             {settings.siteLogo ? (
-                                <Image src={settings.siteLogo} width={160} height={48} className="h-10 w-auto object-contain" alt="theDhakaShop logo" />
+                                <Image src={settings.siteLogo} width={180} height={56} className="h-12 w-auto object-contain" alt="theDhakaShop logo" />
                             ) : (
                                 <span>{siteName}<span className="text-green-600 text-5xl leading-0">.</span></span>
                             )}
