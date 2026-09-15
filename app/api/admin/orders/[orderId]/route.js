@@ -16,7 +16,7 @@ export async function GET(req, { params }) {
             include: {
                 statusLogs: { orderBy: { createdAt: "asc" } },
                 user: { select: { id: true, name: true, email: true } },
-                store: { select: { id: true, name: true, username: true } },
+                store: { select: { id: true, name: true, username: true, logo: true } },
                 address: true,
                 orderItems: { include: { product: true, variant: true } },
             },
@@ -71,7 +71,7 @@ export async function PATCH(req, { params }) {
             include: {
                 statusLogs: { orderBy: { createdAt: "asc" } },
                 user: { select: { id: true, name: true, email: true } },
-                store: { select: { id: true, name: true, username: true } },
+                store: { select: { id: true, name: true, username: true, logo: true } },
                 address: true,
                 orderItems: { include: { product: true, variant: true } },
             },

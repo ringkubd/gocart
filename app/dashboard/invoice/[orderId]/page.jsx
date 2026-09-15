@@ -47,8 +47,6 @@ export default function InvoicePage({ params }) {
             </div>
 
             <div className="border border-slate-200 rounded-xl p-8 bg-white">
-                {/* Branded banner */}
-                <img src="/branding/banner.png" alt="" className="w-full rounded-lg mb-6" />
                 {/* Header */}
                 <div className="flex items-start justify-between mb-8">
                     <div className="flex items-center gap-4">
@@ -59,8 +57,8 @@ export default function InvoicePage({ params }) {
                         </div>
                     </div>
                     <div className="text-right">
-                        <p className="font-mono text-sm font-semibold text-slate-700">#{order.orderNumber || order.id.slice(-8)}</p>
-                        <p className="text-xs text-slate-400 mt-1">{new Date(order.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+                        <p className="font-mono text-sm font-semibold text-slate-700">Order #{order.orderNumber || order.id.slice(-8)}</p>
+                        <p className="text-xs text-slate-400 mt-1">Order Placed: {new Date(order.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
                         <span className={`inline-block mt-2 text-xs px-3 py-1 rounded-full ${order.status === 'DELIVERED' ? 'bg-green-100 text-green-700' : order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
                             {order.status.replace(/_/g, ' ')}
                         </span>
@@ -71,8 +69,13 @@ export default function InvoicePage({ params }) {
                 <div className="grid grid-cols-2 gap-8 mb-8">
                     <div>
                         <p className="text-xs font-semibold text-slate-400 uppercase mb-2">From</p>
-                        <p className="text-sm font-medium text-slate-700">{order.store?.name || 'theDhakaShop'}</p>
-                        <p className="text-xs text-slate-500 mt-1">thedhakashop.com</p>
+                        <div className="flex items-center gap-3">
+                            <img src={order.store?.logo || '/branding/logo-square.png'} alt="" className="w-10 h-10 object-contain rounded-lg bg-slate-100 p-0.5" />
+                            <div>
+                                <p className="text-sm font-medium text-slate-700">{order.store?.name || 'theDhakaShop'}</p>
+                                <p className="text-xs text-slate-400 mt-0.5">Powered by - thedhakashop.com</p>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <p className="text-xs font-semibold text-slate-400 uppercase mb-2">Bill To</p>

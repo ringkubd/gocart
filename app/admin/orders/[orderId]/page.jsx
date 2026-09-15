@@ -72,8 +72,6 @@ function buildInvoiceHtml(order, format) {
     @media print { body { padding: 0; } }
 </style></head><body>
 <div style="max-width:700px;margin:0 auto">
-    <!-- Branded banner header -->
-    <img src="/branding/banner.png" alt="" style="width:100%;display:block;border-radius:8px;margin-bottom:24px" />
     <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid #e2e8f0">
         <div style="display:flex;align-items:center;gap:14px">
@@ -84,8 +82,8 @@ function buildInvoiceHtml(order, format) {
             </div>
         </div>
         <div style="text-align:right">
-            <p style="font-size:14px;font-weight:600;color:#334155;font-family:monospace">#${order.orderNumber || order.id.slice(-8)}</p>
-            <p style="font-size:12px;color:#94a3b8;margin-top:4px">${date}</p>
+            <p style="font-size:14px;font-weight:600;color:#334155;font-family:monospace">Order #${order.orderNumber || order.id.slice(-8)}</p>
+            <p style="font-size:12px;color:#94a3b8;margin-top:4px">Order Placed: ${date}</p>
             <span style="display:inline-block;margin-top:8px;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:${statusColor}15;color:${statusColor}">${order.status.replace(/_/g, ' ')}</span>
         </div>
     </div>
@@ -94,8 +92,13 @@ function buildInvoiceHtml(order, format) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:30px">
         <div>
             <p style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">From</p>
-            <p style="font-size:14px;font-weight:600;color:#1e293b">${order.store?.name || 'theDhakaShop'}</p>
-            <p style="font-size:12px;color:#64748b;margin-top:2px">thedhakashop.com</p>
+            <div style="display:flex;align-items:center;gap:10px">
+                <img src="${order.store?.logo || '/branding/logo-square.png'}" alt="" style="width:40px;height:40px;object-fit:contain;border-radius:8px;background:#f1f5f9;padding:2px" />
+                <div>
+                    <p style="font-size:14px;font-weight:600;color:#1e293b">${order.store?.name || 'theDhakaShop'}</p>
+                    <p style="font-size:11px;color:#94a3b8;margin-top:2px">Powered by - thedhakashop.com</p>
+                </div>
+            </div>
         </div>
         <div>
             <p style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Bill To</p>

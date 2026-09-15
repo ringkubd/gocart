@@ -14,6 +14,7 @@ export async function GET(req, { params }) {
         const order = await prisma.order.findFirst({
             where: { id: orderId, storeId: store.id },
             include: {
+                store: { select: { name: true, logo: true } },
                 user: { select: { id: true, name: true, email: true } },
                 address: true,
                 orderItems: { include: { product: true } },
@@ -58,6 +59,7 @@ export async function PATCH(req, { params }) {
             where: { id: orderId },
             data,
             include: {
+                store: { select: { name: true, logo: true } },
                 user: { select: { id: true, name: true, email: true } },
                 address: true,
                 orderItems: { include: { product: true } },
@@ -84,6 +86,7 @@ export async function PATCH(req, { params }) {
             const refreshed = await prisma.order.findUnique({
                 where: { id: orderId },
                 include: {
+                    store: { select: { name: true, logo: true } },
                     user: { select: { id: true, name: true, email: true } },
                     address: true,
                     orderItems: { include: { product: true } },
