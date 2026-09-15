@@ -176,7 +176,7 @@ export default function StoreAddProduct() {
             <h1 className="text-2xl">{t('addProduct')}</h1>
             <p className="mt-7">{t('productImages')}</p>
             <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded px-2 py-1 w-fit mt-2">
-                Recommended: <strong>800 × 900 px</strong> (8:9). Sob photo same size-e dile card-e perfect fit hobe — katabe na.
+                Recommended: <strong>800 × 900 px</strong> (8:9). Use the same size for all photos so they fit the product card perfectly without cropping.
             </p>
 
             <div className="flex gap-3 mt-4">
