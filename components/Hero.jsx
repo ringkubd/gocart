@@ -1,17 +1,15 @@
 'use client'
-import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import { ArrowRightIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import CategoriesMarquee from './CategoriesMarquee'
 import useStorefrontData from './useStorefrontData'
-import { useCurrency } from './useCurrency'
 import { useLanguage } from './LanguageProvider'
 
 const Hero = () => {
 
     const { slides, settings } = useStorefrontData()
-    const { format } = useCurrency()
     const { t } = useLanguage()
     const [current, setCurrent] = useState(0)
     const [loaded, setLoaded] = useState(false)
@@ -37,38 +35,61 @@ const Hero = () => {
     return (
         <div className='mx-6'>
             <div className='flex max-xl:flex-col gap-8 max-w-7xl mx-auto my-10'>
-                <div className='relative flex-1 flex flex-col bg-green-200 rounded-3xl xl:min-h-100 group overflow-hidden'>
+                <div className='relative flex-1 rounded-3xl xl:min-h-100 group overflow-hidden bg-slate-800'>
                     {loaded ? (
                         <>
-                            <div className='p-5 sm:p-16'>
-                                <h2 className='text-3xl sm:text-5xl leading-[1.2] my-3 font-medium bg-gradient-to-r from-slate-600 to-[#A0FF74] bg-clip-text text-transparent max-w-xs  sm:max-w-md'>
+                            {/* Full-bleed background image */}
+                            {slides[current]?.image && (
+                                <Image
+                                    src={slides[current].image}
+                                    alt=""
+                                    fill
+                                    priority={current === 0}
+                                    className="object-cover object-center transition-opacity duration-700"
+                                />
+                            )}
+                            {/* Text overlay for readability */}
+                            <div className='absolute inset-0 bg-gradient-to-r from-black/70 via-black/45 to-black/10'></div>
+
+                            {/* Content on top */}
+                            <div className='relative z-10 flex flex-col justify-center h-full p-6 sm:p-12 xl:p-16'>
+                                <h2 className='text-3xl sm:text-5xl leading-[1.2] my-3 font-medium text-white max-w-xs sm:max-w-md drop-shadow-lg'>
                                     {slides[current]?.title}
                                 </h2>
                                 {slides[current]?.subtitle && (
-                                    <div className='text-slate-800 text-sm font-medium mt-4 sm:mt-8 max-w-md'>
+                                    <div className='text-white/90 text-sm font-medium mt-2 sm:mt-4 max-w-md drop-shadow'>
                                         <p>{slides[current].subtitle}</p>
                                     </div>
                                 )}
-                                <Link href={slides[current]?.link || '/shop'} className='bg-slate-800 text-white text-sm py-2.5 px-7 sm:py-5 sm:px-12 mt-4 sm:mt-10 rounded-md hover:bg-slate-900 hover:scale-103 active:scale-95 transition inline-flex items-center gap-2'>
+                                <Link href={slides[current]?.link || '/shop'} className='w-fit bg-white text-slate-900 text-sm py-2.5 px-7 sm:py-4 sm:px-10 mt-4 sm:mt-8 rounded-md hover:bg-slate-100 hover:scale-103 active:scale-95 transition inline-flex items-center gap-2 font-medium'>
                                     {slides[current]?.buttonText || t('shopNow')} <ArrowRightIcon size={16} />
                                 </Link>
                             </div>
-                            {slides[current]?.image && (
-                                <Image className='sm:absolute bottom-0 right-0 md:right-10 w-full sm:max-w-sm' src={slides[current].image} alt="" width={400} height={400} />
-                            )}
 
                             {/* Slide navigation */}
                             {slides.length > 1 && (
-                                <div className='absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2'>
+                                <div className='absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2'>
                                     {slides.map((_, i) => (
-                                        <button key={i} onClick={() => setCurrent(i)} className={`h-2 rounded-full transition-all ${i === current ? 'w-6 bg-slate-800' : 'w-2 bg-slate-400/60'}`} />
+                                        <button key={i} onClick={() => setCurrent(i)} className={`h-2 rounded-full transition-all ${i === current ? 'w-6 bg-white' : 'w-2 bg-white/50'}`} />
                                     ))}
                                 </div>
+                            )}
+
+                            {/* Prev/Next arrows */}
+                            {slides.length > 1 && (
+                                <>
+                                    <button onClick={() => go(-1)} aria-label="Previous slide" className='absolute left-3 top-1/2 -translate-y-1/2 z-20 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition'>
+                                        <ChevronLeftIcon size={20} />
+                                    </button>
+                                    <button onClick={() => go(1)} aria-label="Next slide" className='absolute right-3 top-1/2 -translate-y-1/2 z-20 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition'>
+                                        <ChevronRightIcon size={20} />
+                                    </button>
+                                </>
                             )}
                         </>
                     ) : (
                         <div className='flex items-center justify-center h-64 sm:h-100'>
-                            <div className='w-8 h-8 border-4 border-slate-300 border-t-slate-600 rounded-full animate-spin'></div>
+                            <div className='w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin'></div>
                         </div>
                     )}
                 </div>
