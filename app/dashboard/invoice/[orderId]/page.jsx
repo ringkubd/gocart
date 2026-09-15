@@ -47,11 +47,16 @@ export default function InvoicePage({ params }) {
             </div>
 
             <div className="border border-slate-200 rounded-xl p-8 bg-white">
+                {/* Branded banner */}
+                <img src="/branding/banner.png" alt="" className="w-full rounded-lg mb-6" />
                 {/* Header */}
                 <div className="flex items-start justify-between mb-8">
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-800">INVOICE</h1>
-                        <p className="text-sm text-slate-500 mt-1">theDhakaShop</p>
+                    <div className="flex items-center gap-4">
+                        <img src="/branding/logo-square.png" alt="logo" className="w-14 h-14 object-contain" />
+                        <div>
+                            <h1 className="text-2xl font-bold text-slate-800">INVOICE</h1>
+                            <p className="text-sm text-slate-500 mt-1">theDhakaShop</p>
+                        </div>
                     </div>
                     <div className="text-right">
                         <p className="font-mono text-sm font-semibold text-slate-700">#{order.orderNumber || order.id.slice(-8)}</p>
@@ -158,7 +163,8 @@ export default function InvoicePage({ params }) {
 
                 {/* Footer */}
                 <div className="mt-8 pt-4 border-t border-slate-100 text-center text-xs text-slate-400">
-                    <p>Thank you for your purchase!</p>
+                    <img src="/branding/logo-round.png" alt="logo" className="w-10 h-10 object-contain mx-auto mb-2" />
+                    <p className="font-medium text-slate-500">Thank you for your purchase!</p>
                     <p className="mt-1">thedhakashop.com | support@thedhakashop.com</p>
                 </div>
             </div>

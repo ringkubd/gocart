@@ -72,11 +72,16 @@ function buildInvoiceHtml(order, format) {
     @media print { body { padding: 0; } }
 </style></head><body>
 <div style="max-width:700px;margin:0 auto">
+    <!-- Branded banner header -->
+    <img src="/branding/banner.png" alt="" style="width:100%;display:block;border-radius:8px;margin-bottom:24px" />
     <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid #e2e8f0">
-        <div>
-            <h1 style="font-size:28px;font-weight:700;color:#0f172a;letter-spacing:-0.5px">INVOICE</h1>
-            <p style="font-size:13px;color:#94a3b8;margin-top:4px">theDhakaShop</p>
+        <div style="display:flex;align-items:center;gap:14px">
+            <img src="/branding/logo-square.png" alt="logo" style="width:56px;height:56px;object-fit:contain" />
+            <div>
+                <h1 style="font-size:28px;font-weight:700;color:#0f172a;letter-spacing:-0.5px">INVOICE</h1>
+                <p style="font-size:13px;color:#94a3b8;margin-top:4px">theDhakaShop</p>
+            </div>
         </div>
         <div style="text-align:right">
             <p style="font-size:14px;font-weight:600;color:#334155;font-family:monospace">#${order.orderNumber || order.id.slice(-8)}</p>
@@ -151,7 +156,8 @@ function buildInvoiceHtml(order, format) {
 
     <!-- Footer -->
     <div style="text-align:center;padding-top:24px;margin-top:24px;border-top:1px solid #f1f5f9;font-size:11px;color:#94a3b8">
-        <p>Thank you for your purchase!</p>
+        <img src="/branding/logo-round.png" alt="logo" style="width:40px;height:40px;object-fit:contain;margin:0 auto 8px" />
+        <p style="font-weight:600;color:#64748b">Thank you for your purchase!</p>
         <p style="margin-top:4px">thedhakashop.com | support@thedhakashop.com</p>
     </div>
 </div>

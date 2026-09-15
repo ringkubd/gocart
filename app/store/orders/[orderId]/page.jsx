@@ -41,6 +41,128 @@ const statusIcons = {
     CANCELLED: "bg-red-100 text-red-500",
 }
 
+function buildInvoiceHtml(order, format) {
+    const subtotal = order.orderItems?.reduce((s, i) => s + i.price * i.quantity, 0) || 0
+    const discount = order.isCouponUsed ? (order.coupon?.discount / 100 * subtotal) : 0
+    const date = new Date(order.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+    const statusColor = order.status === "DELIVERED" ? "#16a34a" : order.status === "CANCELLED" ? "#dc2626" : "#2563eb"
+
+    const itemsHtml = order.orderItems?.map((item, i) => `
+        <tr style="border-bottom:1px solid #e5e7eb">
+            <td style="padding:10px 12px;color:#94a3b8">${i + 1}</td>
+            <td style="padding:10px 12px">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <img src="${item.product?.images?.[0] || '/assets/product_img1.png'}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;background:#f1f5f9" />
+                    <span style="color:#334155;font-weight:500">${item.product?.name || 'Product'}</span>
+                </div>
+            </td>
+            <td style="padding:10px 12px;text-align:center;color:#64748b">${item.quantity}</td>
+            <td style="padding:10px 12px;text-align:right;color:#64748b">${format(item.price)}</td>
+            <td style="padding:10px 12px;text-align:right;font-weight:600;color:#1e293b">${format(item.price * item.quantity)}</td>
+        </tr>
+    `).join('') || ''
+
+    return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Invoice ${order.orderNumber || order.id.slice(-8)}</title>
+<style>
+    @page { margin: 0.6cm; size: A4; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #334155; padding: 30px; }
+    @media print { body { padding: 0; } }
+</style></head><body>
+<div style="max-width:700px;margin:0 auto">
+    <!-- Branded banner header -->
+    <img src="/branding/banner.png" alt="" style="width:100%;display:block;border-radius:8px;margin-bottom:24px" />
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid #e2e8f0">
+        <div style="display:flex;align-items:center;gap:14px">
+            <img src="/branding/logo-square.png" alt="logo" style="width:56px;height:56px;object-fit:contain" />
+            <div>
+                <h1 style="font-size:28px;font-weight:700;color:#0f172a;letter-spacing:-0.5px">INVOICE</h1>
+                <p style="font-size:13px;color:#94a3b8;margin-top:4px">theDhakaShop</p>
+            </div>
+        </div>
+        <div style="text-align:right">
+            <p style="font-size:14px;font-weight:600;color:#334155;font-family:monospace">#${order.orderNumber || order.id.slice(-8)}</p>
+            <p style="font-size:12px;color:#94a3b8;margin-top:4px">${date}</p>
+            <span style="display:inline-block;margin-top:8px;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:${statusColor}15;color:${statusColor}">${order.status.replace(/_/g, ' ')}</span>
+        </div>
+    </div>
+
+    <!-- From / To -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:30px">
+        <div>
+            <p style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">From</p>
+            <p style="font-size:14px;font-weight:600;color:#1e293b">${order.store?.name || 'theDhakaShop'}</p>
+            <p style="font-size:12px;color:#64748b;margin-top:2px">thedhakashop.com</p>
+        </div>
+        <div>
+            <p style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Bill To</p>
+            <p style="font-size:14px;font-weight:600;color:#1e293b">${order.guestName || order.user?.name || 'Customer'}</p>
+            <p style="font-size:12px;color:#64748b;margin-top:2px">${order.address?.street || ''}</p>
+            <p style="font-size:12px;color:#64748b">${order.address?.city || ''}, ${order.address?.state || ''} ${order.address?.zip || ''}</p>
+            <p style="font-size:12px;color:#64748b">${order.address?.country || ''}</p>
+            ${order.address?.phone ? `<p style="font-size:12px;color:#64748b;margin-top:4px">Phone: ${order.address.phone}</p>` : ''}
+            ${(order.user?.email || order.guestEmail) ? `<p style="font-size:12px;color:#64748b">Email: ${order.user?.email || order.guestEmail}</p>` : ''}
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:13px">
+        <thead>
+            <tr style="border-bottom:2px solid #e2e8f0">
+                <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px">#</th>
+                <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px">Item</th>
+                <th style="padding:8px 12px;text-align:center;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px">Qty</th>
+                <th style="padding:8px 12px;text-align:right;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px">Price</th>
+                <th style="padding:8px 12px;text-align:right;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px">Total</th>
+            </tr>
+        </thead>
+        <tbody>${itemsHtml}</tbody>
+    </table>
+
+    <!-- Summary -->
+    <div style="display:flex;justify-content:flex-end;margin-bottom:30px">
+        <div style="width:260px">
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+                <span style="color:#94a3b8">Subtotal</span><span style="color:#64748b">${format(subtotal)}</span>
+            </div>
+            ${discount > 0 ? `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+                <span style="color:#94a3b8">Discount (${order.coupon?.code})</span><span style="color:#16a34a">-${format(discount)}</span>
+            </div>` : ''}
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+                <span style="color:#94a3b8">Shipping</span><span style="color:#64748b">${order.shippingCost > 0 ? format(order.shippingCost) : 'Free'}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0 6px;font-size:15px;font-weight:700;border-top:2px solid #e2e8f0;color:#0f172a;margin-top:4px">
+                <span>Total</span><span>${format(order.total)}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Info -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding-top:24px;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b">
+        <div>
+            <p style="font-weight:700;color:#94a3b8;text-transform:uppercase;font-size:10px;letter-spacing:0.5px;margin-bottom:4px">Payment</p>
+            <p>${order.paymentMethod} — ${order.isPaid ? 'Paid' : 'Pay on Delivery'}</p>
+            ${order.transactionId ? `<p>Txn ID: ${order.transactionId}</p>` : ''}
+        </div>
+        <div style="text-align:right">
+            ${order.shippingMethod ? `<p>Shipping: ${order.shippingMethod}</p>` : ''}
+            ${order.courierName ? `<p>Courier: ${order.courierName}</p>` : ''}
+            ${order.trackingNumber ? `<p>Tracking: ${order.trackingNumber}</p>` : ''}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;padding-top:24px;margin-top:24px;border-top:1px solid #f1f5f9;font-size:11px;color:#94a3b8">
+        <img src="/branding/logo-round.png" alt="logo" style="width:40px;height:40px;object-fit:contain;margin:0 auto 8px" />
+        <p style="font-weight:600;color:#64748b">Thank you for your purchase!</p>
+        <p style="margin-top:4px">thedhakashop.com | support@thedhakashop.com</p>
+    </div>
+</div>
+</body></html>`
+}
+
 export default function StoreOrderDetailPage({ params }) {
     const resolvedParams = use(params)
     const orderId = resolvedParams.orderId
@@ -132,7 +254,15 @@ export default function StoreOrderDetailPage({ params }) {
     const subtotal = order?.orderItems?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0
     const discount = order?.isCouponUsed ? (order.coupon?.discount / 100 * subtotal) : 0
 
-    const handlePrint = () => { window.print() }
+    const handlePrint = () => {
+        if (!order) return
+        const html = buildInvoiceHtml(order, format)
+        const win = window.open('', '_blank', 'width=800,height=600')
+        win.document.write(html)
+        win.document.close()
+        win.focus()
+        setTimeout(() => win.print(), 500)
+    }
 
     if (loading) return <Loading />
     if (!order) return <div className="p-10 text-center text-slate-400">Order not found.</div>
