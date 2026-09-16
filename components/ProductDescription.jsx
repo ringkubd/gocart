@@ -31,7 +31,7 @@ const ProductDescription = ({ product }) => {
             {/* Description */}
             {selectedTab === "Description" && (
                 <div className="max-w-xl">
-                    <p>{text(product.description, product.descriptionBn)}</p>
+                    <p className="whitespace-pre-line leading-relaxed">{text(product.description, product.descriptionBn)}</p>
                     {product.brand?.name && (
                         <p className="mt-4 text-slate-400">Brand: <span className="text-slate-600 font-medium">{product.brand.name}</span></p>
                     )}
