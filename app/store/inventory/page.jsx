@@ -153,7 +153,7 @@ export default function StoreInventory() {
                                     <tr className="hover:bg-slate-50">
                                         <td className="px-4 py-3">
                                             <div className="flex gap-2 items-center">
-                                                <Image width={40} height={40} className="p-1 shadow rounded" src={p.images?.[0] || "/assets/product_img1.png"} alt="" />
+                                                <Image width={40} height={40} className="p-1 shadow rounded" src={p.thumbnails?.[0] || p.images?.[0] || "/assets/product_img1.png"} alt="" />
                                                 <span className="max-w-44 truncate">{p.name}</span>
                                             </div>
                                         </td>

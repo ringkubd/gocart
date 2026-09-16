@@ -19,7 +19,13 @@ export async function GET(req, { params }) {
             return NextResponse.json({ error: "Product not found" }, { status: 404 })
         }
 
-        return NextResponse.json({ product })
+        const safeProduct = {
+            ...product,
+            options: Array.isArray(product.options) ? product.options : [],
+            thumbnails: Array.isArray(product.thumbnails) ? product.thumbnails : [],
+        }
+
+        return NextResponse.json({ product: safeProduct })
     } catch (error) {
         console.error("Product GET error:", error)
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
@@ -59,6 +65,7 @@ export async function PATCH(req, { params }) {
                 ...(body.mrp !== undefined && { mrp: Number(body.mrp) }),
                 ...(body.price !== undefined && { price: Number(body.price) }),
                 ...(body.images !== undefined && { images: body.images }),
+                ...(body.thumbnails !== undefined && { thumbnails: body.thumbnails }),
                 ...(body.category !== undefined && { category: body.category }),
                 ...(body.categoryBn !== undefined && { categoryBn: body.categoryBn }),
                 ...(body.brandId !== undefined && { brandId: body.brandId }),

@@ -168,7 +168,7 @@ export default function AdminProducts() {
                             <tr key={product.id} className="hover:bg-slate-50">
                                 <td className="px-4 py-3">
                                     <div className="flex gap-2 items-center">
-                                        <Image width={40} height={40} className='p-0.5 rounded' src={product.images?.[0]} alt="" />
+                                        <Image width={40} height={40} className='p-0.5 rounded' src={product.thumbnails?.[0] || product.images?.[0]} alt="" />
                                         <div>
                                             <span className="max-w-40 truncate block">{product.name}</span>
                                             {product.hasVariants && <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{product.variants?.length || 0} variants</span>}

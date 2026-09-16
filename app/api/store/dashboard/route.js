@@ -20,7 +20,11 @@ export async function GET() {
             orderBy: { createdAt: "desc" },
         })
 
-        const products = rawProducts.map(p => ({ ...p, options: Array.isArray(p.options) ? p.options : [] }))
+        const products = rawProducts.map(p => ({
+            ...p,
+            options: Array.isArray(p.options) ? p.options : [],
+            thumbnails: Array.isArray(p.thumbnails) ? p.thumbnails : [],
+        }))
 
         const orders = await prisma.order.findMany({
             where: { storeId: store.id },

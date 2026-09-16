@@ -46,6 +46,7 @@ export async function GET() {
                 id: p.id,
                 name: p.name,
                 images: p.images,
+                thumbnails: Array.isArray(p.thumbnails) ? p.thumbnails : [],
                 hasVariants: p.hasVariants,
                 variants: p.variants,
                 stock: p.stock,

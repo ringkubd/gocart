@@ -50,6 +50,7 @@ model Product {
     mrp         Float
     price       Float
     images      Json
+    thumbnails  Json     @default("[]")
     category    String
     categoryBn  String   @default("")
     brandId     String?

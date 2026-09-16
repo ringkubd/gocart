@@ -41,7 +41,7 @@ const ProductCard = ({ product }) => {
         <div className='group max-xl:mx-auto relative'>
             <Link href={`/product/${product.id}`} className='block'>
                 <div className='bg-[#F5F5F5] h-40 sm:w-60 sm:h-68 rounded-lg relative overflow-hidden'>
-                    <Image width={500} height={500} className='absolute inset-0 h-full w-full object-fill group-hover:scale-105 transition duration-300' src={product.images?.[0] || '/assets/product_img1.png'} alt="" onError={(e) => { e.currentTarget.src = '/assets/product_img1.png' }} />
+                    <Image width={600} height={600} className='absolute inset-0 h-full w-full object-contain p-2 group-hover:scale-105 transition duration-300' src={product.thumbnails?.[0] || product.images?.[0] || '/assets/product_img1.png'} alt="" onError={(e) => { e.currentTarget.src = '/assets/product_img1.png' }} />
 
                     {/* Out of stock overlay */}
                     {product.inStock === false && (

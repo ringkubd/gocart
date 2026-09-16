@@ -116,6 +116,7 @@ export default function StoreAddProduct() {
 
         try {
             const uploadedImages = []
+            const uploadedThumbs = []
             for (const key of Object.keys(images)) {
                 const file = images[key]
                 if (file) {
@@ -125,6 +126,7 @@ export default function StoreAddProduct() {
                     const upData = await upRes.json()
                     if (!upRes.ok) throw new Error(upData.error || 'Image upload failed')
                     uploadedImages.push(upData.url)
+                    uploadedThumbs.push(upData.thumb || upData.url)
                 }
             }
 
@@ -138,6 +140,7 @@ export default function StoreAddProduct() {
                 body: JSON.stringify({
                     ...productInfo,
                     images: uploadedImages,
+                    thumbnails: uploadedThumbs,
                     mrp: Number(productInfo.mrp) || 0,
                     price: Number(productInfo.price) || 0,
                     hasVariants,

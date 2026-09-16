@@ -148,7 +148,7 @@ export default function StoreManageProducts() {
                         <tr key={product.id} className="border-t border-gray-200 hover:bg-gray-50">
                             <td className="px-4 py-3">
                                 <div className="flex gap-2 items-center">
-                                    <Image width={40} height={40} className='p-1 shadow rounded cursor-pointer' src={product.images[0]} alt="" />
+                                    <Image width={40} height={40} className='p-1 shadow rounded cursor-pointer' src={product.thumbnails?.[0] || product.images[0]} alt="" />
                                     <div>
                                         <p>{product.name}</p>
                                         {product.hasVariants && <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{product.variants?.length || 0} variants</span>}

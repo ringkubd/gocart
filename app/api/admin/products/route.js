@@ -41,7 +41,13 @@ export async function GET(req) {
             take: pageSize,
         })
 
-        return NextResponse.json({ products, total, page, pageSize })
+        const safeProducts = products.map(p => ({
+            ...p,
+            options: Array.isArray(p.options) ? p.options : [],
+            thumbnails: Array.isArray(p.thumbnails) ? p.thumbnails : [],
+        }))
+
+        return NextResponse.json({ products: safeProducts, total, page, pageSize })
     } catch (error) {
         console.error("Admin products GET error:", error)
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 })

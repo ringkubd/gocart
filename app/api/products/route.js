@@ -51,7 +51,11 @@ export async function GET(req) {
         })
 
         // Ensure options is always an array (fix empty string from DB)
-        const products = rawProducts.map(p => ({ ...p, options: Array.isArray(p.options) ? p.options : [] }))
+        const products = rawProducts.map(p => ({
+            ...p,
+            options: Array.isArray(p.options) ? p.options : [],
+            thumbnails: Array.isArray(p.thumbnails) ? p.thumbnails : [],
+        }))
 
         return NextResponse.json({ products })
     } catch (error) {
@@ -73,7 +77,7 @@ export async function POST(req) {
         }
 
         const body = await req.json()
-        const { name, nameBn, description, descriptionBn, mrp, price, images, category, categoryBn, brandId, stock, featured, deliveryCost, freeDelivery, minQtyForFree, deliveryDiscount, hasVariants, options, variants, initialPurchase } = body
+        const { name, nameBn, description, descriptionBn, mrp, price, images, thumbnails, category, categoryBn, brandId, stock, featured, deliveryCost, freeDelivery, minQtyForFree, deliveryDiscount, hasVariants, options, variants, initialPurchase } = body
 
         if (!name || !description || !images?.length || !category) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -98,6 +102,7 @@ export async function POST(req) {
                 mrp: Number(mrp) || Number(price) || 0,
                 price: Number(price) || 0,
                 images,
+                thumbnails: Array.isArray(thumbnails) ? thumbnails : [],
                 category,
                 categoryBn: categoryBn || "",
                 brandId: brandId || null,
