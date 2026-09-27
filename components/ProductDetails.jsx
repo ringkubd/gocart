@@ -164,7 +164,7 @@ const ProductDetails = ({ product }) => {
                         </div>
                     ))}
                 </div>
-                <div className="relative w-full max-w-[520px] aspect-square bg-slate-100 rounded-lg overflow-hidden">
+                <div className="relative w-full aspect-square sm:w-[520px] sm:h-[520px] sm:aspect-auto bg-slate-100 rounded-lg overflow-hidden">
                     <Image src={displayImage} alt="" fill sizes="(max-width: 640px) 100vw, 520px" className="object-contain p-3" onError={(e) => { e.currentTarget.src = "/assets/product_img1.png" }} />
                 </div>
             </div>
