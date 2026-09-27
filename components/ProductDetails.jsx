@@ -3,7 +3,7 @@
 import { addToCart } from "@/lib/features/cart/cartSlice";
 import { StarIcon, TagIcon, EarthIcon, CreditCardIcon, UserIcon, TruckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Counter from "./Counter";
 import ProductChatWidget from "./ProductChatWidget";
@@ -28,7 +28,13 @@ const ProductDetails = ({ product }) => {
 
     // Variant selection state
     const [selectedAttributes, setSelectedAttributes] = useState({})
-    const [mainImage, setMainImage] = useState(product.images[0]);
+    const [mainImage, setMainImage] = useState(product.images?.[0]);
+
+    // Reset gallery when navigating to another product
+    useEffect(() => {
+        setSelectedAttributes({})
+        setMainImage(product.images?.[0])
+    }, [product.id])
 
     const hasVariants = product.hasVariants && product.variants?.length > 0
     const options = product.options || []
@@ -151,15 +157,15 @@ const ProductDetails = ({ product }) => {
     return (
         <div className="flex max-lg:flex-col gap-12">
             <div className="flex max-sm:flex-col-reverse gap-3">
-                <div className="flex sm:flex-col gap-3">
+                <div className="flex sm:flex-col gap-3 max-sm:overflow-x-auto">
                     {(product.images || []).map((image, index) => (
-                        <div key={index} onClick={() => setMainImage(product.images[index])} className="bg-slate-100 flex items-center justify-center size-26 rounded-lg group cursor-pointer">
-                            <Image src={image} className="group-hover:scale-103 group-active:scale-95 transition" alt="" width={45} height={45} onError={(e) => { e.currentTarget.src = "/assets/product_img1.png" }} />
+                        <div key={index} onClick={() => setMainImage(product.images[index])} className="relative bg-slate-100 size-20 sm:size-24 rounded-lg overflow-hidden shrink-0 cursor-pointer group">
+                            <Image src={image} className="object-contain p-1.5 group-hover:scale-105 group-active:scale-95 transition" alt="" fill sizes="96px" onError={(e) => { e.currentTarget.src = "/assets/product_img1.png" }} unoptimized />
                         </div>
                     ))}
                 </div>
-                <div className="flex justify-center items-center h-100 sm:size-113 bg-slate-100 rounded-lg ">
-                    <Image src={displayImage} alt="" width={250} height={250} onError={(e) => { e.currentTarget.src = "/assets/product_img1.png" }} />
+                <div className="relative w-full max-w-[520px] aspect-square bg-slate-100 rounded-lg overflow-hidden">
+                    <Image src={displayImage} alt="" fill sizes="(max-width: 640px) 100vw, 520px" className="object-contain p-3" onError={(e) => { e.currentTarget.src = "/assets/product_img1.png" }} />
                 </div>
             </div>
             <div className="flex-1">
