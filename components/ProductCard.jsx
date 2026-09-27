@@ -38,10 +38,10 @@ const ProductCard = ({ product }) => {
     }
 
     return (
-        <div className='group w-full sm:w-auto relative'>
+        <div className='group w-full relative'>
             <Link href={`/product/${product.id}`} className='block'>
-                <div className='bg-white border border-slate-100 w-full aspect-[8/9] sm:aspect-auto sm:w-60 sm:h-68 rounded-lg relative overflow-hidden'>
-                    <Image width={600} height={600} className='absolute inset-0 h-full w-full object-contain p-1.5 sm:p-2 group-hover:scale-105 transition duration-300' src={product.thumbnails?.[0] || product.images?.[0] || '/assets/product_img1.png'} alt="" onError={(e) => { e.currentTarget.src = '/assets/product_img1.png' }} />
+                <div className='bg-white border border-slate-100 w-full aspect-[8/9] rounded-lg relative overflow-hidden'>
+                    <Image width={600} height={600} className='absolute inset-0 h-full w-full object-contain p-2 group-hover:scale-105 transition duration-300' src={product.thumbnails?.[0] || product.images?.[0] || '/assets/product_img1.png'} alt="" onError={(e) => { e.currentTarget.src = '/assets/product_img1.png' }} />
 
                     {/* Out of stock overlay */}
                     {product.inStock === false && (

@@ -74,7 +74,7 @@ import { useLocalized } from "@/components/useLocalized"
                 )}
 
                 {filteredProducts.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:flex flex-wrap gap-6 xl:gap-12 mx-auto mb-32">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 mb-32">
                         {filteredProducts.map((product) => <ProductCard key={product.id} product={product} />)}
                     </div>
                 ) : (
