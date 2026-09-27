@@ -7,6 +7,7 @@ import { PencilIcon, Trash2Icon } from "lucide-react"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
 import VariantBuilder from "@/components/VariantBuilder"
+import ProductImagesEditor from "@/components/ProductImagesEditor"
 
 export default function StoreManageProducts() {
 
@@ -20,6 +21,8 @@ export default function StoreManageProducts() {
     const [editing, setEditing] = useState(false)
     const [editVariants, setEditVariants] = useState([])
     const [editOptions, setEditOptions] = useState([])
+    const [editImages, setEditImages] = useState([])
+    const [editThumbs, setEditThumbs] = useState([])
 
     const fetchBrands = async () => {
         try {
@@ -96,6 +99,8 @@ export default function StoreManageProducts() {
                 hasVariants: editProduct.hasVariants || false,
                 options: editProduct.hasVariants ? editOptions : [],
                 variants: editProduct.hasVariants ? editVariants : [],
+                images: editImages,
+                thumbnails: editThumbs,
             }
             const res = await fetch(`/api/products/${editProduct.id}`, {
                 method: 'PATCH',
@@ -170,7 +175,7 @@ export default function StoreManageProducts() {
                             </td>
                             <td className="px-4 py-3">
                                 <div className="flex gap-2">
-                                    <button onClick={() => { setEditProduct(product); setEditVariants(product.variants || []); setEditOptions(product.options || []); setEditing(true) }} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><PencilIcon size={16} /></button>
+                                    <button onClick={() => { setEditProduct(product); setEditVariants(product.variants || []); setEditOptions(product.options || []); setEditImages(Array.isArray(product.images) ? product.images : []); setEditThumbs(Array.isArray(product.thumbnails) ? product.thumbnails : []); setEditing(true) }} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><PencilIcon size={16} /></button>
                                     <button onClick={() => handleDelete(product)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"><Trash2Icon size={16} /></button>
                                 </div>
                             </td>
@@ -189,6 +194,11 @@ export default function StoreManageProducts() {
                     <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative max-h-[90vh] overflow-y-auto">
                         <h2 className="text-xl font-semibold text-slate-900 mb-4">{t('editProduct')}</h2>
                         <div className="flex flex-col gap-3">
+                            <ProductImagesEditor
+                                images={editImages}
+                                thumbnails={editThumbs}
+                                onChange={({ images, thumbnails }) => { setEditImages(images); setEditThumbs(thumbnails) }}
+                            />
                             <label className="flex flex-col gap-1">
                                 <span className="text-xs text-slate-400">Name (English)</span>
                                 <input value={editProduct.name} onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })} className="border border-slate-200 rounded p-2" required />

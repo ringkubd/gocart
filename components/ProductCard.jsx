@@ -70,17 +70,17 @@ const ProductCard = ({ product }) => {
                         <ShoppingCartIcon size={14} />
                     </button>
                 </div>
-                <div className='flex justify-between gap-3 text-sm text-slate-800 pt-2 max-w-60'>
-                    <div>
-                        {product.brand?.name && <p className="text-xs text-slate-400">{product.brand.name}</p>}
-                        <p className="truncate max-w-36">{text(product.name, product.nameBn)}</p>
+                <div className='flex items-start justify-between gap-2 text-sm text-slate-800 pt-2 w-full'>
+                    <div className='min-w-0 flex-1'>
+                        {product.brand?.name && <p className="text-xs text-slate-400 truncate">{product.brand.name}</p>}
+                        <p className="truncate">{text(product.name, product.nameBn)}</p>
                         <div className='flex'>
                             {Array(5).fill('').map((_, index) => (
                                 <StarIcon key={index} size={14} className='text-transparent mt-0.5' fill={rating >= index + 1 ? "#00C950" : "#D1D5DB"} />
                             ))}
                         </div>
                     </div>
-                    <p className="text-right">
+                    <p className="text-right shrink-0 whitespace-nowrap font-medium">
                         {product.hasVariants && product.variants?.length > 0 ? (() => {
                             const prices = product.variants.map(v => v.price).filter(p => p > 0)
                             if (prices.length === 0) return format(product.price)
