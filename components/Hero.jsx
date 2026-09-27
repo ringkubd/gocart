@@ -52,7 +52,7 @@ const Hero = () => {
                                     alt=""
                                     fill
                                     priority={current === 0}
-                                    className="object-fill transition-opacity duration-700"
+                                    className="object-cover object-center transition-opacity duration-700"
                                 />
                             )}
                             {/* Text overlay for readability — only when slide has content */}
