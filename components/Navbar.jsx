@@ -51,7 +51,7 @@ const Navbar = () => {
 
                     <Link href="/" className="relative flex items-center gap-2">
                         {settings.siteLogo ? (
-                            <Image src={settings.siteLogo} width={176} height={56} className="h-12 sm:h-14 w-auto object-contain" alt="theDhakaShop logo" />
+                            <Image src={settings.siteLogo} width={176} height={56} className="h-11 sm:h-14 w-auto max-w-[170px] sm:max-w-[220px] object-contain" alt="theDhakaShop logo" />
                         ) : (
                             <span className="text-4xl font-semibold text-slate-700">
                                 theDhaka<span className="text-green-600">Shop</span><span className="text-green-600 text-5xl leading-0">.</span>

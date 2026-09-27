@@ -40,7 +40,7 @@ const ProductCard = ({ product }) => {
     return (
         <div className='group w-full sm:w-auto relative'>
             <Link href={`/product/${product.id}`} className='block'>
-                <div className='bg-[#F5F5F5] w-full aspect-[8/9] sm:aspect-auto sm:w-60 sm:h-68 rounded-lg relative overflow-hidden'>
+                <div className='bg-white border border-slate-100 w-full aspect-[8/9] sm:aspect-auto sm:w-60 sm:h-68 rounded-lg relative overflow-hidden'>
                     <Image width={600} height={600} className='absolute inset-0 h-full w-full object-contain p-1.5 sm:p-2 group-hover:scale-105 transition duration-300' src={product.thumbnails?.[0] || product.images?.[0] || '/assets/product_img1.png'} alt="" onError={(e) => { e.currentTarget.src = '/assets/product_img1.png' }} />
 
                     {/* Out of stock overlay */}
@@ -70,37 +70,37 @@ const ProductCard = ({ product }) => {
                         <ShoppingCartIcon size={14} />
                     </button>
                 </div>
-                <div className='flex items-start justify-between gap-2 text-sm text-slate-800 pt-2 w-full'>
-                    <div className='min-w-0 flex-1'>
-                        {product.brand?.name && <p className="text-xs text-slate-400 truncate">{product.brand.name}</p>}
-                        <p className="truncate">{text(product.name, product.nameBn)}</p>
-                        <div className='flex'>
+                <div className='pt-2 text-sm text-slate-800 w-full'>
+                    {product.brand?.name && <p className="text-xs text-slate-400 truncate">{product.brand.name}</p>}
+                    <p className="truncate">{text(product.name, product.nameBn)}</p>
+                    <div className='flex items-center justify-between gap-2 mt-0.5'>
+                        <div className='flex shrink-0'>
                             {Array(5).fill('').map((_, index) => (
-                                <StarIcon key={index} size={14} className='text-transparent mt-0.5' fill={rating >= index + 1 ? "#00C950" : "#D1D5DB"} />
+                                <StarIcon key={index} size={13} className='text-transparent mt-0.5' fill={rating >= index + 1 ? "#00C950" : "#D1D5DB"} />
                             ))}
                         </div>
+                        <p className="font-semibold text-right truncate">
+                            {product.hasVariants && product.variants?.length > 0 ? (() => {
+                                const prices = product.variants.map(v => v.price).filter(p => p > 0)
+                                if (prices.length === 0) return format(product.price)
+                                const min = Math.min(...prices)
+                                const max = Math.max(...prices)
+                                return min === max ? format(min) : `${format(min)}-${format(max)}`
+                            })() : format(product.price)}
+                        </p>
                     </div>
-                    <p className="text-right shrink-0 whitespace-nowrap font-medium">
-                        {product.hasVariants && product.variants?.length > 0 ? (() => {
-                            const prices = product.variants.map(v => v.price).filter(p => p > 0)
-                            if (prices.length === 0) return format(product.price)
-                            const min = Math.min(...prices)
-                            const max = Math.max(...prices)
-                            return min === max ? format(min) : `${format(min)}-${format(max)}`
-                        })() : format(product.price)}
-                    </p>
                 </div>
             </Link>
 
             {/* Free delivery badge */}
             {(product.freeDelivery || Number(product.deliveryCost || 0) <= 0) ? (
-                <div className="flex items-center gap-1 text-[10px] text-green-600 font-medium mt-1 max-w-60">
-                    <TruckIcon size={12} />
+                <div className="flex items-center gap-1 text-[10px] text-green-600 font-medium mt-1">
+                    <TruckIcon size={12} className="shrink-0" />
                     <span>Free Delivery</span>
                 </div>
             ) : product.deliveryCost > 0 ? (
-                <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-1 max-w-60">
-                    <TruckIcon size={12} />
+                <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-1">
+                    <TruckIcon size={12} className="shrink-0" />
                     <span>{t('freeShippingOver')}</span>
                 </div>
             ) : null}
