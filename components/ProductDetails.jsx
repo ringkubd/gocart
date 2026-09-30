@@ -1,7 +1,7 @@
 'use client'
 
 import { addToCart } from "@/lib/features/cart/cartSlice";
-import { StarIcon, TagIcon, EarthIcon, CreditCardIcon, UserIcon, TruckIcon } from "lucide-react";
+import { StarIcon, TagIcon, TruckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
@@ -284,12 +284,6 @@ const ProductDetails = ({ product }) => {
                         </button>
                     )}
                     <ProductChatWidget productId={product.id} storeId={product.storeId} />
-                </div>
-                <hr className="border-gray-300 my-5" />
-                <div className="flex flex-col gap-4 text-slate-500">
-                    <p className="flex gap-3"> <EarthIcon className="text-slate-400" /> Free shipping worldwide </p>
-                    <p className="flex gap-3"> <CreditCardIcon className="text-slate-400" /> 100% Secured Payment </p>
-                    <p className="flex gap-3"> <UserIcon className="text-slate-400" /> Trusted by top brands </p>
                 </div>
 
             </div>
