@@ -22,7 +22,7 @@ export async function POST(req) {
         }
 
         const body = await req.json()
-        const { name, nameBn, image, active, sortOrder } = body
+        const { name, nameBn, image, active, sortOrder, seoTitle, seoDescription } = body
 
         if (!name) {
             return NextResponse.json({ error: "name required" }, { status: 400 })
@@ -43,6 +43,8 @@ export async function POST(req) {
                 image: image || "",
                 active: active !== undefined ? Boolean(active) : true,
                 sortOrder: Number(sortOrder) || 0,
+                seoTitle: seoTitle || "",
+                seoDescription: seoDescription || "",
             },
         })
 
@@ -75,6 +77,8 @@ export async function PATCH(req) {
         if (body.image !== undefined) data.image = body.image
         if (body.active !== undefined) data.active = Boolean(body.active)
         if (body.sortOrder !== undefined) data.sortOrder = Number(body.sortOrder)
+        if (body.seoTitle !== undefined) data.seoTitle = body.seoTitle
+        if (body.seoDescription !== undefined) data.seoDescription = body.seoDescription
 
         const category = await prisma.category.update({ where: { id }, data })
 

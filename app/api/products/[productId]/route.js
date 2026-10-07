@@ -78,6 +78,9 @@ export async function PATCH(req, { params }) {
                 ...(body.deliveryDiscount !== undefined && { deliveryDiscount: Number(body.deliveryDiscount) }),
                 ...(body.hasVariants !== undefined && { hasVariants: Boolean(body.hasVariants) }),
                 ...(body.options !== undefined && { options: body.options }),
+                ...(body.seoTitle !== undefined && { seoTitle: body.seoTitle }),
+                ...(body.seoDescription !== undefined && { seoDescription: body.seoDescription }),
+                ...(body.seoKeywords !== undefined && { seoKeywords: body.seoKeywords }),
             },
             include: { store: true, brand: true, rating: true, variants: true },
         })

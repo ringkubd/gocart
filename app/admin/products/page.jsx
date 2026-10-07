@@ -116,6 +116,9 @@ export default function AdminProducts() {
                     variants: editProduct.hasVariants ? editVariants : [],
                     images: editImages,
                     thumbnails: editThumbs,
+                    seoTitle: editProduct.seoTitle || "",
+                    seoDescription: editProduct.seoDescription || "",
+                    seoKeywords: editProduct.seoKeywords || "",
                 }),
             })
             const data = await res.json()
@@ -285,6 +288,21 @@ export default function AdminProducts() {
                                     <input type="number" value={editProduct.stock} onChange={(e) => setEditProduct({ ...editProduct, stock: e.target.value })} className="border border-slate-200 rounded p-2" />
                                 </label>
                             </div>
+                        </div>
+                        <div className="border-t border-slate-100 pt-3 mt-1 flex flex-col gap-3">
+                            <p className="text-xs font-medium text-slate-500">SEO (optional)</p>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">SEO Title</span>
+                                <input value={editProduct.seoTitle || ''} onChange={(e) => setEditProduct({ ...editProduct, seoTitle: e.target.value })} className="border border-slate-200 rounded p-2" placeholder="Defaults to product name" />
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">SEO Description</span>
+                                <textarea value={editProduct.seoDescription || ''} onChange={(e) => setEditProduct({ ...editProduct, seoDescription: e.target.value })} rows={2} className="border border-slate-200 rounded p-2 resize-none" placeholder="Defaults to product description" />
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">SEO Keywords</span>
+                                <input value={editProduct.seoKeywords || ''} onChange={(e) => setEditProduct({ ...editProduct, seoKeywords: e.target.value })} className="border border-slate-200 rounded p-2" placeholder="comma, separated, keywords" />
+                            </label>
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
                             <button type="button" onClick={() => { setEditing(false); setEditProduct(null) }} className="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300">Cancel</button>

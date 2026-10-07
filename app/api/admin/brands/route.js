@@ -23,7 +23,7 @@ export async function POST(req) {
         }
 
         const body = await req.json()
-        const { name, logo, active } = body
+        const { name, logo, active, seoTitle, seoDescription } = body
 
         if (!name) {
             return NextResponse.json({ error: "name required" }, { status: 400 })
@@ -42,6 +42,8 @@ export async function POST(req) {
                 slug,
                 logo: logo || "",
                 active: active !== undefined ? Boolean(active) : true,
+                seoTitle: seoTitle || "",
+                seoDescription: seoDescription || "",
             },
         })
 
@@ -72,6 +74,8 @@ export async function PATCH(req) {
         }
         if (body.logo !== undefined) data.logo = body.logo
         if (body.active !== undefined) data.active = Boolean(body.active)
+        if (body.seoTitle !== undefined) data.seoTitle = body.seoTitle
+        if (body.seoDescription !== undefined) data.seoDescription = body.seoDescription
 
         const brand = await prisma.brand.update({ where: { id }, data })
 

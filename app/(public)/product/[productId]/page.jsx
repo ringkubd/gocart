@@ -45,26 +45,27 @@ export async function generateMetadata({ params }) {
         }
     }
 
-    const title = product.nameBn ? `${product.name} (${product.nameBn})` : product.name
-    const description = (product.description || "").slice(0, 155) || seo.description
+    const title = product.seoTitle || product.name
+    const description = product.seoDescription || (product.description || "").slice(0, 155) || seo.description
     const ogImage = product.thumbnails?.[0] || product.images?.[0] || seo.ogImage
     const url = `https://thedhakashop.com/product/${productId}`
+    const ogTitle = product.nameBn ? `${product.name} (${product.nameBn})` : title
 
     return {
-        title: product.name,
+        title,
         description,
-        keywords: [product.category, product.brand?.name, product.name].filter(Boolean).join(", ") || seo.keywords,
+        keywords: product.seoKeywords || [product.category, product.brand?.name, product.name].filter(Boolean).join(", ") || seo.keywords,
         alternates: { canonical: url },
         openGraph: {
             type: "website",
-            title,
+            title: ogTitle,
             description,
             url,
             images: ogImage ? [{ url: ogImage }] : undefined,
         },
         twitter: {
             card: "summary_large_image",
-            title,
+            title: ogTitle,
             description,
             images: ogImage ? [ogImage] : undefined,
         },

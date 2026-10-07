@@ -17,7 +17,7 @@ export default function AdminSiteDesign() {
 
     // Categories
     const [categories, setCategories] = useState([])
-    const [catForm, setCatForm] = useState({ id: '', name: '', nameBn: '', image: '', active: true, sortOrder: 0 })
+    const [catForm, setCatForm] = useState({ id: '', name: '', nameBn: '', image: '', active: true, sortOrder: 0, seoTitle: '', seoDescription: '' })
 
     // Promo strip + settings
     const [settings, setSettings] = useState({})
@@ -103,7 +103,7 @@ export default function AdminSiteDesign() {
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Failed')
             toast.success(catForm.id ? 'Category updated' : 'Category added')
-            setCatForm({ id: '', name: '', nameBn: '', image: '', active: true, sortOrder: 0 })
+            setCatForm({ id: '', name: '', nameBn: '', image: '', active: true, sortOrder: 0, seoTitle: '', seoDescription: '' })
             fetchData()
         } catch (error) {
             toast.error(error.message || 'Failed')
@@ -572,6 +572,14 @@ export default function AdminSiteDesign() {
                                 <input value={catForm.nameBn || ''} onChange={(e) => setCatForm({ ...catForm, nameBn: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" placeholder="ক্যাটাগরির নাম" />
                             </label>
                             <label className="flex flex-col gap-1 col-span-2">
+                                <span className="text-xs text-slate-400">SEO Title (optional)</span>
+                                <input value={catForm.seoTitle || ''} onChange={(e) => setCatForm({ ...catForm, seoTitle: e.target.value })} className="border border-slate-200 rounded p-2 text-sm" placeholder="Defaults to category name" />
+                            </label>
+                            <label className="flex flex-col gap-1 col-span-2">
+                                <span className="text-xs text-slate-400">SEO Description (optional)</span>
+                                <textarea value={catForm.seoDescription || ''} onChange={(e) => setCatForm({ ...catForm, seoDescription: e.target.value })} rows={2} className="border border-slate-200 rounded p-2 text-sm resize-none" placeholder="Shown in Google search results" />
+                            </label>
+                            <label className="flex flex-col gap-1 col-span-2">
                                 <span className="text-xs text-slate-400">Category Image</span>
                                 <div className="flex items-center gap-3">
                                     {catForm.image && <Image src={catForm.image} width={48} height={48} className="rounded object-cover h-12 w-12" alt="" />}
@@ -590,7 +598,7 @@ export default function AdminSiteDesign() {
                                 {cat.image && <Image src={cat.image} width={48} height={48} className="rounded object-cover h-12 w-12" alt="" />}
                                 <div className="flex-1">
                                     <p className="font-medium text-slate-700">{cat.name}</p>
-                                    <p className="text-xs text-slate-400">/shop?category={cat.slug}</p>
+                                    <p className="text-xs text-slate-400">/category/{cat.slug}</p>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" className="sr-only peer" onChange={() => toggleCategory(cat)} checked={cat.active} />
