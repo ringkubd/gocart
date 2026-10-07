@@ -33,6 +33,16 @@ export async function GET() {
 
     let rules = `User-agent: *\n${allowSite}\n`
 
+    // Private / utility routes — never index (only when site is indexable)
+    if (allowSite === "Allow: /") {
+        const disallow = [
+            "/admin/", "/store/", "/dashboard/",
+            "/cart", "/orders/", "/order-confirmation",
+            "/login", "/register", "/api/",
+        ]
+        disallow.forEach(path => { rules += `Disallow: ${path}\n` })
+    }
+
     // AI crawler rules (default allow, can be set to disallow from admin)
     for (const [key, info] of Object.entries(AI_CRAWLERS)) {
         const setting = aiSettings[key] ?? info.default

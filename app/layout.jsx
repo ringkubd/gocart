@@ -38,7 +38,6 @@ export async function generateMetadata() {
         description: seo.description,
         keywords: seo.keywords,
         metadataBase: new URL("https://thedhakashop.com"),
-        alternates: { canonical: "/" },
         icons: {
             icon: favicon,
             shortcut: favicon,
@@ -49,7 +48,6 @@ export async function generateMetadata() {
             siteName: seo.siteName,
             title: seo.title,
             description: seo.description,
-            url: "https://thedhakashop.com",
             images: [{ url: siteLogo || seo.ogImage }],
         },
         twitter: {

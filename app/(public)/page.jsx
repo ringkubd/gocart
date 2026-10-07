@@ -7,6 +7,7 @@ export async function generateMetadata() {
         title: seo.title,
         description: seo.description,
         keywords: seo.keywords,
+        alternates: { canonical: "https://thedhakashop.com" },
         openGraph: {
             title: seo.title,
             description: seo.description,
