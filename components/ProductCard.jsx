@@ -9,6 +9,7 @@ import { addToCart } from '@/lib/features/cart/cartSlice'
 import toast from 'react-hot-toast'
 import { useLanguage } from './LanguageProvider'
 import { useLocalized } from './useLocalized'
+import { trackAddToCart } from '@/lib/analytics'
 
 const ProductCard = ({ product }) => {
 
@@ -27,14 +28,7 @@ const ProductCard = ({ product }) => {
         e.stopPropagation()
         dispatch(addToCart({ productId: product.id }))
         toast.success(t('addedToCart'))
-        if (typeof window !== 'undefined' && window.fbq) {
-            window.fbq('track', 'AddToCart', {
-                content_ids: [product.id],
-                content_type: 'product',
-                value: product.price,
-                currency: 'USD',
-            })
-        }
+        trackAddToCart(product, 1)
     }
 
     return (

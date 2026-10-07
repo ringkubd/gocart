@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
 import Link from "next/link"
@@ -8,6 +8,7 @@ import { CheckCircleIcon, PackageIcon } from "lucide-react"
 import Loading from "@/components/Loading"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
+import { trackPurchase } from "@/lib/analytics"
 
 function ConfirmationContent() {
     const searchParams = useSearchParams()
@@ -17,6 +18,7 @@ function ConfirmationContent() {
     const { format } = useCurrency()
     const { t } = useLanguage()
 
+    const trackedRef = useRef(false)
     const [order, setOrder] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
@@ -33,6 +35,7 @@ function ConfirmationContent() {
                 const data = await res.json()
                 if (!res.ok) throw new Error(data.error || "Order not found")
                 setOrder(data.order)
+                if (!trackedRef.current) { trackedRef.current = true; trackPurchase(data.order) }
             } catch (err) {
                 setError(err.message || "Order not found")
             } finally {

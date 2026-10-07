@@ -12,6 +12,7 @@ import { useCurrency } from "./useCurrency";
 import useStorefrontData from "./useStorefrontData";
 import { useLanguage } from "./LanguageProvider";
 import { useLocalized } from "./useLocalized";
+import { trackViewItem, trackAddToCart } from "@/lib/analytics";
 
 const ProductDetails = ({ product }) => {
 
@@ -34,6 +35,7 @@ const ProductDetails = ({ product }) => {
     useEffect(() => {
         setSelectedAttributes({})
         setMainImage(product.images?.[0])
+        trackViewItem(product)
     }, [product.id])
 
     const hasVariants = product.hasVariants && product.variants?.length > 0
@@ -112,14 +114,7 @@ const ProductDetails = ({ product }) => {
 
     const addToCartHandler = () => {
         dispatch(addToCart({ productId: product.id, variantId }))
-        if (typeof window !== 'undefined' && window.fbq) {
-            window.fbq('track', 'AddToCart', {
-                content_ids: [product.id],
-                content_type: 'product',
-                value: displayPrice,
-                currency: 'USD',
-            })
-        }
+        trackAddToCart({ ...product, price: displayPrice }, 1)
     }
 
     const shareOnFacebook = () => {

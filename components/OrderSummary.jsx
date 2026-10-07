@@ -9,6 +9,7 @@ import useStorefrontData from './useStorefrontData';
 import { useCurrency } from './useCurrency';
 import { useLanguage } from './LanguageProvider';
 import Link from 'next/link';
+import { trackBeginCheckout } from '@/lib/analytics';
 
 const OrderSummary = ({ totalPrice, items }) => {
 
@@ -113,9 +114,7 @@ const OrderSummary = ({ totalPrice, items }) => {
         if (placing) return
         setPlacing(true)
 
-        if (typeof window !== 'undefined' && window.fbq) {
-            window.fbq('track', 'InitiateCheckout', { value: finalTotal, currency: 'USD', num_items: items.length })
-        }
+        trackBeginCheckout(items, finalTotal)
 
         try {
             const res = await fetch('/api/orders', {
