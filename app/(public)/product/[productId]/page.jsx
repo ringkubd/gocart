@@ -1,79 +1,100 @@
+import { cache } from "react"
 import { getSeoByPage } from "@/lib/seo"
 import { prisma } from "@/lib/prisma"
 import { ProductSchema, BreadcrumbSchema } from "@/lib/jsonld"
 import JsonLd from "@/components/JsonLd"
 import ProductClient from "./ProductClient"
 
-export async function generateMetadata({ params }) {
-    const { productId } = await params
+export const revalidate = 300
 
-    const seo = await getSeoByPage("product")
-
-    let title = seo.title
-    let description = seo.description
-    let ogImage = seo.ogImage
-    let product = null
-
+// Deduped server-side product fetch (used by metadata + page + schema)
+const getProduct = cache(async (productId) => {
     try {
-        product = await prisma.product.findUnique({
+        const p = await prisma.product.findUnique({
             where: { id: productId },
-            include: { brand: true },
+            include: {
+                brand: true,
+                store: true,
+                variants: true,
+                rating: { include: { user: true } },
+            },
         })
-        if (product) {
-            title = `${product.name}`
-            description = product.description?.slice(0, 155) || seo.description
-            ogImage = product.images?.[0] || seo.ogImage
+        if (!p) return null
+        return {
+            ...p,
+            images: Array.isArray(p.images) ? p.images : [],
+            thumbnails: Array.isArray(p.thumbnails) ? p.thumbnails : [],
+            options: Array.isArray(p.options) ? p.options : [],
+            variants: p.variants || [],
+            rating: p.rating || [],
         }
     } catch (error) {
-        // fall back to default seo
+        return null
+    }
+})
+
+export async function generateMetadata({ params }) {
+    const { productId } = await params
+    const seo = await getSeoByPage("product")
+    const product = await getProduct(productId)
+
+    if (!product) {
+        return {
+            title: "Product not found",
+            robots: { index: false, follow: false },
+        }
     }
 
+    const title = product.nameBn ? `${product.name} (${product.nameBn})` : product.name
+    const description = (product.description || "").slice(0, 155) || seo.description
+    const ogImage = product.thumbnails?.[0] || product.images?.[0] || seo.ogImage
+    const url = `https://thedhakashop.com/product/${productId}`
+
     return {
-        title,
+        title: product.name,
         description,
-        keywords: seo.keywords,
-        alternates: { canonical: `https://thedhakashop.com/product/${productId}` },
+        keywords: [product.category, product.brand?.name, product.name].filter(Boolean).join(", ") || seo.keywords,
+        alternates: { canonical: url },
         openGraph: {
+            type: "website",
             title,
             description,
-            url: `https://thedhakashop.com/product/${productId}`,
+            url,
             images: ogImage ? [{ url: ogImage }] : undefined,
         },
-        robots: {
-            index: seo.robots?.includes("index"),
-            follow: seo.robots?.includes("follow"),
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: ogImage ? [ogImage] : undefined,
         },
+        robots: product.inStock || product.variants?.some(v => v.inStock)
+            ? { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } }
+            : { index: true, follow: true },
     }
 }
 
 export default async function ProductPage({ params }) {
     const { productId } = await params
+    const product = await getProduct(productId)
 
     let schemas = []
-    try {
-        const product = await prisma.product.findUnique({
-            where: { id: productId },
-            include: { brand: true, rating: { include: { user: true } } },
-        })
-        if (product) {
-            schemas.push(ProductSchema({ product }))
-            schemas.push(BreadcrumbSchema({
-                items: [
-                    { name: "Home", path: "/" },
-                    { name: "Shop", path: "/shop" },
-                    { name: product.category || "Products", path: `/shop?category=${encodeURIComponent(product.category || '')}` },
-                    { name: product.name, path: `/product/${product.id}` },
-                ],
-            }))
-        }
-    } catch (error) {
-        // ignore, render without structured data
+    if (product) {
+        schemas.push(ProductSchema({ product }))
+        schemas.push(BreadcrumbSchema({
+            items: [
+                { name: "Home", path: "/" },
+                { name: "Shop", path: "/shop" },
+                ...(product.category ? [{ name: product.category, path: `/shop?category=${encodeURIComponent(product.category)}` }] : []),
+                { name: product.name, path: `/product/${product.id}` },
+            ],
+        }))
     }
 
     return (
         <>
             {schemas.length > 0 && <JsonLd data={schemas} />}
-            <ProductClient />
+            <ProductClient initialProduct={product} />
         </>
     )
 }

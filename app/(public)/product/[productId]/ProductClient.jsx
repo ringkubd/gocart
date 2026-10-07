@@ -4,17 +4,22 @@ import ProductDetails from "@/components/ProductDetails";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import Loading from "@/components/Loading";
 
-export default function ProductClient() {
+export default function ProductClient({ initialProduct }) {
 
     const { productId } = useParams();
-    const [product, setProduct] = useState(undefined);
-    const [loading, setLoading] = useState(true);
+    const [product, setProduct] = useState(initialProduct || undefined);
+    const [loading, setLoading] = useState(!initialProduct);
     const products = useSelector(state => state.product.list);
 
     const fetchProduct = async () => {
-        // Try Redux first (already loaded)
+        // Prefer server-provided data for the matching id
+        if (initialProduct && initialProduct.id === productId) {
+            setProduct(initialProduct);
+            setLoading(false);
+            return;
+        }
+        // Try Redux (already loaded)
         const cached = products.find((product) => product.id === productId);
         if (cached) {
             setProduct(cached);
@@ -36,30 +41,33 @@ export default function ProductClient() {
     }
 
     useEffect(() => {
-        setLoading(true)
-        setProduct(undefined)
-        fetchProduct()
+        if (initialProduct && initialProduct.id === productId) {
+            setProduct(initialProduct)
+            setLoading(false)
+        } else {
+            setLoading(true)
+            setProduct(undefined)
+            fetchProduct()
+        }
         scrollTo(0, 0)
-    }, [productId, products]);
-
-    if (loading) return <Loading />
+    }, [productId, initialProduct]);
 
     return (
         <div className="mx-6">
             <div className="max-w-7xl mx-auto">
 
-                {/* Breadcrums */}
-                <div className="  text-gray-600 text-sm mt-8 mb-5">
-                    Home / Products / {product?.category}
-                </div>
+                {/* Breadcrumbs */}
+                <nav aria-label="Breadcrumb" className="text-gray-600 text-sm mt-8 mb-5">
+                    <a href="/" className="hover:underline">Home</a> / <a href="/shop" className="hover:underline">Products</a> / {product?.category}
+                </nav>
 
                 {/* Product Details */}
                 {product ? (<>
                     <ProductDetails product={product} />
                     <ProductDescription product={product} />
-                </>) : (
+                </>) : (!loading && (
                     <div className="text-slate-400 py-20 text-center">Product not found.</div>
-                )}
+                ))}
             </div>
         </div>
     );
