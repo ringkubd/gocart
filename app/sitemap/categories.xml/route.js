@@ -10,7 +10,7 @@ export async function GET() {
         const categories = await prisma.category.findMany({ where: { active: true } })
         categories.forEach(c => {
             urls.push({
-                url: `${BASE}/shop?category=${c.slug}`,
+                url: `${BASE}/category/${c.slug}`,
                 lastmod: new Date(),
                 priority: 0.7,
                 changefreq: "weekly",
@@ -25,7 +25,7 @@ export async function GET() {
         const brands = await prisma.brand.findMany({ where: { active: true } })
         brands.forEach(b => {
             urls.push({
-                url: `${BASE}/shop?brand=${b.slug}`,
+                url: `${BASE}/brand/${b.slug}`,
                 lastmod: new Date(),
                 priority: 0.7,
                 changefreq: "weekly",

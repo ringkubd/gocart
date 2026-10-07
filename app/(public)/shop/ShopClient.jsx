@@ -42,11 +42,11 @@ function ShopContent({ products, categories, brands, category, brand, search, ac
                 {/* Category chips */}
                 {categories.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
-                        <Link href={brand ? `/shop?brand=${brand}` : '/shop'} className={`px-4 py-1.5 rounded-full text-sm border ${!category ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>All</Link>
+                        <Link href={brand ? `/brand/${brand}` : '/shop'} className={`px-4 py-1.5 rounded-full text-sm border ${!category ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>All</Link>
                         {categories.map((cat) => {
                             const active = category === cat.slug || category === cat.name
                             return (
-                                <Link key={cat.id} href={`/shop?category=${cat.slug}${brand ? `&brand=${brand}` : ''}`} className={`px-4 py-1.5 rounded-full text-sm border ${active ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+                                <Link key={cat.id} href={`/category/${cat.slug}${brand ? `?brand=${brand}` : ''}`} className={`px-4 py-1.5 rounded-full text-sm border ${active ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
                                     {text(cat.name, cat.nameBn)}
                                 </Link>
                             )
@@ -57,11 +57,11 @@ function ShopContent({ products, categories, brands, category, brand, search, ac
                 {/* Brand chips */}
                 {brands.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
-                        <Link href={category ? `/shop?category=${category}` : '/shop'} className={`px-4 py-1.5 rounded-full text-sm border ${!brand ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>All Brands</Link>
+                        <Link href={category ? `/category/${category}` : '/shop'} className={`px-4 py-1.5 rounded-full text-sm border ${!brand ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>All Brands</Link>
                         {brands.map((b) => {
                             const active = brand === b.slug || brand === b.name
                             return (
-                                <Link key={b.id} href={`/shop?brand=${b.slug}${category ? `&category=${category}` : ''}`} className={`px-4 py-1.5 rounded-full text-sm border ${active ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+                                <Link key={b.id} href={`/brand/${b.slug}${category ? `?category=${category}` : ''}`} className={`px-4 py-1.5 rounded-full text-sm border ${active ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
                                     {b.name}
                                 </Link>
                             )
