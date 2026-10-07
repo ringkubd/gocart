@@ -89,7 +89,7 @@ export default async function RootLayout({ children }) {
     }
 
     const seo = await getGlobalSeo()
-    const orgSchema = OrganizationSchema({ name: seo.siteName })
+    const orgSchema = OrganizationSchema({ name: seo.siteName, logo: seo.logo, contact: seo.contact, social: seo.social })
     const siteSchema = WebSiteSchema({ siteName: seo.siteName })
 
     const pixelScript = pixelId
