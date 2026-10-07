@@ -120,6 +120,17 @@ export default async function RootLayout({ children }) {
                 )}
             </head>
             <body className={`${outfit.className} antialiased`}>
+                {gtmMeasurementId && (
+                    <noscript>
+                        <iframe
+                            src={`https://www.googletagmanager.com/ns.html?id=${gtmMeasurementId}`}
+                            height="0"
+                            width="0"
+                            style={{ display: "none", visibility: "hidden" }}
+                            title="Google Tag Manager"
+                        />
+                    </noscript>
+                )}
                 <JsonLd data={[orgSchema, siteSchema]} />
                 <LanguageProvider initialLang={locale}>
                 <SessionWrapper>
