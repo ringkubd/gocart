@@ -40,11 +40,9 @@ export async function GET() {
     <title>${escapeXml(p.name)}</title>
     <description>${escapeXml((p.description || "").slice(0, 5000))}</description>
     <link>${BASE}/product/${p.id}</link>
-    <g:image_link>${absoluteImage}</g:image_link>
-${extraImages}
+    <g:image_link>${absoluteImage}</g:image_link>${extraImages ? "\n" + extraImages : ""}
     <g:availability>${p.inStock ? "in stock" : "out of stock"}</g:availability>
-    <g:price>${(hasSale ? mrp : price).toFixed(2)} ${CURRENCY}</g:price>
-    ${hasSale ? `<g:sale_price>${price.toFixed(2)} ${CURRENCY}</g:sale_price>` : ""}
+    <g:price>${(hasSale ? mrp : price).toFixed(2)} ${CURRENCY}</g:price>${hasSale ? `\n    <g:sale_price>${price.toFixed(2)} ${CURRENCY}</g:sale_price>` : ""}
     <g:condition>new</g:condition>
     <g:brand>${escapeXml(brandName)}</g:brand>
     <g:google_product_category>${escapeXml(p.category || "Electronics")}</g:google_product_category>
@@ -55,8 +53,7 @@ ${extraImages}
       <g:country>${COUNTRY}</g:country>
       <g:service>Standard</g:service>
       <g:price>${freeDelivery ? "0.00" : shippingCost.toFixed(2)} ${CURRENCY}</g:price>
-    </g:shipping>
-    ${avgRating ? `<g:product_rating_average>${avgRating}</g:product_rating_average>\n    <g:product_rating_count>${p.rating.length}</g:product_rating_count>` : ""}
+    </g:shipping>${avgRating ? `\n    <g:product_rating_average>${avgRating}</g:product_rating_average>\n    <g:product_rating_count>${p.rating.length}</g:product_rating_count>` : ""}
   </item>`
     }).join("\n")
 
