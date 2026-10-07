@@ -1,95 +1,110 @@
-'use client'
-import { Suspense } from "react"
-import ProductCard from "@/components/ProductCard"
-import { MoveLeftIcon } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useSelector } from "react-redux"
-import useStorefrontData from "@/components/useStorefrontData"
-import { useLocalized } from "@/components/useLocalized"
+import { prisma } from "@/lib/prisma"
+import ShopClient from "./ShopClient"
 
- function ShopContent() {
+export const revalidate = 300
 
-    // get query params ?search=abc
-    const searchParams = useSearchParams()
-    const search = searchParams.get('search')
-    const category = searchParams.get('category')
-    const brand = searchParams.get('brand')
-    const router = useRouter()
+const SITE = "https://thedhakashop.com"
 
-    const products = useSelector(state => state.product.list)
-    const { categories, brands } = useStorefrontData()
-    const { text } = useLocalized()
+async function resolveFilters(searchParams) {
+    const category = searchParams.category || ""
+    const brand = searchParams.brand || ""
+    const search = searchParams.search || ""
 
-    const filteredProducts = products.filter(product => {
-        const matchesSearch = search
-            ? product.name.toLowerCase().includes(search.toLowerCase())
-            : true
-        const matchesCategory = category
-            ? product.category.toLowerCase() === category.toLowerCase()
-            : true
-        const matchesBrand = brand
-            ? (product.brand?.slug === brand || product.brand?.name?.toLowerCase() === brand.toLowerCase())
-            : true
-        return matchesSearch && matchesCategory && matchesBrand
-    })
+    const [categories, brands] = await Promise.all([
+        prisma.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }).catch(() => []),
+        prisma.brand.findMany({ where: { active: true }, orderBy: { name: "asc" } }).catch(() => []),
+    ])
 
     const activeCat = category
         ? categories.find(c => c.slug === category || c.name.toLowerCase() === category.toLowerCase())
         : null
-
     const activeBrand = brand
         ? brands.find(b => b.slug === brand || b.name.toLowerCase() === brand.toLowerCase())
         : null
 
-    return (
-        <div className="min-h-[70vh] mx-6">
-            <div className=" max-w-7xl mx-auto">
-                <h1 onClick={() => router.push('/shop')} className="text-2xl text-slate-500 my-6 flex items-center gap-2 cursor-pointer">
-                    {(search || category || brand) && <MoveLeftIcon size={20} />}
-                    {activeBrand ? activeBrand.name : (activeCat ? activeCat.name : 'All')} <span className="text-slate-700 font-medium">Products</span>
-                </h1>
-
-                {/* Category chips */}
-                {categories.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-6">
-                        <button onClick={() => router.push(brand ? `/shop?brand=${brand}` : '/shop')} className={`px-4 py-1.5 rounded-full text-sm border ${!category ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>All</button>
-                        {categories.map((cat) => (
-                            <button key={cat.id} onClick={() => router.push(`/shop?category=${cat.slug}${brand ? `&brand=${brand}` : ''}`)} className={`px-4 py-1.5 rounded-full text-sm border ${category === cat.slug || category === cat.name ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
-                                {text(cat.name, cat.nameBn)}
-                            </button>
-                        ))}
-                    </div>
-                )}
-
-                {/* Brand chips */}
-                {brands.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-6">
-                        <button onClick={() => router.push(category ? `/shop?category=${category}` : '/shop')} className={`px-4 py-1.5 rounded-full text-sm border ${!brand ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>All Brands</button>
-                        {brands.map((b) => (
-                            <button key={b.id} onClick={() => router.push(`/shop?brand=${b.slug}${category ? `&category=${category}` : ''}`)} className={`px-4 py-1.5 rounded-full text-sm border ${brand === b.slug || brand === b.name ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
-                                {b.name}
-                            </button>
-                        ))}
-                    </div>
-                )}
-
-                {filteredProducts.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 mb-32">
-                        {filteredProducts.map((product) => <ProductCard key={product.id} product={product} />)}
-                    </div>
-                ) : (
-                    <div className="text-slate-400 py-20 text-center">No products found.</div>
-                )}
-            </div>
-        </div>
-    )
+    return { category, brand, search, categories, brands, activeCat, activeBrand }
 }
 
+export async function generateMetadata({ searchParams }) {
+    const sp = await searchParams
+    const { category, brand, search, activeCat, activeBrand } = await resolveFilters(sp)
 
-export default function Shop() {
-  return (
-    <Suspense fallback={<div>Loading shop...</div>}>
-      <ShopContent />
-    </Suspense>
-  );
+    if (search) {
+        return {
+            title: `Search: ${search}`,
+            description: `Search results for "${search}" at TheDhakaShop.`,
+            robots: { index: false, follow: true },
+        }
+    }
+
+    if (activeCat) {
+        const title = `${activeCat.name} — Buy Online`
+        return {
+            title,
+            description: `Shop ${activeCat.name} at the best prices in Bangladesh. Genuine products, fast delivery, cash on delivery available.`,
+            alternates: { canonical: `${SITE}/shop?category=${activeCat.slug}` },
+            openGraph: { title: `${title} | TheDhakaShop`, url: `${SITE}/shop?category=${activeCat.slug}` },
+        }
+    }
+
+    if (activeBrand) {
+        const title = `${activeBrand.name} Products`
+        return {
+            title,
+            description: `Shop ${activeBrand.name} products online in Bangladesh at TheDhakaShop. Fast delivery and cash on delivery.`,
+            alternates: { canonical: `${SITE}/shop?brand=${activeBrand.slug}` },
+            openGraph: { title: `${title} | TheDhakaShop`, url: `${SITE}/shop?brand=${activeBrand.slug}` },
+        }
+    }
+
+    return {
+        title: "Shop All Products",
+        description: "Browse all products on TheDhakaShop — electronics, lifestyle and everyday essentials at unbeatable prices in Bangladesh.",
+        alternates: { canonical: `${SITE}/shop` },
+        openGraph: { title: "Shop All Products | TheDhakaShop", url: `${SITE}/shop` },
+    }
+}
+
+export default async function ShopPage({ searchParams }) {
+    const sp = await searchParams
+    const { category, brand, search, categories, brands, activeCat, activeBrand } = await resolveFilters(sp)
+
+    const where = { store: { isActive: true } }
+    if (activeCat) where.category = activeCat.name
+    else if (category) where.category = category
+    if (activeBrand) where.brand = { OR: [{ slug: activeBrand.slug }, { name: activeBrand.name }] }
+    else if (brand) where.brand = { OR: [{ slug: brand }, { name: brand }] }
+    if (search) where.name = { contains: search }
+
+    let products = []
+    try {
+        const raw = await prisma.product.findMany({
+            where,
+            include: { store: true, brand: true, rating: true, variants: true },
+            orderBy: { createdAt: "desc" },
+        })
+        products = raw.map(p => ({
+            ...p,
+            images: Array.isArray(p.images) ? p.images : [],
+            thumbnails: Array.isArray(p.thumbnails) ? p.thumbnails : [],
+            options: Array.isArray(p.options) ? p.options : [],
+            variants: p.variants || [],
+            rating: p.rating || [],
+        }))
+    } catch (error) {
+        products = []
+    }
+
+    return (
+        <ShopClient
+            products={products}
+            categories={categories}
+            brands={brands}
+            category={category}
+            brand={brand}
+            search={search}
+            activeCat={activeCat}
+            activeBrand={activeBrand}
+        />
+    )
 }
