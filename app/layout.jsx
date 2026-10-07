@@ -5,6 +5,7 @@ import SessionWrapper from "@/components/SessionWrapper";
 import ProductsLoader from "@/components/ProductsLoader";
 import CurrencyProvider from "@/components/CurrencyProvider";
 import { getGlobalSeo } from "@/lib/seo";
+import { getLocale } from "@/lib/locale";
 import { OrganizationSchema, WebSiteSchema } from "@/lib/jsonld";
 import JsonLd from "@/components/JsonLd";
 import { LanguageProvider } from "@/components/LanguageProvider";
@@ -89,6 +90,7 @@ export default async function RootLayout({ children }) {
     }
 
     const seo = await getGlobalSeo()
+    const locale = await getLocale()
     const orgSchema = OrganizationSchema({ name: seo.siteName, logo: seo.logo, contact: seo.contact, social: seo.social })
     const siteSchema = WebSiteSchema({ siteName: seo.siteName })
 
@@ -119,7 +121,7 @@ export default async function RootLayout({ children }) {
             </head>
             <body className={`${outfit.className} antialiased`}>
                 <JsonLd data={[orgSchema, siteSchema]} />
-                <LanguageProvider>
+                <LanguageProvider initialLang={locale}>
                 <SessionWrapper>
                     <StoreProvider>
                         <ProductsLoader />

@@ -20,10 +20,10 @@ function getKey(scope) {
     return `gocart_lang_${scope}`
 }
 
-export function LanguageProvider({ children }) {
+export function LanguageProvider({ children, initialLang = "en" }) {
     const pathname = usePathname()
     const router = useRouter()
-    const [lang, setLang] = useState("en")
+    const [lang, setLang] = useState(initialLang === "bn" ? "bn" : "en")
     const [scope, setScope] = useState("public")
 
     // When the area (scope) changes, load that area's saved language.
