@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { getLocale, buildAlternates } from "@/lib/locale"
 import ShopClient from "./ShopClient"
 
 export const revalidate = 300
@@ -28,6 +29,7 @@ async function resolveFilters(searchParams) {
 export async function generateMetadata({ searchParams }) {
     const sp = await searchParams
     const { category, brand, search, activeCat, activeBrand } = await resolveFilters(sp)
+    const locale = await getLocale()
 
     if (search) {
         return {
@@ -38,30 +40,34 @@ export async function generateMetadata({ searchParams }) {
     }
 
     if (activeCat) {
-        const title = `${activeCat.name} — Buy Online`
+        const name = locale === "bn" ? (activeCat.nameBn || activeCat.name) : activeCat.name
+        const title = activeCat.seoTitle || (locale === "bn" ? `${name} — কিনুন` : `${name} — Buy Online`)
         return {
             title,
-            description: `Shop ${activeCat.name} at the best prices in Bangladesh. Genuine products, fast delivery, cash on delivery available.`,
-            alternates: { canonical: `${SITE}/shop?category=${activeCat.slug}` },
-            openGraph: { title: `${title} | TheDhakaShop`, url: `${SITE}/shop?category=${activeCat.slug}` },
+            description: activeCat.seoDescription || (locale === "bn"
+                ? `${name} — TheDhakaShop থেকে সেরা দামে কিনুন। দ্রুত ডেলিভারি।`
+                : `Shop ${name} at the best prices in Bangladesh. Fast delivery, cash on delivery available.`),
+            alternates: buildAlternates(`/category/${activeCat.slug}`, locale),
         }
     }
 
     if (activeBrand) {
-        const title = `${activeBrand.name} Products`
+        const title = activeBrand.seoTitle || (locale === "bn" ? `${activeBrand.name} পণ্য` : `${activeBrand.name} Products`)
         return {
             title,
-            description: `Shop ${activeBrand.name} products online in Bangladesh at TheDhakaShop. Fast delivery and cash on delivery.`,
-            alternates: { canonical: `${SITE}/shop?brand=${activeBrand.slug}` },
-            openGraph: { title: `${title} | TheDhakaShop`, url: `${SITE}/shop?brand=${activeBrand.slug}` },
+            description: activeBrand.seoDescription || (locale === "bn"
+                ? `${activeBrand.name} পণ্য — TheDhakaShop এ কিনুন।`
+                : `Shop ${activeBrand.name} products online in Bangladesh at TheDhakaShop.`),
+            alternates: buildAlternates(`/brand/${activeBrand.slug}`, locale),
         }
     }
 
     return {
-        title: "Shop All Products",
-        description: "Browse all products on TheDhakaShop — electronics, lifestyle and everyday essentials at unbeatable prices in Bangladesh.",
-        alternates: { canonical: `${SITE}/shop` },
-        openGraph: { title: "Shop All Products | TheDhakaShop", url: `${SITE}/shop` },
+        title: locale === "bn" ? "সব পণ্য" : "Shop All Products",
+        description: locale === "bn"
+            ? "TheDhakaShop-এ সব পণ্য দেখুন — ইলেকট্রনিকস, লাইফস্টাইল ও দৈনন্দিন প্রয়োজনীয় সামগ্রী সেরা দামে।"
+            : "Browse all products on TheDhakaShop — electronics, lifestyle and everyday essentials at unbeatable prices in Bangladesh.",
+        alternates: buildAlternates("/shop", locale),
     }
 }
 

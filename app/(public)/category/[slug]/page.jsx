@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { cache } from "react"
 import { prisma } from "@/lib/prisma"
+import { getLocale, buildAlternates, pick } from "@/lib/locale"
 import ProductCard from "@/components/ProductCard"
 import JsonLd from "@/components/JsonLd"
 import { BreadcrumbSchema } from "@/lib/jsonld"
@@ -41,18 +42,26 @@ const getProducts = cache(async (categoryName) => {
 export async function generateMetadata({ params }) {
     const { slug } = await params
     const category = await getCategory(slug)
+    const locale = await getLocale()
     if (!category) return { title: "Category not found", robots: { index: false, follow: false } }
 
-    const title = category.seoTitle || `${category.name} — Buy Online`
-    const description = category.seoDescription ||
-        `Shop ${category.name} online in Bangladesh at TheDhakaShop. Genuine products at the best prices, fast delivery and cash on delivery.`
+    const displayName = pick(locale, category.nameBn, category.name)
+    const title = category.seoTitle || (locale === "bn" ? `${displayName} — কিনুন` : `${displayName} — Buy Online`)
+    const description = category.seoDescription || (locale === "bn"
+        ? `${displayName} — TheDhakaShop থেকে সেরা দামে কিনুন। সারা বাংলাদেশে দ্রুত ডেলিভারি ও ক্যাশ অন ডেলিভারি।`
+        : `Shop ${displayName} online in Bangladesh at TheDhakaShop. Genuine products at the best prices, fast delivery and cash on delivery.`)
     const url = `${SITE}/category/${category.slug}`
 
     return {
         title,
         description,
-        alternates: { canonical: url },
-        openGraph: { title: `${title} | TheDhakaShop`, description, url },
+        alternates: buildAlternates(`/category/${category.slug}`, locale),
+        openGraph: {
+            title: `${title} | TheDhakaShop`,
+            description,
+            url,
+            locale: locale === "bn" ? "bn_BD" : "en_US",
+        },
     }
 }
 
@@ -61,6 +70,8 @@ export default async function CategoryPage({ params }) {
     const category = await getCategory(slug)
     if (!category) notFound()
 
+    const locale = await getLocale()
+    const displayName = pick(locale, category.nameBn, category.name)
     const products = await getProducts(category.name)
 
     const itemList = {
@@ -82,17 +93,16 @@ export default async function CategoryPage({ params }) {
                 BreadcrumbSchema({ items: [
                     { name: "Home", path: "/" },
                     { name: "Shop", path: "/shop" },
-                    { name: category.name, path: `/category/${category.slug}` },
+                    { name: displayName, path: `/category/${category.slug}` },
                 ] }),
                 itemList,
             ]} />
             <div className="min-h-[70vh] mx-6">
                 <div className="max-w-7xl mx-auto">
                     <nav aria-label="Breadcrumb" className="text-gray-600 text-sm mt-8 mb-4">
-                        <Link href="/" className="hover:underline">Home</Link> / <Link href="/shop" className="hover:underline">Shop</Link> / <span className="text-slate-700">{category.name}</span>
+                        <Link href="/" className="hover:underline">Home</Link> / <Link href="/shop" className="hover:underline">Shop</Link> / <span className="text-slate-700">{displayName}</span>
                     </nav>
-                    <h1 className="text-2xl text-slate-500 mb-1">{category.name} <span className="text-slate-700 font-medium">Products</span></h1>
-                    {category.nameBn && <p className="text-slate-400 text-sm mb-4">{category.nameBn}</p>}
+                    <h1 className="text-2xl text-slate-500 mb-6">{displayName} <span className="text-slate-700 font-medium">Products</span></h1>
                     {products.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 mb-32 mt-6">
                             {products.map((product) => <ProductCard key={product.id} product={product} />)}

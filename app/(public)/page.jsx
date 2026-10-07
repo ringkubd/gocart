@@ -1,19 +1,22 @@
 import { getSeoByPage } from "@/lib/seo"
 import { prisma } from "@/lib/prisma"
+import { getLocale, buildAlternates } from "@/lib/locale"
 import HomeClient from "./HomeClient"
 
 export const revalidate = 300
 
 export async function generateMetadata() {
     const seo = await getSeoByPage("home")
+    const locale = await getLocale()
     return {
-        title: seo.title,
+        title: { absolute: seo.title },
         description: seo.description,
         keywords: seo.keywords,
-        alternates: { canonical: "https://thedhakashop.com" },
+        alternates: buildAlternates("/", locale),
         openGraph: {
             title: seo.title,
             description: seo.description,
+            locale: locale === "bn" ? "bn_BD" : "en_US",
             images: seo.ogImage ? [{ url: seo.ogImage }] : undefined,
         },
         robots: {

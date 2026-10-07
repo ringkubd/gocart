@@ -1,6 +1,7 @@
 import { cache } from "react"
 import { getSeoByPage } from "@/lib/seo"
 import { prisma } from "@/lib/prisma"
+import { getLocale, buildAlternates, pick } from "@/lib/locale"
 import { ProductSchema, BreadcrumbSchema } from "@/lib/jsonld"
 import JsonLd from "@/components/JsonLd"
 import ProductClient from "./ProductClient"
@@ -37,6 +38,7 @@ export async function generateMetadata({ params }) {
     const { productId } = await params
     const seo = await getSeoByPage("product")
     const product = await getProduct(productId)
+    const locale = await getLocale()
 
     if (!product) {
         return {
@@ -45,22 +47,26 @@ export async function generateMetadata({ params }) {
         }
     }
 
-    const title = product.seoTitle || product.name
-    const description = product.seoDescription || (product.description || "").slice(0, 155) || seo.description
+    const title = locale === "bn"
+        ? (product.nameBn || product.seoTitle || product.name)
+        : (product.seoTitle || product.name)
+    const description = locale === "bn"
+        ? ((product.descriptionBn || product.descriptionSeo || product.description || "").slice(0, 155) || seo.description)
+        : (product.seoDescription || (product.description || "").slice(0, 155) || seo.description)
     const ogImage = product.thumbnails?.[0] || product.images?.[0] || seo.ogImage
-    const url = `https://thedhakashop.com/product/${productId}`
     const ogTitle = product.nameBn ? `${product.name} (${product.nameBn})` : title
 
     return {
         title,
         description,
         keywords: product.seoKeywords || [product.category, product.brand?.name, product.name].filter(Boolean).join(", ") || seo.keywords,
-        alternates: { canonical: url },
+        alternates: buildAlternates(`/product/${productId}`, locale),
         openGraph: {
             type: "website",
             title: ogTitle,
             description,
-            url,
+            url: `https://thedhakashop.com/product/${productId}`,
+            locale: locale === "bn" ? "bn_BD" : "en_US",
             images: ogImage ? [{ url: ogImage }] : undefined,
         },
         twitter: {

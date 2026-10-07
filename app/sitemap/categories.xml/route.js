@@ -35,6 +35,12 @@ export async function GET() {
         console.error("sitemap brands error:", error)
     }
 
+    // Add Bangla (/bn) variants for hreflang discovery
+    const bnUrls = urls
+        .filter(u => u.url.startsWith(BASE))
+        .map(u => ({ ...u, url: u.url.replace(BASE, `${BASE}/bn`) }))
+    urls.push(...bnUrls)
+
     const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url>\n    <loc>${u.url}</loc>\n    <lastmod>${u.lastmod.toISOString()}</lastmod>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`).join("\n")}

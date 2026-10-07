@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { cache } from "react"
 import { prisma } from "@/lib/prisma"
+import { getLocale, buildAlternates } from "@/lib/locale"
 import ProductCard from "@/components/ProductCard"
 import JsonLd from "@/components/JsonLd"
 import { BreadcrumbSchema } from "@/lib/jsonld"
@@ -41,18 +42,25 @@ const getProducts = cache(async (brandId) => {
 export async function generateMetadata({ params }) {
     const { slug } = await params
     const brand = await getBrand(slug)
+    const locale = await getLocale()
     if (!brand) return { title: "Brand not found", robots: { index: false, follow: false } }
 
-    const title = brand.seoTitle || `${brand.name} Products`
-    const description = brand.seoDescription ||
-        `Shop ${brand.name} products online in Bangladesh at TheDhakaShop. Fast delivery and cash on delivery available.`
+    const title = brand.seoTitle || (locale === "bn" ? `${brand.name} পণ্য` : `${brand.name} Products`)
+    const description = brand.seoDescription || (locale === "bn"
+        ? `${brand.name} পণ্য — TheDhakaShop থেকে সেরা দামে কিনুন। দ্রুত ডেলিভারি ও ক্যাশ অন ডেলিভারি।`
+        : `Shop ${brand.name} products online in Bangladesh at TheDhakaShop. Fast delivery and cash on delivery available.`)
     const url = `${SITE}/brand/${brand.slug}`
 
     return {
         title,
         description,
-        alternates: { canonical: url },
-        openGraph: { title: `${title} | TheDhakaShop`, description, url },
+        alternates: buildAlternates(`/brand/${brand.slug}`, locale),
+        openGraph: {
+            title: `${title} | TheDhakaShop`,
+            description,
+            url,
+            locale: locale === "bn" ? "bn_BD" : "en_US",
+        },
     }
 }
 
