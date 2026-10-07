@@ -5,12 +5,12 @@ import Newsletter from "@/components/Newsletter";
 import OurSpecs from "@/components/OurSpec";
 import LatestProducts from "@/components/LatestProducts";
 
-export default function HomeClient() {
+export default function HomeClient({ initialProducts = [] }) {
     return (
         <div>
             <Hero />
-            <LatestProducts />
-            <BestSelling />
+            <LatestProducts initialProducts={initialProducts} />
+            <BestSelling initialProducts={initialProducts} />
             <OurSpecs />
             <Newsletter />
         </div>
