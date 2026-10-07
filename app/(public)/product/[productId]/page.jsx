@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { getLocale, buildAlternates, pick } from "@/lib/locale"
 import { ProductSchema, BreadcrumbSchema } from "@/lib/jsonld"
 import JsonLd from "@/components/JsonLd"
+import ProductCard from "@/components/ProductCard"
 import ProductClient from "./ProductClient"
 
 export const revalidate = 300
@@ -81,9 +82,33 @@ export async function generateMetadata({ params }) {
     }
 }
 
+const getRelated = cache(async (category, excludeId) => {
+    if (!category) return []
+    try {
+        const raw = await prisma.product.findMany({
+            where: { category, id: { not: excludeId }, store: { isActive: true } },
+            include: { store: true, brand: true, rating: true, variants: true },
+            orderBy: { soldCount: "desc" },
+            take: 6,
+        })
+        return raw.map(p => ({
+            ...p,
+            images: Array.isArray(p.images) ? p.images : [],
+            thumbnails: Array.isArray(p.thumbnails) ? p.thumbnails : [],
+            options: Array.isArray(p.options) ? p.options : [],
+            variants: p.variants || [],
+            rating: p.rating || [],
+        }))
+    } catch {
+        return []
+    }
+})
+
 export default async function ProductPage({ params }) {
     const { productId } = await params
     const product = await getProduct(productId)
+    const locale = await getLocale()
+    const related = product ? await getRelated(product.category, product.id) : []
 
     let schemas = []
     if (product) {
@@ -102,6 +127,18 @@ export default async function ProductPage({ params }) {
         <>
             {schemas.length > 0 && <JsonLd data={schemas} />}
             <ProductClient initialProduct={product} />
+            {related.length > 0 && (
+                <div className="mx-6">
+                    <div className="max-w-7xl mx-auto my-16">
+                        <h2 className="text-xl text-slate-700 font-medium mb-6">
+                            {locale === "bn" ? "সম্পর্কিত পণ্য" : "Related Products"}
+                        </h2>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 sm:gap-6">
+                            {related.map((p) => <ProductCard key={p.id} product={p} />)}
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     )
 }
