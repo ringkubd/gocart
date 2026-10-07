@@ -6,6 +6,7 @@ export async function GET() {
         { url: `${BASE}/`, priority: 1.0, freq: "daily" },
         { url: `${BASE}/shop`, priority: 0.9, freq: "daily" },
         { url: `${BASE}/support`, priority: 0.4, freq: "monthly" },
+        { url: `${BASE}/return-policy`, priority: 0.3, freq: "monthly" },
     ]
     const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
