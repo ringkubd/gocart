@@ -108,9 +108,7 @@ export default async function RootLayout({ children }) {
     return (
         <html lang="en">
             <head>
-                {googleVerification && (
-                    <meta name="google-site-verification" content={googleVerification} />
-                )}
+                <meta name="google-site-verification" content={googleVerification || "uXTov4PCmxKPuFk2myHeANkDWiYbANXTRR4aMkPojno"} />
                 {pixelId && (
                     <script dangerouslySetInnerHTML={{ __html: pixelScript }} />
                 )}
