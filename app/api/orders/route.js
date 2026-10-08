@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/session"
+import { deriveTrafficType } from "@/lib/attribution"
 
 export async function GET() {
     try {
@@ -34,7 +35,7 @@ export async function POST(req) {
         const user = await getSessionUser()
 
         const body = await req.json()
-        const { items, address, paymentMethod, coupon, shippingMethod, transactionId } = body
+        const { items, address, paymentMethod, coupon, shippingMethod, transactionId, attribution = {} } = body
 
         if (!items?.length) {
             return NextResponse.json({ error: "Cart is empty" }, { status: 400 })
@@ -236,6 +237,16 @@ export async function POST(req) {
                 transactionId: transactionId || "",
                 isCouponUsed,
                 coupon: appliedCoupon,
+                trafficType: deriveTrafficType(attribution),
+                utmSource: attribution.utmSource || "",
+                utmMedium: attribution.utmMedium || "",
+                utmCampaign: attribution.utmCampaign || "",
+                utmTerm: attribution.utmTerm || "",
+                utmContent: attribution.utmContent || "",
+                gclid: attribution.gclid || "",
+                fbclid: attribution.fbclid || "",
+                referrer: attribution.referrer || "",
+                landingPage: attribution.landingPage || "",
                 orderItems: {
                     create: items.map((item) => ({
                         productId: item.productId,

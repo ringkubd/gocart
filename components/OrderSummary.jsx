@@ -10,6 +10,7 @@ import { useCurrency } from './useCurrency';
 import { useLanguage } from './LanguageProvider';
 import Link from 'next/link';
 import { trackBeginCheckout } from '@/lib/analytics';
+import { readStoredAttribution, attrFromLocation } from '@/lib/attribution';
 
 const OrderSummary = ({ totalPrice, items }) => {
 
@@ -127,6 +128,11 @@ const OrderSummary = ({ totalPrice, items }) => {
                     coupon: coupon ? { code: coupon.code } : null,
                     shippingMethod: shippingMethod ? { id: shippingMethod.id } : null,
                     transactionId: transactionId || '',
+                    attribution: (() => {
+                        const stored = readStoredAttribution()
+                        const current = typeof window !== 'undefined' ? attrFromLocation(window.location.search, '', '') : {}
+                        return { ...stored, ...Object.fromEntries(Object.entries(current).filter(([, v]) => v)) }
+                    })(),
                 }),
             })
             const data = await res.json()

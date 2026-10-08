@@ -157,6 +157,16 @@ model Order {
     note          String        @default("") @db.Text
     customerNote  String        @default("") @db.Text
     source        String        @default("WEBSITE")
+    trafficType   String        @default("direct")
+    utmSource     String        @default("")
+    utmMedium     String        @default("")
+    utmCampaign   String        @default("")
+    utmTerm       String        @default("")
+    utmContent    String        @default("")
+    gclid         String        @default("")
+    fbclid        String        @default("")
+    referrer      String        @default("")
+    landingPage   String        @default("")
     shippedAt     DateTime?
     deliveredAt   DateTime?
     cancelledAt   DateTime?
