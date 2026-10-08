@@ -9,6 +9,7 @@ import Loading from "@/components/Loading"
 import { useCurrency } from "@/components/useCurrency"
 import { useLanguage } from "@/components/LanguageProvider"
 import { trackPurchase } from "@/lib/analytics"
+import { useOrderChannel } from "@/components/useOrderChannel"
 
 function ConfirmationContent() {
     const searchParams = useSearchParams()
@@ -23,27 +24,38 @@ function ConfirmationContent() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
 
-    useEffect(() => {
-        const fetchOrder = async () => {
-            if (!id || !email) {
-                setError("Order ID or email missing")
-                setLoading(false)
-                return
-            }
-            try {
-                const res = await fetch(`/api/orders/guest?id=${encodeURIComponent(id)}&email=${encodeURIComponent(email)}`)
-                const data = await res.json()
-                if (!res.ok) throw new Error(data.error || "Order not found")
-                setOrder(data.order)
-                if (!trackedRef.current) { trackedRef.current = true; trackPurchase(data.order) }
-            } catch (err) {
-                setError(err.message || "Order not found")
-            } finally {
-                setLoading(false)
-            }
+    const fetchOrder = async (spinner = false) => {
+        if (!id || !email) {
+            setError("Order ID or email missing")
+            setLoading(false)
+            return
         }
-        fetchOrder()
-    }, [id, email])
+        try {
+            const res = await fetch(`/api/orders/guest?id=${encodeURIComponent(id)}&email=${encodeURIComponent(email)}`)
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "Order not found")
+            setOrder(data.order)
+            if (!trackedRef.current) { trackedRef.current = true; trackPurchase(data.order) }
+        } catch (err) {
+            if (spinner) setError(err.message || "Order not found")
+        } finally {
+            if (spinner) setLoading(false)
+        }
+    }
+
+    const live = useOrderChannel(order?.id)
+
+    useEffect(() => { fetchOrder(true) }, [id, email])
+
+    // Auto-refresh status
+    useEffect(() => {
+        if (!order) return
+        const timer = setInterval(() => fetchOrder(false), 15000)
+        return () => clearInterval(timer)
+    }, [order?.id, id, email])
+
+    // Instant refresh on live websocket update
+    useEffect(() => { if (live && order) fetchOrder(false) }, [live])
 
     if (loading) return <Loading />
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/session"
+import { triggerOrderEvent } from "@/lib/soketi"
 
 export async function GET(req, { params }) {
     try {
@@ -77,6 +78,7 @@ export async function PATCH(req, { params }) {
             },
         })
 
+        await triggerOrderEvent(orderId, { status: updated.status, orderNumber: updated.orderNumber, trackingNumber: updated.trackingNumber, courierName: updated.courierName })
         return NextResponse.json({ order: updated })
     } catch (error) {
         console.error("Order PATCH error:", error)

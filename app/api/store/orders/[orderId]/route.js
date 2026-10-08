@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/session"
+import { triggerOrderEvent } from "@/lib/soketi"
 
 export async function GET(req, { params }) {
     try {
@@ -93,6 +94,7 @@ export async function PATCH(req, { params }) {
                     statusLogs: { orderBy: { createdAt: "asc" } },
                 },
             })
+            await triggerOrderEvent(orderId, { status: refreshed.status, orderNumber: refreshed.orderNumber, trackingNumber: refreshed.trackingNumber, courierName: refreshed.courierName })
             return NextResponse.json({ order: refreshed })
         }
 

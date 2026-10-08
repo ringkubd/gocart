@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { triggerOrderEvent } from "@/lib/soketi"
 
 // Steadfast -> our callback. Configure in Steadfast dashboard:
 //   Callback URL : https://thedhakashop.com/api/webhooks/steadfast
@@ -85,7 +86,8 @@ export async function POST(req) {
             data.status = "PROCESSING"
         }
 
-        await prisma.order.update({ where: { id: order.id }, data })
+        const updatedOrder = await prisma.order.update({ where: { id: order.id }, data })
+        await triggerOrderEvent(order.id, { status: updatedOrder.status, orderNumber: updatedOrder.orderNumber, trackingNumber: updatedOrder.trackingNumber, courierName: updatedOrder.courierName })
 
         await prisma.orderStatusLog.create({
             data: {

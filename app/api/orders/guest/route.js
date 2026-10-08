@@ -20,6 +20,7 @@ export async function GET(req) {
                 address: true,
                 user: { select: { id: true, name: true, email: true } },
                 orderItems: { include: { product: { include: { store: true } }, variant: true } },
+                statusLogs: { orderBy: { createdAt: "asc" } },
             },
         })
 

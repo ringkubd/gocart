@@ -35,6 +35,7 @@ const Footer = () => {
                 { text: "Home", path: '/', icon: null },
                 { text: "Shop", path: '/shop', icon: null },
                 { text: "My Orders", path: '/orders', icon: null },
+                { text: "Track Order", path: '/track-order', icon: null },
                 { text: "Become a Seller", path: '/create-store', icon: null },
             ]
         },

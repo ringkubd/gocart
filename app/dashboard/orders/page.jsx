@@ -45,6 +45,11 @@ export default function DashboardOrders() {
 
     useEffect(() => {
         fetchOrders()
+        // Auto-refresh statuses every 20s + when tab regains focus
+        const timer = setInterval(fetchOrders, 20000)
+        const onFocus = () => fetchOrders()
+        window.addEventListener('focus', onFocus)
+        return () => { clearInterval(timer); window.removeEventListener('focus', onFocus) }
     }, [])
 
     if (loading) return <Loading />

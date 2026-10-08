@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/session"
+import { triggerOrderEvent } from "@/lib/soketi"
 
 export async function GET(req, { params }) {
     try {
@@ -94,6 +95,7 @@ export async function PATCH(req, { params }) {
                     courierName: courierName || order.courierName || "",
                 },
             })
+            await triggerOrderEvent(orderId, { status, orderNumber: order.orderNumber, trackingNumber: order.trackingNumber, courierName: order.courierName })
         }
 
         return NextResponse.json({ order })
