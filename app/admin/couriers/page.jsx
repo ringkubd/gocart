@@ -16,6 +16,8 @@ export default function AdminCouriers() {
     const [providers, setProviders] = useState([])
     const [loading, setLoading] = useState(true)
     const [form, setForm] = useState({})
+    const [balance, setBalance] = useState(null)
+    const [balanceLoading, setBalanceLoading] = useState(false)
 
     const fetchProviders = async () => {
         try {
@@ -43,6 +45,16 @@ export default function AdminCouriers() {
         } catch (error) {
             toast.error(error.message || 'Failed')
         }
+    }
+
+    const checkBalance = async () => {
+        setBalanceLoading(true)
+        try {
+            const res = await fetch('/api/admin/couriers/balance')
+            const data = await res.json()
+            if (data.error) toast.error(data.error)
+            else setBalance(data.balance)
+        } catch (e) { toast.error('Failed') } finally { setBalanceLoading(false) }
     }
 
     useEffect(() => {
@@ -95,6 +107,14 @@ export default function AdminCouriers() {
                             <button onClick={() => updateProvider({ id: provider.id, ...form[provider.id] })} className="mt-4 bg-slate-800 text-white px-6 py-2 rounded text-sm hover:bg-slate-900">
                                 Save {provider.name} Settings
                             </button>
+                            {provider.code === 'steadfast' && (
+                                <div className="mt-3 flex items-center gap-3">
+                                    <button onClick={checkBalance} className="border border-slate-300 px-4 py-2 rounded text-sm hover:bg-slate-50">
+                                        {balanceLoading ? 'Checking...' : 'Check connection / balance'}
+                                    </button>
+                                    {balance !== null && <span className="text-sm text-slate-600">Balance: ৳{balance}</span>}
+                                </div>
+                            )}
                         </div>
                     )
                 })}

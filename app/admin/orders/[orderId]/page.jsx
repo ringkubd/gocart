@@ -179,6 +179,9 @@ export default function OrderDetailPage({ params }) {
     const [order, setOrder] = useState(null)
     const [loading, setLoading] = useState(true)
     const [statusLoading, setStatusLoading] = useState(false)
+    const [courierSaving, setCourierSaving] = useState(false)
+    const [sendingSteadfast, setSendingSteadfast] = useState(false)
+    const [steadfastStatus, setSteadfastStatus] = useState(null)
 
     const fetchOrder = async () => {
         try {
@@ -252,6 +255,46 @@ export default function OrderDetailPage({ params }) {
         } catch (error) {
             toast.error("Failed")
         }
+    }
+
+    const saveCourier = async () => {
+        setCourierSaving(true)
+        try {
+            const res = await fetch(`/api/admin/orders/${orderId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    courierName: document.getElementById("courierName")?.value || "",
+                    trackingNumber: document.getElementById("trackingNumber")?.value || "",
+                }),
+            })
+            const data = await res.json()
+            if (res.ok) { setOrder(data.order); toast.success("Courier info saved") }
+            else toast.error(data.error || "Failed")
+        } catch (e) { toast.error("Failed") } finally { setCourierSaving(false) }
+    }
+
+    const sendToSteadfast = async () => {
+        if (!confirm("Send this order to Steadfast courier?")) return
+        setSendingSteadfast(true)
+        try {
+            const res = await fetch(`/api/admin/orders/${orderId}/steadfast`, { method: "POST" })
+            const data = await res.json()
+            if (res.ok) {
+                setOrder(data.order)
+                toast.success(data?.consignment?.tracking_code ? `Steadfast: ${data.consignment.tracking_code}` : "Sent to Steadfast")
+            } else {
+                toast.error(data.error || "Steadfast error")
+            }
+        } catch (e) { toast.error("Steadfast error") } finally { setSendingSteadfast(false) }
+    }
+
+    const checkSteadfast = async () => {
+        try {
+            const res = await fetch(`/api/admin/orders/${orderId}/steadfast`)
+            const data = await res.json()
+            setSteadfastStatus(data.status || { message: data.error || "No status" })
+        } catch (e) { toast.error("Failed") }
     }
 
     const subtotal = order?.orderItems?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0
@@ -423,6 +466,43 @@ export default function OrderDetailPage({ params }) {
                             <div className="flex justify-between"><span className="text-slate-400">Delivery Charge</span><span>{format(order.shippingCost)}</span></div>
                             <div className="flex justify-between pt-2 border-t border-slate-200 font-semibold text-slate-800"><span>Grand Total</span><span>{format(order.total)}</span></div>
                         </div>
+                    </div>
+
+                    {/* Delivery / Courier */}
+                    <div className="border border-slate-200 rounded-xl p-5 mb-6">
+                        <h3 className="font-medium text-slate-700 mb-3">Delivery / Courier</h3>
+                        <div className="grid grid-cols-2 gap-3">
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">Courier</span>
+                                <select id="courierName" defaultValue={order.courierName} className="border border-slate-200 rounded p-2 text-sm">
+                                    <option value="">Select courier</option>
+                                    {(couriers || []).map((c) => <option key={c.code} value={c.name}>{c.name}</option>)}
+                                    {order.courierName && !(couriers || []).some(c => c.name === order.courierName) && (
+                                        <option value={order.courierName}>{order.courierName}</option>
+                                    )}
+                                </select>
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">Tracking number</span>
+                                <input id="trackingNumber" defaultValue={order.trackingNumber} className="border border-slate-200 rounded p-2 text-sm" placeholder="Tracking no." />
+                            </label>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mt-4">
+                            <button onClick={saveCourier} disabled={courierSaving} className="px-4 py-2 bg-slate-800 text-white rounded text-sm hover:bg-slate-900 disabled:opacity-50">
+                                {courierSaving ? "Saving..." : "Save courier info"}
+                            </button>
+                            <button onClick={sendToSteadfast} disabled={sendingSteadfast} className="px-4 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-600 disabled:opacity-50">
+                                {sendingSteadfast ? "Sending..." : "Send to Steadfast"}
+                            </button>
+                            <button onClick={checkSteadfast} className="px-4 py-2 border border-slate-300 rounded text-sm hover:bg-slate-50">
+                                Check Steadfast status
+                            </button>
+                        </div>
+                        {steadfastStatus && (
+                            <p className="mt-3 text-xs text-slate-500 bg-slate-50 rounded p-2">
+                                {steadfastStatus.message || steadfastStatus.delivery_status || JSON.stringify(steadfastStatus)}
+                            </p>
+                        )}
                     </div>
 
                     {/* Notes */}
