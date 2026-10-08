@@ -63,7 +63,7 @@ const OrderSummary = ({ totalPrice, items }) => {
     const resolveAddress = () => {
         if (isGuest) {
             const g = guestForm
-            if (!g.name || !g.phone || !g.street || !g.city || !g.zip) {
+            if (!g.name || !g.phone || !g.street || !g.city) {
                 return { error: t('guestRequired') }
             }
             return {
@@ -201,7 +201,7 @@ const OrderSummary = ({ totalPrice, items }) => {
                         <input value={guestForm.state} onChange={(e) => setGuestForm({ ...guestForm, state: e.target.value })} placeholder={`${t('state')} (${t('optional')})`} className={inputCls} />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                        <input value={guestForm.zip} onChange={(e) => setGuestForm({ ...guestForm, zip: e.target.value })} placeholder={`${t('zip')} *`} className={inputCls} />
+                        <input value={guestForm.zip} onChange={(e) => setGuestForm({ ...guestForm, zip: e.target.value })} placeholder={`${t('zip')} (${t('optional')})`} className={inputCls} />
                         <input value={guestForm.country} onChange={(e) => setGuestForm({ ...guestForm, country: e.target.value })} placeholder={`${t('country')} (${t('optional')})`} className={inputCls} />
                     </div>
                 </div>

@@ -180,7 +180,7 @@ export async function POST(req) {
                 street: address.street,
                 city: address.city,
                 state: address.state,
-                zip: address.zip,
+                zip: address.zip || "",
                 country: address.country,
                 phone: address.phone,
             },
