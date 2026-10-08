@@ -5,7 +5,12 @@ import { getSessionUser } from "@/lib/session"
 export async function GET() {
     try {
         const providers = await prisma.courierProvider.findMany({ orderBy: { name: "asc" } })
-        return NextResponse.json({ providers })
+        const tokenSetting = await prisma.siteSetting.findUnique({ where: { key: "steadfastWebhookToken" } })
+        const steadfastWebhook = {
+            url: "https://thedhakashop.com/api/webhooks/steadfast",
+            token: typeof tokenSetting?.value === "string" ? tokenSetting.value : (tokenSetting?.value?.token || ""),
+        }
+        return NextResponse.json({ providers, steadfastWebhook })
     } catch (error) {
         console.error("Couriers GET error:", error)
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 })

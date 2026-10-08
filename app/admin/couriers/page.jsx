@@ -18,12 +18,13 @@ export default function AdminCouriers() {
     const [form, setForm] = useState({})
     const [balance, setBalance] = useState(null)
     const [balanceLoading, setBalanceLoading] = useState(false)
+    const [webhook, setWebhook] = useState(null)
 
     const fetchProviders = async () => {
         try {
             const res = await fetch('/api/admin/couriers')
             const data = await res.json()
-            if (res.ok) setProviders(data.providers)
+            if (res.ok) { setProviders(data.providers); setWebhook(data.steadfastWebhook || null) }
         } catch (error) {
             console.error(error)
         } finally {
@@ -113,6 +114,14 @@ export default function AdminCouriers() {
                                         {balanceLoading ? 'Checking...' : 'Check connection / balance'}
                                     </button>
                                     {balance !== null && <span className="text-sm text-slate-600">Balance: ৳{balance}</span>}
+                                </div>
+                            )}
+                            {provider.code === 'steadfast' && webhook && (
+                                <div className="mt-4 border border-slate-100 rounded-lg p-3 text-xs text-slate-500 bg-slate-50">
+                                    <p className="font-medium text-slate-600 mb-1">Webhook (auto status sync)</p>
+                                    <p className="mb-1">Callback URL: <code className="bg-white px-1 rounded break-all">{webhook.url}</code></p>
+                                    <p>Auth Token: <code className="bg-white px-1 rounded break-all">{webhook.token}</code></p>
+                                    <p className="mt-1 text-slate-400">Steadfast dashboard → Webhook e ei URL + token din.</p>
                                 </div>
                             )}
                         </div>

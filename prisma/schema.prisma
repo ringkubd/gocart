@@ -154,6 +154,7 @@ model Order {
     shippingCost  Float         @default(0)
     trackingNumber String       @default("")
     courierName   String        @default("")
+    courierConsignmentId String @default("")
     note          String        @default("") @db.Text
     customerNote  String        @default("") @db.Text
     source        String        @default("WEBSITE")

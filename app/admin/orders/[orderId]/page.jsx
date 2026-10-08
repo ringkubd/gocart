@@ -182,6 +182,8 @@ export default function OrderDetailPage({ params }) {
     const [courierSaving, setCourierSaving] = useState(false)
     const [sendingSteadfast, setSendingSteadfast] = useState(false)
     const [steadfastStatus, setSteadfastStatus] = useState(null)
+    const [deliveryType, setDeliveryType] = useState(0)
+    const [statusBy, setStatusBy] = useState('tracking')
 
     const fetchOrder = async () => {
         try {
@@ -278,7 +280,11 @@ export default function OrderDetailPage({ params }) {
         if (!confirm("Send this order to Steadfast courier?")) return
         setSendingSteadfast(true)
         try {
-            const res = await fetch(`/api/admin/orders/${orderId}/steadfast`, { method: "POST" })
+            const res = await fetch(`/api/admin/orders/${orderId}/steadfast`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ deliveryType }),
+            })
             const data = await res.json()
             if (res.ok) {
                 setOrder(data.order)
@@ -291,7 +297,7 @@ export default function OrderDetailPage({ params }) {
 
     const checkSteadfast = async () => {
         try {
-            const res = await fetch(`/api/admin/orders/${orderId}/steadfast`)
+            const res = await fetch(`/api/admin/orders/${orderId}/steadfast?by=${statusBy}`)
             const data = await res.json()
             setSteadfastStatus(data.status || { message: data.error || "No status" })
         } catch (e) { toast.error("Failed") }
@@ -487,6 +493,23 @@ export default function OrderDetailPage({ params }) {
                                 <input id="trackingNumber" defaultValue={order.trackingNumber} className="border border-slate-200 rounded p-2 text-sm" placeholder="Tracking no." />
                             </label>
                         </div>
+                        <div className="grid grid-cols-2 gap-3 mt-3">
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">Steadfast delivery type</span>
+                                <select value={deliveryType} onChange={(e) => setDeliveryType(Number(e.target.value))} className="border border-slate-200 rounded p-2 text-sm">
+                                    <option value={0}>Home delivery</option>
+                                    <option value={1}>Point / Hub pickup</option>
+                                </select>
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-xs text-slate-400">Status lookup by</span>
+                                <select value={statusBy} onChange={(e) => setStatusBy(e.target.value)} className="border border-slate-200 rounded p-2 text-sm">
+                                    <option value="tracking">Tracking code</option>
+                                    <option value="cid">Consignment ID</option>
+                                    <option value="invoice">Invoice (order no.)</option>
+                                </select>
+                            </label>
+                        </div>
                         <div className="flex flex-wrap gap-2 mt-4">
                             <button onClick={saveCourier} disabled={courierSaving} className="px-4 py-2 bg-slate-800 text-white rounded text-sm hover:bg-slate-900 disabled:opacity-50">
                                 {courierSaving ? "Saving..." : "Save courier info"}
@@ -502,6 +525,9 @@ export default function OrderDetailPage({ params }) {
                             <p className="mt-3 text-xs text-slate-500 bg-slate-50 rounded p-2">
                                 {steadfastStatus.message || steadfastStatus.delivery_status || JSON.stringify(steadfastStatus)}
                             </p>
+                        )}
+                        {order.courierConsignmentId && (
+                            <p className="mt-2 text-xs text-slate-400">Consignment ID: {order.courierConsignmentId}</p>
                         )}
                     </div>
 
