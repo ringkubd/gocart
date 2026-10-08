@@ -338,6 +338,40 @@ export default function OrderDetailPage({ params }) {
                         </div>
                     </div>
 
+                    {/* Marketing / Attribution */}
+                    <div className="border border-slate-200 rounded-xl p-5 mb-6">
+                        <h3 className="font-medium text-slate-700 mb-3">Marketing / Attribution</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                            <div>
+                                <p className="text-xs text-slate-400 mb-1">Traffic source</p>
+                                <p className="font-medium text-slate-700 capitalize">{(order.trafficType || 'direct').replace(/_/g, ' ')}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-400 mb-1">Order channel</p>
+                                <p className="font-medium text-slate-700">{order.source || 'WEBSITE'}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-400 mb-1">Campaign</p>
+                                <p className="text-slate-600">{order.utmCampaign || '—'}{order.utmTerm ? ` · ${order.utmTerm}` : ''}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-400 mb-1">UTM source / medium</p>
+                                <p className="text-slate-600">{order.utmSource || '—'}{order.utmMedium ? ` / ${order.utmMedium}` : ''}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-400 mb-1">Click ID</p>
+                                <p className="text-slate-600 break-all">{order.gclid || order.fbclid || '—'}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-400 mb-1">Landing page</p>
+                                <p className="text-slate-600">{order.landingPage || '—'}</p>
+                            </div>
+                        </div>
+                        {order.referrer && (
+                            <p className="text-xs text-slate-400 mt-3 break-all">Referrer: <span className="text-slate-500">{order.referrer}</span></p>
+                        )}
+                    </div>
+
                     {/* Order Items */}
                     <div className="border border-slate-200 rounded-xl overflow-hidden mb-6">
                         <h3 className="p-4 font-medium text-slate-700 border-b border-slate-200 bg-slate-50">Order Items</h3>

@@ -43,6 +43,13 @@ export async function GET() {
             statusBreakdown[o.status] = (statusBreakdown[o.status] || 0) + 1
         })
 
+        // Traffic source breakdown
+        const trafficBreakdown = {}
+        allOrders.forEach((o) => {
+            const k = o.trafficType || 'direct'
+            trafficBreakdown[k] = (trafficBreakdown[k] || 0) + 1
+        })
+
         // Top products by sold quantity
         const topProducts = allOrders
             .flatMap(o => o.orderItems)
@@ -91,6 +98,7 @@ export async function GET() {
                 pendingStores,
                 revenueByDay,
                 statusBreakdown,
+                trafficBreakdown,
                 topProducts,
                 topStores,
                 recentOrders: allOrders.slice(0, 10),

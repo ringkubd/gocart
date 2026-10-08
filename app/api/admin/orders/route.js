@@ -14,6 +14,8 @@ export async function GET(req) {
         const status = searchParams.get("status") || ""
         const storeId = searchParams.get("storeId") || ""
         const search = searchParams.get("search") || ""
+        const trafficType = searchParams.get("trafficType") || ""
+        const utmSource = searchParams.get("utmSource") || ""
         const page = parseInt(searchParams.get("page") || "1")
         const pageSize = parseInt(searchParams.get("pageSize") || "20")
 
@@ -24,11 +26,20 @@ export async function GET(req) {
         if (storeId) {
             where.storeId = storeId
         }
+        if (trafficType) {
+            where.trafficType = trafficType
+        }
+        if (utmSource) {
+            where.utmSource = utmSource
+        }
         if (search) {
             where.OR = [
                 { user: { name: { contains: search } } },
                 { user: { email: { contains: search } } },
                 { trackingNumber: { contains: search } },
+                { guestName: { contains: search } },
+                { guestPhone: { contains: search } },
+                { utmCampaign: { contains: search } },
             ]
         }
 

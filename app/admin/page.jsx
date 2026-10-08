@@ -104,6 +104,20 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
+                {/* Orders by source */}
+                <div className="border border-slate-200 rounded-xl p-6">
+                    <h3 className="font-medium text-slate-700 mb-4">Orders by source</h3>
+                    <div className="space-y-3">
+                        {Object.entries(dashboardData.trafficBreakdown || {}).sort((a, b) => b[1] - a[1]).map(([src, count]) => (
+                            <div key={src} className="flex items-center justify-between">
+                                <span className="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600 capitalize">{src.replace(/_/g, ' ')}</span>
+                                <span className="font-medium text-slate-700">{count}</span>
+                            </div>
+                        ))}
+                        {Object.keys(dashboardData.trafficBreakdown || {}).length === 0 && <p className="text-sm text-slate-400">{t('youHaveNoOrders')}.</p>}
+                    </div>
+                </div>
+
                 {/* Top products */}
                 <div className="border border-slate-200 rounded-xl p-6">
                     <h3 className="font-medium text-slate-700 mb-4">{t('topProducts')}</h3>

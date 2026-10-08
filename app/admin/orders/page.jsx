@@ -35,6 +35,7 @@ export default function AdminOrders() {
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState('')
     const [search, setSearch] = useState('')
+    const [sourceFilter, setSourceFilter] = useState('')
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -44,6 +45,7 @@ export default function AdminOrders() {
             const params = new URLSearchParams()
             if (status) params.set('status', status)
             if (searchTerm) params.set('search', searchTerm)
+            if (sourceFilter) params.set('trafficType', sourceFilter)
             const res = await fetch(`/api/admin/orders?${params.toString()}`)
             const data = await res.json()
             if (res.ok) {
@@ -90,7 +92,7 @@ export default function AdminOrders() {
 
     useEffect(() => {
         fetchOrders(filter, search)
-    }, [filter])
+    }, [filter, sourceFilter])
 
     if (loading && orders.length === 0) return <Loading />
 
@@ -114,6 +116,13 @@ export default function AdminOrders() {
                     <button key={s} onClick={() => setFilter(s)} className={`px-4 py-1.5 rounded-full text-sm border ${filter === s ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>{statusLabels[s]}</button>
                 ))}
             </div>
+            {/* Source / traffic filter */}
+            <div className="flex flex-wrap gap-2 mt-3">
+                <span className="text-xs text-slate-400 self-center mr-1">Source:</span>
+                {[['', 'All'], ['google_ads', 'Google Ads'], ['google', 'Google'], ['google_organic', 'Google Organic'], ['facebook', 'Facebook'], ['instagram', 'Instagram'], ['direct', 'Direct'], ['referral', 'Referral'], ['phone', 'Phone'], ['messenger', 'Messenger']].map(([val, label]) => (
+                    <button key={val} onClick={() => setSourceFilter(val)} className={`px-3 py-1 rounded-full text-xs border ${sourceFilter === val ? 'bg-green-600 text-white border-green-600' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>{label}</button>
+                ))}
+            </div>
 
             {/* Orders table */}
             <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 max-w-6xl">
@@ -126,6 +135,7 @@ export default function AdminOrders() {
                             <th className="px-4 py-3">{t('total')}</th>
                             <th className="px-4 py-3">{t('paymentMethod')}</th>
                             <th className="px-4 py-3">{t('tracking')}</th>
+                            <th className="px-4 py-3">Source</th>
                             <th className="px-4 py-3">{t('status')}</th>
                             <th className="px-4 py-3">{t('date')}</th>
                         </tr>
@@ -146,6 +156,7 @@ export default function AdminOrders() {
                                     <span className={`text-xs px-3 py-1 rounded-full ${order.isPaid ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>{order.paymentMethod}{order.isPaid ? '' : ' (' + t('cashOnDelivery') + ')'}</span>
                                 </td>
                                 <td className="px-4 py-3 text-xs text-slate-500">{order.trackingNumber || '—'}</td>
+                                <td className="px-4 py-3"><span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">{(order.trafficType || 'direct').replace(/_/g, ' ')}</span></td>
                                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                                     <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="border border-slate-300 rounded text-sm p-1">
                                         {Object.keys(statusLabels).map((s) => <option key={s} value={s}>{statusLabels[s]}</option>)}
@@ -155,7 +166,7 @@ export default function AdminOrders() {
                             </tr>
                         ))}
                         {orders.length === 0 && (
-                            <tr><td colSpan={8} className="px-4 py-10 text-center text-slate-400">{t('noOrdersYet')}.</td></tr>
+                            <tr><td colSpan={9} className="px-4 py-10 text-center text-slate-400">{t('noOrdersYet')}.</td></tr>
                         )}
                     </tbody>
                 </table>
