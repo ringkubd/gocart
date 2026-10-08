@@ -14,6 +14,7 @@ export default function AdminSeo() {
     const [aiCrawlers, setAiCrawlers] = useState({})
     const [seoRobots, setSeoRobots] = useState("index")
     const [googleConfig, setGoogleConfig] = useState({ merchantId: '', googleVerification: '', analyticsId: '', measurementId: '' })
+    const [feedHealth, setFeedHealth] = useState(null)
 
     const AI_CRAWLERS = [
         { key: 'gptbot', name: 'GPTBot (OpenAI)' },
@@ -46,6 +47,11 @@ export default function AdminSeo() {
                     seoOgImage: data.global.ogImage,
                 })
             }
+            try {
+                const fhRes = await fetch('/api/admin/feed-health')
+                const fhData = await fhRes.json()
+                if (fhRes.ok) setFeedHealth(fhData)
+            } catch (e) {}
         } catch (error) {
             console.error(error)
         } finally {
@@ -233,6 +239,57 @@ export default function AdminSeo() {
                 </div>
                 <button className="bg-slate-800 text-white px-6 py-2 rounded text-sm w-fit">Save Google Settings</button>
             </form>
+
+            {/* Merchant / Feed health */}
+            <div className="mt-6 border border-slate-200 rounded-xl p-6 max-w-2xl">
+                <h3 className="font-medium text-slate-700 mb-1">Merchant / Feed Health</h3>
+                <p className="text-xs text-slate-400 mb-4">Products here match your Google Shopping feed. Fix flagged items before Google does.</p>
+                {feedHealth ? (
+                    <>
+                        <div className="grid grid-cols-3 gap-3 mb-4">
+                            <div className="border border-slate-100 rounded-lg p-3 text-center">
+                                <p className="text-2xl font-semibold text-slate-800">{feedHealth.summary.total}</p>
+                                <p className="text-xs text-slate-400">Total products</p>
+                            </div>
+                            <div className="border border-green-100 bg-green-50/40 rounded-lg p-3 text-center">
+                                <p className="text-2xl font-semibold text-green-700">{feedHealth.summary.ready}</p>
+                                <p className="text-xs text-slate-400">Feed-ready</p>
+                            </div>
+                            <div className="border border-red-100 bg-red-50/40 rounded-lg p-3 text-center">
+                                <p className="text-2xl font-semibold text-red-600">{feedHealth.summary.blocked}</p>
+                                <p className="text-xs text-slate-400">Need fixing</p>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            {[
+                                ['missing_image', 'Missing image (blocks)'],
+                                ['missing_price', 'Missing price (blocks)'],
+                                ['missing_category', 'Missing category (blocks)'],
+                                ['missing_description', 'Missing/short description'],
+                                ['out_of_stock', 'Out of stock'],
+                                ['no_brand', 'No brand'],
+                            ].map(([key, label]) => (
+                                <div key={key} className="flex items-center justify-between text-sm">
+                                    <span className="text-slate-500">{label}</span>
+                                    <span className={`font-medium ${feedHealth.counts[key] > 0 ? 'text-red-600' : 'text-green-600'}`}>{feedHealth.counts[key]}</span>
+                                </div>
+                            ))}
+                        </div>
+                        {feedHealth.samples?.missing_image?.length > 0 && (
+                            <div className="mt-4 text-xs text-slate-400">
+                                <p className="font-medium text-slate-500 mb-1">Examples (missing image):</p>
+                                {feedHealth.samples.missing_image.map(i => <p key={i.id}>{i.name}</p>)}
+                            </div>
+                        )}
+                        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
+                            <a href={feedHealth.merchantUrl} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">Open Merchant Center Diagnostics →</a>
+                            <a href={feedHealth.feedUrl} target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:underline">View feed XML</a>
+                        </div>
+                    </>
+                ) : (
+                    <p className="text-sm text-slate-400">Loading feed health…</p>
+                )}
+            </div>
 
             {/* Page list */}
             <div className="mt-8 max-w-2xl">
