@@ -33,7 +33,10 @@ export async function POST(req) {
         const payload = await req.json().catch(() => null)
         if (!payload) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
 
-        const required = ["consignment_id", "invoice", "status"]
+        const type = payload.notification_type || "delivery_status"
+
+        const baseRequired = ["consignment_id", "invoice"]
+        const required = type === "tracking_update" ? baseRequired : [...baseRequired, "status"]
         const missing = required.filter(k => payload[k] === undefined || payload[k] === null || payload[k] === "")
         if (missing.length) {
             return NextResponse.json({ error: `Missing required properties: ${missing.join(", ")}` }, { status: 400 })
@@ -48,6 +51,23 @@ export async function POST(req) {
         if (!order) {
             // Accept but note — nothing to update
             return NextResponse.json({ status: "success", note: "order not found" }, { status: 200 })
+        }
+
+        // Tracking-only update: append a log, do not change order status
+        if (type === "tracking_update") {
+            await prisma.orderStatusLog.create({
+                data: {
+                    orderId: order.id,
+                    status: order.status,
+                    description: payload.tracking_message || "Courier tracking update.",
+                    courierName: "Steadfast",
+                    courierNote: `consignment ${consignmentId}`,
+                },
+            })
+            if (payload.tracking_code && !order.trackingNumber) {
+                await prisma.order.update({ where: { id: order.id }, data: { trackingNumber: String(payload.tracking_code) } })
+            }
+            return NextResponse.json({ status: "success" }, { status: 200 })
         }
 
         const mapped = mapStatus(payload.status)

@@ -184,6 +184,10 @@ export default function OrderDetailPage({ params }) {
     const [steadfastStatus, setSteadfastStatus] = useState(null)
     const [deliveryType, setDeliveryType] = useState(0)
     const [statusBy, setStatusBy] = useState('tracking')
+    const [returnReason, setReturnReason] = useState('')
+    const [creatingReturn, setCreatingReturn] = useState(false)
+    const [fraudResult, setFraudResult] = useState(null)
+    const [fraudLoadingOrder, setFraudLoadingOrder] = useState(false)
 
     const fetchOrder = async () => {
         try {
@@ -301,6 +305,36 @@ export default function OrderDetailPage({ params }) {
             const data = await res.json()
             setSteadfastStatus(data.status || { message: data.error || "No status" })
         } catch (e) { toast.error("Failed") }
+    }
+
+    const createReturn = async () => {
+        if (!confirm("Create a return request for this order in Steadfast?")) return
+        setCreatingReturn(true)
+        try {
+            const res = await fetch("/api/admin/logistics/returns", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId, reason: returnReason }),
+            })
+            const data = await res.json()
+            if (res.ok) { toast.success(`Return created${data?.return?.id ? ` (#${data.return.id})` : ""}`); setReturnReason("") }
+            else toast.error(data.error || "Failed")
+        } catch (e) { toast.error("Failed") } finally { setCreatingReturn(false) }
+    }
+
+    const runFraudCheck = async () => {
+        const phone = order?.address?.phone || order?.guestPhone || ""
+        if (!phone) { toast.error("No phone on this order"); return }
+        setFraudLoadingOrder(true); setFraudResult(null)
+        try {
+            const res = await fetch("/api/admin/logistics/fraud-check", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone }),
+            })
+            const data = await res.json()
+            if (data.error) toast.error(data.error)
+            setFraudResult(data.result || null)
+        } catch (e) { toast.error("Failed") } finally { setFraudLoadingOrder(false) }
     }
 
     const subtotal = order?.orderItems?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0
@@ -529,6 +563,29 @@ export default function OrderDetailPage({ params }) {
                         {order.courierConsignmentId && (
                             <p className="mt-2 text-xs text-slate-400">Consignment ID: {order.courierConsignmentId}</p>
                         )}
+
+                        {/* Returns + fraud */}
+                        <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-3">
+                            <div className="flex flex-wrap items-end gap-2">
+                                <label className="flex flex-col gap-1 flex-1 min-w-48">
+                                    <span className="text-xs text-slate-400">Return reason (optional)</span>
+                                    <input value={returnReason} onChange={(e) => setReturnReason(e.target.value)} placeholder="e.g. Customer refused" className="border border-slate-200 rounded p-2 text-sm" />
+                                </label>
+                                <button onClick={createReturn} disabled={creatingReturn} className="px-4 py-2 border border-red-200 text-red-600 rounded text-sm hover:bg-red-50 disabled:opacity-50">
+                                    {creatingReturn ? "Creating..." : "Create Return"}
+                                </button>
+                                <button onClick={runFraudCheck} disabled={fraudLoadingOrder} className="px-4 py-2 border border-amber-200 text-amber-700 rounded text-sm hover:bg-amber-50 disabled:opacity-50">
+                                    {fraudLoadingOrder ? "Checking..." : "Fraud check"}
+                                </button>
+                            </div>
+                            {fraudResult && (
+                                <p className="text-xs text-slate-500 bg-slate-50 rounded p-2">
+                                    {fraudResult.success === false
+                                        ? (fraudResult.message || "No data")
+                                        : `Orders: ${fraudResult.data?.total_orders ?? "—"} · Delivered: ${fraudResult.data?.total_delivered ?? "—"} · Rate: ${fraudResult.data?.delivery_rate ?? "—"}`}
+                                </p>
+                            )}
+                        </div>
                     </div>
 
                     {/* Notes */}

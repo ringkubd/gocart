@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import {
     HomeIcon, ShieldCheckIcon, StoreIcon, TicketPercentIcon, ShoppingBasketIcon,
     LayoutListIcon, UsersIcon, PaletteIcon, TruckIcon, SettingsIcon, SearchIcon,
-    TagIcon, HeadphonesIcon, BanknoteIcon, MessageSquareIcon, MailIcon,
+    TagIcon, HeadphonesIcon, BanknoteIcon, MessageSquareIcon, MailIcon, TruckIcon as TruckIcon2,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -59,6 +59,7 @@ const AdminSidebar = () => {
             links: [
                 { name: t('shipping'), href: '/admin/shipping', icon: TruckIcon },
                 { name: t('couriers'), href: '/admin/couriers', icon: TruckIcon },
+                { name: 'Courier Dashboard', href: '/admin/logistics', icon: TruckIcon2 },
                 { name: t('payments'), href: '/admin/payments', icon: BanknoteIcon },
             ],
         },

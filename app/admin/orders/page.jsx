@@ -36,6 +36,8 @@ export default function AdminOrders() {
     const [filter, setFilter] = useState('')
     const [search, setSearch] = useState('')
     const [sourceFilter, setSourceFilter] = useState('')
+    const [selectedIds, setSelectedIds] = useState([])
+    const [bulkSending, setBulkSending] = useState(false)
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -85,6 +87,31 @@ export default function AdminOrders() {
         if (ok) toast.success(t('orderUpdated'))
     }
 
+    const toggleSelect = (id) => {
+        setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+    }
+    const toggleAll = () => {
+        setSelectedIds(prev => prev.length === orders.length ? [] : orders.map(o => o.id))
+    }
+
+    const sendBulkToSteadfast = async () => {
+        if (!selectedIds.length) return
+        if (!confirm(`Send ${selectedIds.length} order(s) to Steadfast?`)) return
+        setBulkSending(true)
+        try {
+            const res = await fetch('/api/admin/orders/steadfast-bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderIds: selectedIds, deliveryType: 0 }),
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed')
+            toast.success(`Sent: ${data.sent}/${data.total}${data.skipped?.length ? ` · skipped ${data.skipped.length}` : ''}`)
+            setSelectedIds([])
+            fetchOrders(filter, search)
+        } catch (e) { toast.error(e.message || 'Failed') } finally { setBulkSending(false) }
+    }
+
     const openModal = (order) => {
         setSelectedOrder(order)
         setIsModalOpen(true)
@@ -124,11 +151,23 @@ export default function AdminOrders() {
                 ))}
             </div>
 
+            {/* Bulk actions */}
+            {selectedIds.length > 0 && (
+                <div className="mt-4 flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-lg px-4 py-2.5 max-w-6xl">
+                    <span className="text-sm text-slate-600">{selectedIds.length} selected</span>
+                    <button onClick={sendBulkToSteadfast} disabled={bulkSending} className="bg-orange-500 text-white px-4 py-1.5 rounded text-sm hover:bg-orange-600 disabled:opacity-50">
+                        {bulkSending ? 'Sending...' : 'Send selected to Steadfast'}
+                    </button>
+                    <button onClick={() => setSelectedIds([])} className="text-sm text-slate-500 hover:text-slate-700">Clear</button>
+                </div>
+            )}
+
             {/* Orders table */}
             <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 max-w-6xl">
                 <table className="w-full text-sm text-left text-slate-600">
                     <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                         <tr>
+                            <th className="px-3 py-3 w-8"><input type="checkbox" checked={orders.length > 0 && selectedIds.length === orders.length} onChange={toggleAll} className="accent-orange-500" /></th>
                             <th className="px-4 py-3">{t('orders')}</th>
                             <th className="px-4 py-3">{t('customer')}</th>
                             <th className="px-4 py-3">{t('store')}</th>
@@ -143,6 +182,7 @@ export default function AdminOrders() {
                     <tbody className="divide-y divide-slate-100">
                         {orders.map((order) => (
                             <tr key={order.id} onClick={() => router.push('/admin/orders/' + order.id)} className="hover:bg-slate-50 cursor-pointer">
+                                <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={selectedIds.includes(order.id)} onChange={() => toggleSelect(order.id)} className="accent-orange-500" /></td>
                                 <td className="px-4 py-3 font-mono text-xs text-green-600">#{order.id.slice(-8)}</td>
                                 <td className="px-4 py-3">
                                     <div className="flex items-center gap-2">
@@ -166,7 +206,7 @@ export default function AdminOrders() {
                             </tr>
                         ))}
                         {orders.length === 0 && (
-                            <tr><td colSpan={9} className="px-4 py-10 text-center text-slate-400">{t('noOrdersYet')}.</td></tr>
+                            <tr><td colSpan={10} className="px-4 py-10 text-center text-slate-400">{t('noOrdersYet')}.</td></tr>
                         )}
                     </tbody>
                 </table>
